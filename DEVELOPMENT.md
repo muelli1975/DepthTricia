@@ -16,7 +16,8 @@ The supplied icon and original ready.wav are preserved byte for byte.
 - A complete CPU run with DA2 Small at depth resolution 1218 generated both
   stereo/anaglyph outputs with the real inpainting models. A second run reused
   the saved depth map without loading the depth model.
-- DA3 Mono Large loaded and generated a finite depth map on CPU at 392.
+- DA3 Mono Large completed the same CPU depth/stereo/inpainting output path
+  at 1218. A smaller 392-depth inference was checked separately.
 - GUI startup and preset editing were checked on a headless Linux display.
 - Test inference used already downloaded local weights with runtime network
   connections blocked. No model account, token or online loader was needed.
@@ -28,7 +29,7 @@ CPU timing on this development host does not predict target Windows timing.
 
 - Validate the frozen Windows executable, Windows 10/11 and NVIDIA/CUDA.
 - Test CPU execution from the CUDA-enabled portable package.
-- Run DA3 at 1218/2048 and Depth Pro on suitable target hardware. Full-precision
+- Run DA3 at 2048 and Depth Pro on suitable target hardware. Full-precision
   Depth Pro CPU inference exceeded this test environment's 8 GiB RAM limit;
   it remains unverified here. Its native inference path is preserved.
 - Compare foreground boundaries, thin objects, sky and disocclusion filling
