@@ -4,7 +4,7 @@ import numpy as np
 from PIL import Image
 import pytest
 
-from depthtricia.config import ProcessingConfig
+from depthtricia.config import ProcessingConfig, DepthPreset
 from depthtricia.image_input import load_work_image
 from depthtricia.naming import build_output_suffix
 from depthtricia.output_writer import save_depth_png
@@ -36,8 +36,26 @@ def test_depth_png_retains_resolution_16bit_range_and_leaves_float_cache_unchang
 
 
 @pytest.mark.parametrize('model,tag', [('da2', 'DA2Small'), ('da3', 'DA3MonoLarge'), ('depthpro', 'DepthPro')])
-def test_optional_output_suffix_includes_model_and_existing_stereo_settings(tmp_path, model, tag):
+def test_optional_output_suffix_includes_model_resolution_and_existing_stereo_settings(tmp_path, model, tag):
     config = ProcessingConfig(tmp_path, model_id=model)
     assert build_output_suffix(config) == ''
     config = replace(config, append_settings_to_filename=True, float_left_permille=1.5)
-    assert build_output_suffix(config) == '_' + tag + '_d15_w100_o0_fl1p5'
+    resolution = 1536 if model == 'depthpro' else 1218
+    assert build_output_suffix(config) == f'_{tag}_r{resolution}_d15_w100_o0_fl1p5'
+
+
+@pytest.mark.parametrize('model,selected,expected', [
+    ('da2', 0, 'DA2Small_r518'),
+    ('da3', 0, 'DA3MonoLarge_r504'),
+    ('da3', 2048, 'DA3MonoLarge_r2048'),
+    ('da2', 1344, 'DA2Small_r1344'),
+    ('depthpro', 0, 'DepthPro_r1536'),
+    ('depthpro', 2048, 'DepthPro_r1536'),
+])
+def test_settings_filename_uses_selected_or_model_standard_resolution(tmp_path, model, selected, expected):
+    config = ProcessingConfig(tmp_path, model_id=model,
+        preset=DepthPreset(resolution=selected), append_settings_to_filename=True)
+    suffix = build_output_suffix(config)
+    for ending in ('sbs.jpg', 'anaglyph.jpg', 'depth.png'):
+        assert f'scene{suffix}_{ending}' == f'scene_{expected}_d15_w100_o0_{ending}'
+    assert build_output_suffix(replace(config, append_settings_to_filename=False)) == ''

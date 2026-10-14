@@ -80,7 +80,7 @@ Jedes Halbbild wird standardmäßig auf 2160 Pixel Höhe begrenzt; kleinere Foto
 
 Mit **Tiefenkarten wiederverwenden** lassen sich Stereoeinstellungen ohne erneute Tiefenschätzung ändern. Änderungen an Quelldatei, Tiefenmodell, Tiefenauflösung oder Edge Fix machen den jeweiligen Cache ungültig. **Temporäre Dateien löschen** entfernt `_temp`; fertige Bilder bleiben erhalten.
 
-Vorhandene Ausgabebilder werden ersetzt. **Dateiname um Einstellungen ergänzen** erhält bewusst benannte Varianten einschließlich Modellangabe, zum Beispiel `bild_DA3MonoLarge_d15_w100_o0_sbs.jpg`.
+Vorhandene Ausgabebilder werden ersetzt. **Dateiname um Einstellungen ergänzen** erhält bewusst benannte Varianten einschließlich Modellangabe, zum Beispiel `bild_DA3MonoLarge_r1218_d15_w100_o0_sbs.jpg`. Der Wert hinter `r` ist die gewählte Tiefenauflösung vor der internen Rasterrundung; bei Modellstandard steht dort 518 für DA2 oder 504 für DA3, bei Depth Pro immer `r1536`.
 
 Eigene Presets, Sprache, Ordner und die beiden Ausgabeoptionen werden lokal in `settings.json` im Programmordner gespeichert. Diese Datei bei Updates erhalten. Die Stereoregler starten mit ihren Standardwerten.
 

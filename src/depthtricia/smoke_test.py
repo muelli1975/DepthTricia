@@ -68,8 +68,9 @@ def run(app_dir: Path) -> dict:
                     raise RuntimeError('Depth PNG resolution changed')
                 if not np.array_equal(np.asarray(output), np.rint(depth * 65535).astype(np.uint16)):
                     raise RuntimeError('Depth PNG values differ from the used depth cache')
-            if '_DA2Small_d15_w100_o0_' not in items[0].sbs_path.name:
-                raise RuntimeError('Model missing from settings filename')
+            for output_path in (items[0].sbs_path, items[0].anaglyph_path, items[0].depth_png_path):
+                if '_DA2Small_r392_d15_w100_o0_' not in output_path.name:
+                    raise RuntimeError('Model or depth resolution missing from settings filename')
             items[0].depth_png_path.unlink()
             stages.clear()
             items = controller.run(source, temporary / "output")

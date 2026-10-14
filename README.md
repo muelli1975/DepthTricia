@@ -80,7 +80,7 @@ Each view is limited to 2160 pixels high by default, without upscaling smaller p
 
 With **Reuse depth maps** enabled, stereo settings can be changed without running depth estimation again. Changes to the source, depth model, depth resolution or edge fix invalidate the corresponding cache. **Delete temporary files** removes `_temp`; finished images remain.
 
-Existing output images are replaced. **Append settings to filename** keeps deliberately named variants, including the model, for example `scene_DA3MonoLarge_d15_w100_o0_sbs.jpg`.
+Existing output images are replaced. **Append settings to filename** keeps deliberately named variants, including the model, for example `scene_DA3MonoLarge_r1218_d15_w100_o0_sbs.jpg`. The `r` value is the selected depth resolution before internal grid rounding; model default resolves to 518 for DA2 or 504 for DA3, while Depth Pro always uses `r1536`.
 
 Custom presets, language, folders and the two output options are saved locally in `settings.json` beside the program. Keep this file when updating. Stereo controls start at their defaults.
 

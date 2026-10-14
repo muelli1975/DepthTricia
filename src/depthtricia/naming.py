@@ -34,8 +34,11 @@ def build_suffix(
 def build_output_suffix(config) -> str:
     if not config.append_settings_to_filename:
         return ""
-    from .model_catalog import MODEL_FILENAME_TAGS
-    return "_" + MODEL_FILENAME_TAGS[config.model_id] + build_suffix(
+    from .model_catalog import MODEL_FILENAME_TAGS, MODEL_STANDARD_RESOLUTIONS
+    resolution = (MODEL_STANDARD_RESOLUTIONS[config.model_id]
+                  if config.model_id == "depthpro" or config.preset.resolution == 0
+                  else config.preset.resolution)
+    return f"_{MODEL_FILENAME_TAGS[config.model_id]}_r{resolution}" + build_suffix(
         config.deviation_permille, config.window_position_percent,
         config.window_back_permille, config.float_left_permille,
         config.float_right_permille, config.float_top_permille,
