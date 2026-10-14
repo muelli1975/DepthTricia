@@ -27,15 +27,34 @@ CPU timing on this development host does not predict target Windows timing.
 
 ## Required before a public release
 
-- Validate the frozen Windows executable, Windows 10/11 and NVIDIA/CUDA.
-- Test CPU execution from the CUDA-enabled portable package.
+- Validate Windows 10/11 on user hardware and NVIDIA/CUDA inference.
 - Run DA3 at 2048 and Depth Pro on suitable target hardware. Full-precision
   Depth Pro CPU inference exceeded this test environment's 8 GiB RAM limit;
   it remains unverified here. Its native inference path is preserved.
 - Compare foreground boundaries, thin objects, sky and disocclusion filling
   against iw3 on representative photos, including portrait orientations.
-- Verify metadata, download cancellation and restart, and final ZIP contents.
-- Confirm the measured archive size and whether DA3 fits alongside the runtime.
+- Validate online runtime/model downloads from the published release and
+  interrupted installation on target machines.
+
+## Verified Windows package
+
+Build [38527703368](https://github.com/muelli1975/DepthTricia/actions/runs/38527703368)
+at source `be27d6a6b93cf264cab00163e6667b4f9f831907` passed all 13 tests and
+the frozen executable smoke test. The GUI started before runtime installation;
+verified local runtime ZIPs were installed, then DA2 CPU inference, stereo
+inpainting, output dimensions, metadata and cache reuse succeeded offline.
+DA3 configuration and Depth Pro imports also passed; these are not full
+Depth Pro or CUDA inference tests.
+
+| Asset | Size (decimal MB) |
+| --- | ---: |
+| DepthTricia_1.0.zip, with DA2 and DA3 | 1666.6 |
+| DepthTricia_Runtime_1.0_01.zip | 644.6 |
+| DepthTricia_Runtime_1.0_02.zip | 740.2 |
+| DepthTricia_Runtime_1.0_03.zip | 494.1 |
+| DepthTricia_Runtime_1.0_04.zip | 490.5 |
+
+All five ZIP files are below the individual GitHub release-asset limit.
 
 ## Hardware and numerical policy
 

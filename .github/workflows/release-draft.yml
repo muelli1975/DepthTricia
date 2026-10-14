@@ -1,0 +1,109 @@
+name: Prepare release draft
+on:
+  workflow_run:
+    workflows: [Source checks, Windows development build]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      build_run_id:
+        description: Successful Windows build run ID
+        required: true
+        type: string
+permissions:
+  actions: read
+  contents: write
+concurrency:
+  group: depthtricia-release-draft
+  cancel-in-progress: false
+jobs:
+  draft:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_branch == 'main' &&
+       github.event.workflow_run.event == 'push' &&
+       github.event.workflow_run.repository.full_name == github.repository)
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+      SOURCE_SHA: ${{ github.event.workflow_run.head_sha }}
+      REQUESTED_RUN: ${{ inputs.build_run_id }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Find matching verified Windows build
+        id: build
+        run: |
+          if [ -n "$REQUESTED_RUN" ]; then
+            release_run_id="$REQUESTED_RUN"
+          else
+            release_run_id=$(gh api "repos/$REPO/actions/runs?head_sha=$SOURCE_SHA&per_page=100" --jq '.workflow_runs[] | select(.name == "Windows development build" and .conclusion == "success") | .id' | head -n 1)
+          fi
+          if [ -z "$release_run_id" ]; then
+            echo 'No completed Windows build for this source revision yet.'
+            exit 0
+          fi
+          gh api "repos/$REPO/actions/runs/$release_run_id" > build-run.json
+          python - <<'PY'
+          import json, os
+          run = json.load(open('build-run.json'))
+          assert run['name'] == 'Windows development build'
+          assert run['conclusion'] == 'success' and run['head_branch'] == 'main'
+          assert run['repository']['full_name'] == os.environ['REPO']
+          if os.environ['SOURCE_SHA']:
+              assert run['head_sha'] == os.environ['SOURCE_SHA']
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              output.write(f"run_id={run['id']}\nsource_sha={run['head_sha']}\n")
+          PY
+      - uses: actions/download-artifact@v4
+        if: steps.build.outputs.run_id != ''
+        with:
+          name: DepthTricia-development
+          run-id: ${{ steps.build.outputs.run_id }}
+          github-token: ${{ github.token }}
+          path: payload
+      - name: Verify release files and smoke report
+        if: steps.build.outputs.run_id != ''
+        env:
+          VERIFIED_SHA: ${{ steps.build.outputs.source_sha }}
+        run: |
+          python - <<'PY'
+          import hashlib, json, os, pathlib, zipfile
+          root = pathlib.Path('payload')
+          report = json.loads((root / 'smoke-test.json').read_text())
+          for key in ['ok', 'gui', 'presets', 'da2_inference', 'stereo_inpainting', 'metadata', 'cache', 'offline']:
+              assert report[key] is True, key
+          assert report['inference_device'] == 'cpu' and report['cuda_runtime'] == '12.6'
+          with zipfile.ZipFile(root / 'DepthTricia_1.0.zip') as package:
+              manifest = json.loads(package.read('DepthTricia/runtime_manifest.json'))
+              info = json.loads(package.read('DepthTricia/BUILD_INFO.json'))
+          assert info['source_commit'] == os.environ['VERIFIED_SHA']
+          expected = {'DepthTricia_1.0.zip'} | {item['filename'] for item in manifest['archives']}
+          assert {p.name for p in root.glob('*.zip')} == expected
+          for name in expected:
+              assert (root / name).stat().st_size < 2**31, name
+          for item in manifest['archives']:
+              path = root / item['filename']
+              assert path.stat().st_size == item['size']
+              value = hashlib.sha256()
+              with path.open('rb') as source:
+                  for block in iter(lambda: source.read(4 * 1024 * 1024), b''):
+                      value.update(block)
+              assert value.hexdigest() == item['sha256'], path.name
+          print('All release assets match the verified Windows build.')
+          PY
+      - name: Create unpublished release draft
+        if: steps.build.outputs.run_id != ''
+        env:
+          VERIFIED_SHA: ${{ steps.build.outputs.source_sha }}
+        run: |
+          if gh release view v1.0 --repo "$REPO" --json isDraft --jq .isDraft > release-state.txt 2>/dev/null; then
+            if [ "$(cat release-state.txt)" != 'true' ]; then
+              echo 'A published v1.0 exists; refusing to replace its assets.'
+              exit 1
+            fi
+          else
+            gh release create v1.0 --repo "$REPO" --draft --target "$VERIFIED_SHA" --title 'DepthTricia 1.0 — development draft' --notes-file .github/RELEASE_DRAFT.md
+          fi
+          gh release upload v1.0 payload/DepthTricia_Runtime_*.zip --repo "$REPO" --clobber
+          gh release upload v1.0 payload/DepthTricia_1.0.zip payload/smoke-test.json --repo "$REPO" --clobber
