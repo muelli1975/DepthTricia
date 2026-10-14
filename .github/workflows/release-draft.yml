@@ -136,7 +136,7 @@ jobs:
         env:
           VERIFIED_SHA: ${{ steps.build.outputs.source_sha }}
         run: |
-          gh api "repos/$REPO/releases/tags/v1.0" > uploaded-release.json
+          gh api "repos/$REPO/releases" --jq '.[] | select(.tag_name == "v1.0")' > uploaded-release.json
           python - <<'PY'
           import hashlib, json, pathlib
           release = json.load(open('uploaded-release.json'))
