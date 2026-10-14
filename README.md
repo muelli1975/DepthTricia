@@ -1,66 +1,97 @@
-# DepthTricia
+# DepthTricia 1.0
 
 [Deutsch](README_DE.md)
 
-DepthTricia converts individual 2D photographs or image folders to stereo 3D
-using depth maps. It inherits SplatTricia's interface, stereo-window controls,
-floating-window curtains, SBS/anaglyph outputs and metadata handling.
+DepthTricia is a local Windows tool for converting individual 2D photographs or image folders into stereo 3D. Each photograph produces a parallel side-by-side stereo image (SBS) and either a colour or grayscale anaglyph.
+
+Depth estimation uses **Depth Anything V2 Small**, **Depth Anything 3 Mono Large** or **Depth Pro**. The interface, stereo controls and metadata handling follow SplatTricia. The interface is available in German and English.
+
+Processing runs locally, without an account, cloud or tracking. Missing runtime packages or models are installed or downloaded only after confirmation. Once installed, they work offline.
 
 [Download DepthTricia 1.0](https://github.com/muelli1975/DepthTricia/releases/tag/v1.0)
 
-Models: Depth Anything V2 Small, Depth Anything 3 Mono Large and
-Depth Pro. Stereo generation uses iw3's `mlbw_l2_inpaint` with
-`light_inpaint_v1`. Processing supports CPU and NVIDIA/CUDA.
+## Requirements and installation
 
-Defaults: 15‰ deviation, 100% stereo-window position, horizontal/vertical
-edge fix 2/1, and 1218 depth resolution for Depth Anything. Depth Pro uses its
-native model resolution. Complete presets select model, device, resolution and
-edge fix together: Standard uses DA3 / 1218 / Automatic, CPU uses DA2 / 518 / CPU,
-Quick uses DA3 / 504 / Automatic, Fine uses DA3 / 2048 / Automatic, and Depth Pro
-uses its native resolution / Automatic. All use edge fix 2/1. The selected
-model and settings remain visible beside the preset list. Custom presets can
-include resolutions from 196 to 4096 and custom edge settings.
-Depth Anything internally rounds resolutions up to its 14-pixel grid (2048
-becomes 2058); Depth Pro's resolution remains fixed for all presets.
-The model-standard option displays its value: 518 for DA2, 504 for DA3;
-Depth Pro uses a fixed internal 1536×1536 resolution.
+- 64-bit Windows.
+- CPU processing is supported; a compatible NVIDIA graphics card with a current driver enables CUDA acceleration.
+- No separate Python installation or CUDA toolkit is required for the portable package.
 
-Output is limited to 2160 pixels high by default, without upscaling smaller
-photos. **Original size** keeps the full oriented source dimensions.
-**Depth map (PNG)** optionally exports the used relative depth map as a 16-bit
-grayscale PNG in `depth_maps`: near is white, far is black. It retains the
-computed map dimensions and is not a metric depth-in-metres export.
-Both checkboxes are under Options, start off and their choices are saved. Named depth presets and
-these options are stored locally in `settings.json` in the application folder;
-keep that file when updating. With settings in filenames enabled, outputs
-include the model tag, e.g. `scene_DA3MonoLarge_d15_w100_o0_sbs.jpg`.
+Download and extract `DepthTricia_1.0.zip`, then start `DepthTricia.exe`. DA2 and DA3 are included in the main ZIP. On first processing, the program asks before installing or downloading missing packages.
 
-Models are stored visibly in `models`. Missing models can be downloaded only
-after explicit confirmation. Existing models are loaded locally without
-network checks, accounts, tokens or a Hugging Face cache dependency.
+For offline installation, download **all six ZIP files from the same release** into one folder. Extract only `DepthTricia_1.0.zip`; leave the other five ZIPs beside the extracted `DepthTricia` folder. They contain four runtime packages and the original Apple Depth Pro checkpoint. Local packages are used first. Archives and installed files are checksum-verified; each ZIP is below 2 GiB.
 
-One common Windows package selects CUDA when available, otherwise CPU.
-Large runtime files are supplied as additional ZIP assets. At first processing,
-DepthTricia asks before installing or downloading missing runtime packages.
-Local ZIPs beside the application are used first; afterwards it works offline.
-DA2 and DA3 are in the main ZIP. The original Apple Depth Pro checkpoint is
-included in `DepthTricia_Models_DepthPro_1.0.zip` and installed with the runtime
-packages after confirmation. Download all six ZIPs from the same release into
-one folder, extract only `DepthTricia_1.0.zip`, and leave the other ZIPs beside
-the extracted application folder for offline installation.
+Models are stored visibly in `models`. Existing models are loaded without network checks, accounts, tokens or a Hugging Face cache dependency.
 
-Output folders: `sbs`, `anaglyph`, `_temp` (reusable depth maps).
-The `.npy` files in `_temp` preserve normalized 32-bit floating-point depth
-values for computation; the optional PNG is a separate graphic export.
-Changing stereo settings reuses depth maps; changing the source, depth model,
-depth resolution or edge fix invalidates the corresponding cache.
+## Basic use
 
-See [BUILD.md](BUILD.md) to run from source and build the portable Windows app.
-See [DEVELOPMENT.md](DEVELOPMENT.md) for validation status and remaining work.
+1. Select a single image or an image folder.
+2. Use **Use subfolder in input folder** or choose a custom output folder.
+3. Select a preset. For CPU processing, choose **CPU**.
+4. Adjust deviation and stereo-window position as needed.
+5. Optionally select grayscale anaglyphs, **Original size** or **Depth map (PNG)**.
+6. Click **Start**.
 
-Original DepthTricia code is MIT licensed. Third-party code and model weights
-retain their respective licenses; see [THIRD_PARTY.md](THIRD_PARTY.md).
+The selected model, resolution, device and edge settings remain visible beside the preset list. **Cancel** requests cancellation; the current processing step may need to finish first.
 
-CPU users should choose the CPU preset. DA3 at 1218/2048 and Depth Pro require
-more time and memory; original-size output also increases inpainting memory.
-No quality setting or device is reduced automatically after a memory error.
+## Models and presets
+
+Presets select the depth model, processing device, resolution and edge fix together.
+
+| Preset | Model | Depth resolution | Processing |
+| --- | --- | --- | --- |
+| Standard | DA3 Mono Large | 1218 | Automatic |
+| CPU | DA2 Small | Model default: 518 | CPU |
+| Quick | DA3 Mono Large | Model default: 504 | Automatic |
+| Fine | DA3 Mono Large | 2048 | Automatic |
+| Depth Pro | Depth Pro | Native: 1536 × 1536 internally | Automatic |
+
+All built-in presets use edge fix **2 horizontal / 1 vertical**. **Automatic** selects CUDA when available, otherwise CPU. Custom presets save model, device, resolution and edge fix together. Depth Anything accepts custom resolutions from 196 to 4096 and internally rounds up to its 14-pixel grid; 2048 becomes 2058. Depth Pro's internal resolution stays fixed.
+
+DA3 at high resolution, Depth Pro and original-size inpainting need more time and memory. Settings and the selected device are never reduced automatically after a memory error.
+
+## Stereo controls
+
+**Deviation** controls the horizontal depth range; the default is **15‰**. **Stereo-window position** distributes that depth relative to the picture plane; the default is **100%**.
+
+The additional setback is available only at a window position of 100%. It moves the complete scene farther behind the stereo window. Newly exposed borders are filled by the same learned inpainting used for internal holes, before floating-window curtains are applied.
+
+**Floating-window curtains** mask edge areas. Near-point display and slider behaviour follow SplatTricia: ranges, steps, symmetry and mutual exclusions are retained. The near-point display describes the scene from deviation and stereo-window position, before the additional setback and curtains.
+
+Automatic 2D-to-3D conversion remains an estimate. Check depth, window placement and image edges visually, especially for projection.
+
+## Output and reusable depth maps
+
+The selected output location contains:
+
+| Folder | Contents |
+| --- | --- |
+| `sbs` | Parallel side-by-side JPEG images |
+| `anaglyph` | Colour or grayscale anaglyph JPEG images |
+| `_temp` | Reusable depth maps and cache data |
+| `depth_maps` | Optional 16-bit relative depth PNGs |
+
+SBS uses JPEG quality **95**, anaglyphs **90**; both use **4:4:4** without chroma subsampling. Suitable source metadata is copied to the JPEG outputs where technically possible.
+
+Each view is limited to 2160 pixels high by default, without upscaling smaller photographs. **Original size** retains the full, correctly oriented source dimensions.
+
+**Depth map (PNG)** exports the computed relative depth map without resizing: near is white, far is black. These are relative values, not distances in metres. The separate `.npy` cache retains normalized 32-bit floating-point values for computation.
+
+With **Reuse depth maps** enabled, stereo settings can be changed without running depth estimation again. Changes to the source, depth model, depth resolution or edge fix invalidate the corresponding cache. **Delete temporary files** removes `_temp`; finished images remain.
+
+Existing output images are replaced. **Append settings to filename** keeps deliberately named variants, including the model, for example `scene_DA3MonoLarge_d15_w100_o0_sbs.jpg`.
+
+Custom presets, language, folders and the two output options are saved locally in `settings.json` beside the program. Keep this file when updating. Stereo controls start at their defaults.
+
+## Source code and long-term use
+
+The repository contains the application source and build notes. See [BUILD.md](BUILD.md) for source use and portable builds, and [DEVELOPMENT.md](DEVELOPMENT.md) for validation details. Stereo generation uses iw3's `mlbw_l2_inpaint` with `light_inpaint_v1`.
+
+The Windows release passed source checks and tests of the packaged executable, including offline DA2 CPU conversion, inpainting and scene setback. This does not constitute full Depth Pro or CUDA inference validation on all hardware.
+
+The aim is to keep DepthTricia understandable and usable for future development and the stereoscopic community. Active maintenance, support, issue handling or pull-request review cannot be guaranteed.
+
+## License
+
+Copyright Christoph Müller. Original DepthTricia code and documentation use the **MIT License**. Third-party components and model weights retain their own licenses, including Apple's terms for Depth Pro.
+
+See [LICENSE.txt](LICENSE.txt) and [THIRD_PARTY.md](THIRD_PARTY.md).
