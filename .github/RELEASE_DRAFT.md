@@ -6,7 +6,7 @@ limit. Optional 16-bit grayscale depth PNGs are saved in depth_maps. Settings
 filenames include the selected model. Model-standard preset resolutions are
 shown numerically; named presets and the two output choices remain local in
 settings.json, which should be retained when updating.
-Quick, Standard and Fine presets select model-standard, 1218 and 2040 depth
+Quick, Standard and Fine presets select model-standard, 1218 and 2048 depth
 resolution with edge fix 2/1. Custom resolutions can be entered and saved.
 Depth Pro keeps its fixed native resolution.
 

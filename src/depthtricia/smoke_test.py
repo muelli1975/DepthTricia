@@ -30,7 +30,7 @@ def run(app_dir: Path) -> dict:
             app._set_processing_controls(False)
             app.edit_presets()
             app.update()
-            for key, value in [('quick', 0), ('standard', 1218), ('fine', 2040)]:
+            for key, value in [('quick', 0), ('standard', 1218), ('fine', 2048)]:
                 app.preset_dialog.load(app.preset_dialog.builtin_labels[key])
                 if app.preset_dialog.settings().resolution != value:
                     raise RuntimeError('Built-in depth preset is incorrect')

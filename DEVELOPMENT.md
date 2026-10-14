@@ -25,6 +25,36 @@ The supplied icon and original ready.wav are preserved byte for byte.
 These checks use a synthetic image, not a representative quality benchmark.
 CPU timing on this development host does not predict target Windows timing.
 
+## Measured CPU stages, 2026-10-14
+
+`scripts/benchmark_cpu.py` measures the unchanged production depth and stereo
+paths in sequential fresh worker processes. Host: AMD EPYC 9V74, Linux,
+8-thread CPU quota, PyTorch 2.8.0+cpu, FP32, edge fix 2/1, 15 permille,
+window 100%. Eight threads are a benchmark setting, not an application cap.
+Input: Depth Anything V2's public `assets/examples/demo01.jpg`, resized by
+the normal image loader to 1624×1080. Medians of three calls; model loading,
+JPEG saving and metadata copying are excluded from the per-image times.
+
+| Model / resolution | Depth (s) | Stereo + inpainting (s) | LightInpaint part (s) | Depth / stereo peak process RSS (MB) |
+| --- | ---: | ---: | ---: | ---: |
+| DA2 Small / standard 518 | 0.72 | 2.93 | 2.40 | 801 / 1241 |
+| DA3 Mono Large / standard 504 | 5.02 | 2.75 | 2.31 | 2941 / 1293 |
+| DA3 Mono Large / 1218 | 53.64 | 5.37 | 2.54 | 5151 / 1308 |
+
+The LightInpaint column times both unmodified `LightInpaintV1.infer` calls,
+including their preprocessing. It is contained in the stereo column and must
+not be added to it. Mask postprocessing, warping and RGB conversion are in
+the remaining stereo time. RSS includes Python/PyTorch, model loading and
+inference buffers; the two worker peaks are separate and are not additive.
+The example is a performance measurement, not a depth-quality benchmark or
+a speed guarantee for older Windows CPUs.
+
+A real offline controller test also completed DA2 -> DA3 -> DA2 on the same
+photo. It created two distinct depth caches and model-tagged outputs; the
+third call reused the first DA2 cache without depth inference.
+
+Photo source: https://github.com/DepthAnything/Depth-Anything-V2/blob/main/assets/examples/demo01.jpg
+
 ## Required before a public release
 
 - Validate Windows 10/11 on user hardware and NVIDIA/CUDA inference.
@@ -134,7 +164,7 @@ resolution semantics, output names and PNG values/dimensions, including PNG
 export on a subsequent cache hit. It writes GUI settings only to a temporary
 folder, and packaging excludes settings/logs from the public ZIP.
 
-Built-in Quick/Standard/Fine presets use resolutions 0/1218/2040 and edge fix
+Built-in Quick/Standard/Fine presets use resolutions 0/1218/2048 and edge fix
 2/1. Their selection is stored by a language-independent builtin_preset key;
 own preset values and names remain in depth_presets and are not overwritten.
 Model-standard labels track model changes without replacing the stored zero.

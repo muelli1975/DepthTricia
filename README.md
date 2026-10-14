@@ -15,10 +15,10 @@ Depth Pro. Stereo generation uses iw3's `mlbw_l2_inpaint` with
 Defaults: 15‰ deviation, 100% stereo-window position, horizontal/vertical
 edge fix 2/1, and 1218 depth resolution for Depth Anything. Depth Pro uses its
 native model resolution. Presets Quick, Standard and Fine use model-standard,
-1218 and 2040 respectively, with edge fix 2/1. Custom values from 196 to 4096
+1218 and 2048 respectively, with edge fix 2/1. Custom values from 196 to 4096
 and custom edge settings can be saved under a separate preset name.
-Depth Anything internally rounds resolutions up to its 14-pixel grid (2040
-becomes 2044); Depth Pro's resolution remains fixed for all presets.
+Depth Anything internally rounds resolutions up to its 14-pixel grid (2048
+becomes 2058); Depth Pro's resolution remains fixed for all presets.
 The model-standard option displays its value: 518 for DA2, 504 for DA3;
 Depth Pro uses a fixed internal 1536×1536 resolution.
 

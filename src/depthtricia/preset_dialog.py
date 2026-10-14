@@ -40,7 +40,7 @@ class PresetDialog(ctk.CTkToplevel):
         self.menu.grid(row=0, column=1, padx=18, pady=12, sticky="ew")
         self.row(1, "preset.name", self.name)
         ctk.CTkLabel(self, text=app.tr("preset.resolution")).grid(row=2, column=0, padx=18, pady=8, sticky="w")
-        self.res_menu = ctk.CTkComboBox(self, variable=self.resolution, values=[self.model_default_label, "1218", "2040"],
+        self.res_menu = ctk.CTkComboBox(self, variable=self.resolution, values=[self.model_default_label, "1218", "2048"],
                                        border_color=BORDER, **menu_style)
         self.res_menu.grid(row=2, column=1, padx=18, pady=8, sticky="ew")
         self.refresh_model()
@@ -82,7 +82,7 @@ class PresetDialog(ctk.CTkToplevel):
         self.current_model = self.app.model_id
         self.model_default_label = self.standard_label()
         native = self.current_model == "depthpro"
-        self.res_menu.configure(values=[self.model_default_label, "1218", "2040"],
+        self.res_menu.configure(values=[self.model_default_label, "1218", "2048"],
             state="disabled" if native else "normal", text_color="#727272" if native else TEXT)
         self.resolution.set(self.model_default_label if native or self.stored_resolution == 0
                             else str(self.stored_resolution))

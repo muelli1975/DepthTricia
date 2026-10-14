@@ -21,7 +21,7 @@ class DepthPreset:
 BUILTIN_PRESETS = {
     "quick": DepthPreset(resolution=0),
     "standard": DepthPreset(),
-    "fine": DepthPreset(resolution=2040),
+    "fine": DepthPreset(resolution=2048),
 }
 
 
