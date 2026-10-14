@@ -158,7 +158,5 @@ jobs:
             echo 'Newer source exists; leave this build unpublished.'
             exit 0
           fi
-          echo 'Publication paused for stereo-window backshift correction.'
-          exit 0
           gh release edit v1.0 --repo "$REPO" --draft=false --prerelease=false --latest --title 'DepthTricia 1.0' --target "$VERIFIED_SHA" --notes-file .github/RELEASE_DRAFT.md
 
