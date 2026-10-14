@@ -12,7 +12,6 @@
   "label.deviation": "Deviation: {value}%",
   "label.window_position": "Scheinfensterlage: {value} %",
   "label.near_front": "Nahpunkt: {value}% vor dem Scheinfenster",
-  "label.near_behind": "Nahpunkt: {value}% hinter dem Scheinfenster",
   "label.window_back": "Scheinfenster-R�ckversatz: {value}%",
   "label.left": "Links: {value}%",
   "label.right": "Rechts: {value}%",

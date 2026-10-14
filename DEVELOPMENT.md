@@ -13,8 +13,6 @@ The depth cache, deviation, floating-window curtains and model precision stay
 unchanged. Tensor checks cover translation/masks and inpainting call order;
 the frozen smoke test measures near/far endpoints in landscape and portrait.
 These checks must pass before the paused 1.0 release is published.
-The near-point label includes the additional setback and displays its distance
-behind the window when the value is positive; this is checked in DE/EN.
 
 Validation notes for DepthTricia 1.0. Target-hardware results remain separate
 from the automated Windows package checks below.
