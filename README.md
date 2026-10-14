@@ -30,7 +30,7 @@ Models are stored visibly in `models`. Existing models are loaded without networ
 2. Use **Use a subfolder inside the input folder** or choose a custom output folder.
 3. Select a preset. For CPU processing, choose **CPU**.
 4. Adjust deviation and stereo-window position as needed.
-5. Optionally select grayscale anaglyphs, **Output original size** or **Save depth map**.
+5. Optionally select grayscale anaglyphs, **Output original size** or **Save depth map as PNG**.
 6. Click **Start**.
 
 The selected model, resolution, device and edge settings remain visible beside the preset list. **Cancel** requests cancellation; the current processing step may need to finish first.
@@ -55,7 +55,7 @@ DA3 at high resolution, Depth Pro and original-size inpainting need more time an
 
 **Deviation** controls the horizontal depth range; the default is **15‰**. **Stereo-window position** distributes that depth relative to the picture plane; the default is **100%**.
 
-The additional setback is available only at a window position of 100%. It moves the complete scene farther behind the stereo window. Newly exposed borders are filled by the same learned inpainting used for internal holes, before floating-window curtains are applied.
+The additional setback moves the entire scene behind the stereo window. Any gaps created at the image borders are filled automatically. It is available only at a window position of 100%.
 
 **Floating-window curtains** mask edge areas. Near-point display and slider behaviour follow SplatTricia: ranges, steps, symmetry and mutual exclusions are retained. The near-point display describes the scene from deviation and stereo-window position, before the additional setback and curtains.
 
@@ -76,7 +76,7 @@ SBS uses JPEG quality **95**, anaglyphs **90**; both use **4:4:4** without chrom
 
 Each view is limited to 2160 pixels high by default, without upscaling smaller photographs. **Output original size** retains the full, correctly oriented source dimensions.
 
-**Save depth map** exports the computed relative depth map without resizing: near is white, far is black. These are relative values, not distances in metres. The separate `.npy` cache retains normalized 32-bit floating-point values for computation.
+**Save depth map as PNG** exports the computed relative depth map without resizing: near is white, far is black. These are relative values, not distances in metres. The separate `.npy` cache retains normalized 32-bit floating-point values for computation.
 
 With **Reuse depth maps** enabled, stereo settings can be changed without running depth estimation again. Changes to the source, depth model, depth resolution or edge fix invalidate the corresponding cache. **Delete temporary files** removes `_temp`; finished images remain.
 

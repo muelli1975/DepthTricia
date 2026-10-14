@@ -7,7 +7,7 @@ support, SBS/anaglyph JPEG output, metadata copying and reusable depth maps.
 - Complete presets: Standard (DA3, 1218), CPU (DA2, 518), Quick (DA3, 504),
   Fine (DA3, 2048) and Depth Pro (native). All use edge fix 2/1. Custom presets
   save model, device, resolution and edge fix; model/settings remain visible.
-- Defaults: 15% deviation and 100% stereo-window position. Stereo generation
+- Defaults: 15‰ deviation and 100% stereo-window position. Stereo generation
   uses `mlbw_l2_inpaint` with `light_inpaint_v1`.
 - Additional setback moves the whole scene behind the stereo window. Newly
   exposed borders are filled with the same inpainting as internal holes.

@@ -30,7 +30,7 @@ Die Modelle liegen sichtbar im Ordner `models`. Vorhandene Modelle werden ohne N
 2. **Unterordner im Input-Ordner verwenden** aktivieren oder einen eigenen Ausgabeordner auswählen.
 3. Ein Preset wählen. Für CPU-Berechnung **CPU** verwenden.
 4. Deviation und Scheinfensterlage nach Bedarf einstellen.
-5. Optional Graustufen-Anaglyphen, **Originalgröße ausgeben** oder **Tiefenkarte speichern** wählen.
+5. Optional Graustufen-Anaglyphen, **Originalgröße ausgeben** oder **Tiefenkarte als PNG speichern** wählen.
 6. Auf **Start** klicken.
 
 Modell, Auflösung, Berechnungsgerät und Edge Fix bleiben neben der Presetliste sichtbar. **Abbrechen** fordert den Abbruch an; der aktuelle Verarbeitungsschritt muss gegebenenfalls zunächst beendet werden.
@@ -55,7 +55,7 @@ DA3 mit hoher Auflösung, Depth Pro und Inpainting in Originalgröße benötigen
 
 **Deviation** bestimmt den horizontalen Tiefenumfang; Standard sind **15‰**. Die **Scheinfensterlage** verteilt diese Tiefe relativ zur Bildebene; Standard sind **100%**.
 
-Der zusätzliche Rückversatz ist nur bei Scheinfensterlage 100% verfügbar. Er verschiebt die gesamte Szene weiter hinter das Scheinfenster. Neu freigelegte Bildränder werden vor Anwendung der Vorhänge durch dasselbe KI-Inpainting gefüllt wie die inneren Bildlücken.
+Beim zusätzlichen Rückversatz wird die gesamte Szene hinter das Scheinfenster verschoben. Dabei entstehende Randlücken werden automatisch gefüllt. Der Rückversatz ist nur bei Scheinfensterlage 100% verfügbar.
 
 Die **Vorhänge des schwebenden Scheinfensters** maskieren Randbereiche. Nahpunktanzeige und Reglerverhalten entsprechen SplatTricia: Wertebereiche, Schrittweiten, Symmetrie und gegenseitige Sperren bleiben erhalten. Die Nahpunktanzeige beschreibt die Szene anhand von Deviation und Scheinfensterlage vor dem zusätzlichen Rückversatz und den Vorhängen.
 
@@ -76,7 +76,7 @@ SBS verwendet JPEG-Qualität **95**, Anaglyphen **90**; beide verwenden **4:4:4*
 
 Jedes Halbbild wird standardmäßig auf 2160 Pixel Höhe begrenzt; kleinere Fotos werden nicht vergrößert. **Originalgröße ausgeben** erhält die vollständigen, korrekt ausgerichteten Bildabmessungen.
 
-**Tiefenkarte speichern** exportiert die berechnete relative Tiefenkarte ohne Größenänderung: nah ist weiß, fern ist schwarz. Die Werte sind relativ und keine Entfernungen in Metern. Der separate `.npy`-Cache bewahrt normalisierte 32-Bit-Gleitkommawerte für die Berechnung.
+**Tiefenkarte als PNG speichern** exportiert die berechnete relative Tiefenkarte ohne Größenänderung: nah ist weiß, fern ist schwarz. Die Werte sind relativ und keine Entfernungen in Metern. Der separate `.npy`-Cache bewahrt normalisierte 32-Bit-Gleitkommawerte für die Berechnung.
 
 Mit **Tiefenkarten wiederverwenden** lassen sich Stereoeinstellungen ohne erneute Tiefenschätzung ändern. Änderungen an Quelldatei, Tiefenmodell, Tiefenauflösung oder Edge Fix machen den jeweiligen Cache ungültig. **Temporäre Dateien löschen** entfernt `_temp`; fertige Bilder bleiben erhalten.
 
