@@ -25,7 +25,7 @@ Models are stored visibly in `models`. Existing models are loaded without networ
 ## Basic use
 
 1. Select a single image or an image folder.
-2. Use **Use subfolder in input folder** or choose a custom output folder.
+2. Use **Use a subfolder inside the input folder** or choose a custom output folder.
 3. Select a preset. For CPU processing, choose **CPU**.
 4. Adjust deviation and stereo-window position as needed.
 5. Optionally select grayscale anaglyphs, **Original size** or **Depth map (PNG)**.
