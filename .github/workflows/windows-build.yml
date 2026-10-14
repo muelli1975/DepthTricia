@@ -35,8 +35,8 @@ jobs:
       - name: Prepare models
         shell: pwsh
         run: |
-          if ($env:BUNDLE_DA3 -eq 'true') { python scripts/download_models.py da2 da3 --confirm }
-          else { python scripts/download_models.py da2 --confirm }
+          if ($env:BUNDLE_DA3 -eq 'true') { python scripts/download_models.py da2 da3 depthpro --confirm }
+          else { python scripts/download_models.py da2 depthpro --confirm }
       - run: python -m PyInstaller --noconfirm --clean DepthTricia.spec
       - name: Prepare portable folder
         shell: pwsh
@@ -57,6 +57,7 @@ jobs:
           path: |
             dist/DepthTricia_1.0.zip
             dist/DepthTricia_Runtime_*.zip
+            dist/DepthTricia_Models_*.zip
             dist/smoke-test.json
           compression-level: 0
           retention-days: 7

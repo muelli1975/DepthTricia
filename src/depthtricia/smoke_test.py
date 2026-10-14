@@ -34,6 +34,9 @@ def run(app_dir: Path) -> dict:
         # verified local ZIPs; no online request is permitted in this test.
         from .runtime_install import install_runtime
         install_runtime(app_dir, confirmed=True)
+        from .downloads import verify_model
+        from .model_catalog import FILES
+        verify_model(app_dir / 'models', FILES['depthpro'])
         import torch
         torch.set_num_threads(min(4, torch.get_num_threads()))  # Test host only.
         prepare_imports(app_dir)
@@ -71,7 +74,7 @@ def run(app_dir: Path) -> dict:
                 raise RuntimeError("Packaged depth cache reuse failed")
         return dict(torch=torch.__version__, cuda_runtime=torch.version.cuda,
             inference_device="cpu", gui=True, presets=True, da3_configuration=True,
-            da3_parameters=da3_parameters, depthpro_import=True, da2_inference=True,
+            da3_parameters=da3_parameters, depthpro_import=True, depthpro_weights=True, da2_inference=True,
             stereo_inpainting=True, outputs=True, metadata=True, cache=True, offline=True)
     finally:
         socket.socket.connect, socket.create_connection = original_connect, original_create

@@ -110,7 +110,7 @@
   "dialog.download_title": "Download models",
   "dialog.download_confirm": "The following models are missing or incomplete:\n\n{files}\n\nDownload size: {size:.0f} MB.\nModels retain their MIT, Apache-2.0 or Apple licenses (see THIRD_PARTY.md).\n\nDownload from the official model sources now?\nProcessing works offline after downloading.",
   "progress.download": "Downloading model: {filename} – {percent:.0f} %",
-  "dialog.runtime_title": "Prepare runtime",
-  "dialog.runtime_confirm": "Additional runtime files are required for processing.\n\nOne-time download: {size:.0f} MB in several packages.\nExisting ZIP packages in or beside the application folder are used first.\n\nInstall now and download missing packages from our GitHub release?\nDepthTricia works offline on CPU or NVIDIA GPU afterwards.",
+  "dialog.runtime_title": "Prepare application packages",
+  "dialog.runtime_confirm": "Runtime or model files are required for processing.\n\nOne-time download: {size:.0f} MB in several packages, including Depth Pro.\nExisting ZIP packages in or beside the application folder are used first.\n\nInstall now and download missing packages from our GitHub release?\nDepthTricia works offline on CPU or NVIDIA GPU afterwards.",
   "progress.runtime_install": "Preparing runtime: {filename} – {percent:.0f} %"
 }

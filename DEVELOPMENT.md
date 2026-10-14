@@ -109,5 +109,15 @@ actual result must be checked before describing the package as validated.
 The online URLs target a future `v1.0` release. Until matching assets are
 published, development testers must supply the local ZIPs from the artifact.
 
+The complete distribution now also supplies the original Apple CDN Depth Pro
+checkpoint in `DepthTricia_Models_DepthPro_1.0.zip`. The package manifest pins
+its known size/SHA-256; only this specific model path is allowed alongside the
+runtime library paths. Local packages are preferred, installed archives are
+verified without re-downloading, and the GUI does not request a second model
+download for a checkpoint already provided by the confirmed package setup.
+The frozen smoke test checks checkpoint installation and SHA-256, but remains
+an inference test of DA2, not full Depth Pro inference. The earlier five-ZIP
+size table above records the previous build without the Depth Pro model ZIP.
+
 Pushes to main run source checks and create a Windows development artifact.
 The workflow does not publish a stable release automatically.

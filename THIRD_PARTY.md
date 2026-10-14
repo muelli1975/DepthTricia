@@ -8,7 +8,7 @@ Reusing a third-party component does not relicense that component.
 | nunif / iw3 original code, MaskMLBW and LightInpaint weights | MIT | https://github.com/nagadomi/nunif |
 | Depth Anything V2 Small weights | Apache 2.0 | https://huggingface.co/depth-anything/Depth-Anything-V2-Small |
 | DA3 Mono Large weights | Apache 2.0 | https://huggingface.co/depth-anything/DA3MONO-LARGE |
-| Depth Pro code and weights | Apple Sample Code License | https://github.com/apple-aiml-research/ml-depth-pro |
+| Depth Pro code and original Apple CDN checkpoint | Apple Sample Code License, as stated in Apple's original README | https://github.com/apple-aiml-research/ml-depth-pro |
 | Depth Anything iw3 adapters / DINOv2 | Respective Apache-2.0 notices | https://github.com/nagadomi/Depth-Anything_iw3 |
 | Depth Anything 3 iw3 adapter | Apache 2.0 and upstream notices | https://github.com/nagadomi/Depth-Anything-3_iw3 |
 
@@ -26,6 +26,11 @@ the upstream online model loaders.
 
 The complete copied license texts, NOTICE and Apple ACKNOWLEDGEMENTS are
 included under `licenses`. Runtime packages also retain their license texts.
+The separate Depth Pro model ZIP includes the complete license, acknowledgements
+and checkpoint provenance. `licenses/DepthPro-SOURCE.md` records the original
+Apple CDN source, size, SHA-256 and upstream license statement. The Hugging Face
+apple/DepthPro copy carries a different research-only license and is not the
+download source used by DepthTricia.
 PyAV and FFmpeg are not required for this still-image application.
 ExifTool 13.59 x64 is bundled unchanged apart from renaming its launcher to
 `exiftool.exe` as documented by its author. Its accompanying files and license

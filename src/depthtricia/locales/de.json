@@ -110,7 +110,7 @@
   "dialog.download_title": "Modelle herunterladen",
   "dialog.download_confirm": "Die folgenden Modelle fehlen oder sind unvollständig:\n\n{files}\n\nDownloadgröße: {size:.0f} MB.\nDie Modelle stehen unter ihren jeweiligen MIT-, Apache-2.0- bzw. Apple-Lizenzen (siehe THIRD_PARTY.md).\n\nJetzt von den offiziellen Modellquellen herunterladen?\nNach dem Download funktioniert die Verarbeitung offline.",
   "progress.download": "Modelldownload: {filename} – {percent:.0f} %",
-  "dialog.runtime_title": "Laufzeit vorbereiten",
-  "dialog.runtime_confirm": "Für die Berechnung fehlen noch Laufzeitdateien.\n\nEinmaliger Download: insgesamt {size:.0f} MB in mehreren Paketen.\nBereits vorhandene ZIP-Pakete im Programmordner oder daneben werden zuerst verwendet.\n\nJetzt installieren und fehlende Pakete von unserem GitHub-Release herunterladen?\nDanach funktioniert DepthTricia offline auf CPU oder NVIDIA-GPU.",
+  "dialog.runtime_title": "Programmpakete vorbereiten",
+  "dialog.runtime_confirm": "Für die Berechnung fehlen noch Laufzeit- oder Modelldateien.\n\nEinmaliger Download: insgesamt {size:.0f} MB in mehreren Paketen, einschließlich Depth Pro.\nBereits vorhandene ZIP-Pakete im Programmordner oder daneben werden zuerst verwendet.\n\nJetzt installieren und fehlende Pakete von unserem GitHub-Release herunterladen?\nDanach funktioniert DepthTricia offline auf CPU oder NVIDIA-GPU.",
   "progress.runtime_install": "Laufzeit vorbereiten: {filename} – {percent:.0f} %"
 }

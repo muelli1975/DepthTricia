@@ -24,11 +24,12 @@ download is one common package, with no separate CPU/GPU editions.
 Model downloads are opt-in in the application. For developer/build use:
 
 ```powershell
-.venv\Scripts\python scripts/download_models.py da2 da3 --confirm
+.venv\Scripts\python scripts/download_models.py da2 da3 depthpro --confirm
 ```
 
-Depth Pro is optional: select it in the GUI and explicitly confirm its download,
-or use `scripts/download_models.py depthpro --confirm` while developing.
+The complete release includes Depth Pro in its own model ZIP. Its checkpoint
+is obtained from the direct Apple CDN URL in the original upstream download
+script, with the license basis recorded in `licenses/DepthPro-SOURCE.md`.
 All files are checked against recorded SHA-256 hashes before use.
 
 Build the portable package:
@@ -54,7 +55,9 @@ CUDA build.
 
 The main ZIP attempts to include DA2 Small, DA3 Mono Large and shared
 inpainting models. If necessary DA3 is omitted and remains available through
-the confirmed model download. Depth Pro stays optional.
+the confirmed model download. Depth Pro is packaged separately as
+`DepthTricia_Models_DepthPro_1.0.zip`, with complete license texts and provenance.
+It is installed by the same confirmed, checksum-verified package installer.
 
 At Start, missing runtime files trigger a confirmation before installation.
 Matching ZIPs in `runtime_packages`, the application folder or its parent are
@@ -70,7 +73,8 @@ from the build artifact; put them beside the extracted DepthTricia folder.
 
 The workflow assembles the folder, then runs `DepthTricia.exe --smoke-test
 REPORT.json` before compressing it. This checks GUI startup, preset editing,
-DA3 configuration, Depth Pro imports, real DA2 CPU conversion, inpainting,
+DA3 configuration, Depth Pro imports and checkpoint installation/hash,
+real DA2 CPU conversion, inpainting,
 output dimensions, ExifTool metadata copying and depth-cache reuse, with
 Python network connections blocked. It does not validate CUDA inference or
 full Depth Pro inference.

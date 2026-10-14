@@ -8,7 +8,7 @@ floating-window curtains, SBS/anaglyph outputs and metadata handling.
 
 **Development build — not yet a verified Windows release.**
 
-Models: Depth Anything V2 Small, Depth Anything 3 Mono Large and optional
+Models: Depth Anything V2 Small, Depth Anything 3 Mono Large and
 Depth Pro. Stereo generation uses iw3's `mlbw_l2_inpaint` with
 `light_inpaint_v1`. Processing supports CPU and NVIDIA/CUDA.
 
@@ -25,6 +25,11 @@ One common Windows package selects CUDA when available, otherwise CPU.
 Large runtime files are supplied as additional ZIP assets. At first processing,
 DepthTricia asks before installing or downloading missing runtime packages.
 Local ZIPs beside the application are used first; afterwards it works offline.
+DA2 and DA3 are in the main ZIP. The original Apple Depth Pro checkpoint is
+included in `DepthTricia_Models_DepthPro_1.0.zip` and installed with the runtime
+packages after confirmation. Download all six ZIPs from the same release into
+one folder, extract only `DepthTricia_1.0.zip`, and leave the other ZIPs beside
+the extracted application folder for offline installation.
 
 Output folders: `sbs`, `anaglyph`, `_temp` (reusable depth maps).
 Changing stereo settings reuses depth maps; changing the source, depth model,

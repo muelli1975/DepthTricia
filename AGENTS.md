@@ -13,7 +13,8 @@ Preserve inherited output paths, stereo-window controls and anaglyph math.
 Distinguish implemented code from tested inference and a verified release.
 Ship one common CUDA-enabled package with Automatic selecting CUDA when
 available, otherwise CPU. No separate public CPU/GPU editions are planned.
-Keep DA2 and DA3 bundled; Depth Pro remains an explicitly confirmed download.
+Keep DA2 and DA3 bundled in the main ZIP. Ship the original Apple CDN Depth Pro
+checkpoint in its own model ZIP, installed with the confirmed package setup.
 Split large runtime libraries into verified standard ZIP assets below 2 GiB.
 Install missing assets only after confirmation, with local ZIPs preferred.
 Use one common application; do not mix CPU-build and CUDA-build libraries.

@@ -6,7 +6,7 @@ import tempfile
 import zipfile
 
 from .downloads import DownloadCancelled, download_models
-from .model_catalog import ModelFile
+from .model_catalog import FILES, ModelFile
 
 
 def digest(path):
@@ -21,7 +21,9 @@ def destination(root, name):
     relative = PurePosixPath(name)
     if '\\' in name or relative.is_absolute() or '..' in relative.parts:
         raise ValueError('Unsafe runtime path')
-    if relative.parts[:3] != ('_internal', 'torch', 'lib') or len(relative.parts) != 4:
+    is_library = relative.parts[:3] == ('_internal', 'torch', 'lib') and len(relative.parts) == 4
+    is_depthpro = relative.parts == ('models', FILES['depthpro'].filename)
+    if not (is_library or is_depthpro):
         raise ValueError('Unexpected runtime file location')
     result = root.joinpath(*relative.parts)
     if not result.resolve().is_relative_to(root.resolve()):
@@ -41,6 +43,10 @@ def manifest(root):
         destination(root, item['path'])
         if item['path'] in files or item['size'] <= 0 or len(item['sha256']) != 64:
             raise ValueError('Invalid runtime file record')
+        if item['path'].startswith('models/'):
+            spec = FILES['depthpro']
+            if item['size'] != spec.size or item['sha256'] != spec.sha256:
+                raise ValueError('Depth Pro package does not match the official checkpoint')
         files.add(item['path'])
     assigned = []
     for item in data['archives']:
@@ -85,16 +91,16 @@ def install_runtime(root, *, confirmed, progress=None, cancelled=None):
     def check_cancelled():
         if cancelled and cancelled():
             raise DownloadCancelled('Installation abgebrochen.')
-    # A complete manual offline extraction can be verified without downloading.
     check_cancelled()
-    if all(destination(root, item['path']).is_file()
-           and destination(root, item['path']).stat().st_size == item['size']
-           and digest(destination(root, item['path'])) == item['sha256'] for item in data['files']):
-        (root / 'runtime_verified.json').write_text(json.dumps(signature(root, data)), encoding='utf-8')
-        return
     files = {item['path']: item for item in data['files']}
     for asset in data['archives']:
         check_cancelled()
+        # Already installed archives, including a manually supplied checkpoint,
+        # can be verified offline without reinstalling or downloading them.
+        if all(destination(root, name).is_file()
+               and destination(root, name).stat().st_size == files[name]['size']
+               and digest(destination(root, name)) == files[name]['sha256'] for name in asset['paths']):
+            continue
         archive = None
         for directory in (root / 'runtime_packages', root, root.parent):
             candidate = directory / asset['filename']
@@ -136,4 +142,5 @@ def install_runtime(root, *, confirmed, progress=None, cancelled=None):
                     target = destination(root, name)
                     target.parent.mkdir(parents=True, exist_ok=True)
                     (Path(staging) / PurePosixPath(name).name).replace(target)
+    check_cancelled()
     (root / 'runtime_verified.json').write_text(json.dumps(signature(root, data)), encoding='utf-8')

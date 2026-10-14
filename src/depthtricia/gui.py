@@ -943,7 +943,8 @@ class DepthTriciaApp(ctk.CTk):
                                       self.tr("dialog.runtime_confirm", size=size_mb)):
                 self.pending_runtime = None
                 return
-        self.pending_downloads = missing_files(config.models_dir, config.model_id)
+        self.pending_downloads = missing_files(config.models_dir, config.model_id,
+            bundled_files=self.pending_runtime['files'] if self.pending_runtime else ())
         if self.pending_downloads:
             size_mb = sum(spec.size for spec in self.pending_downloads) / 1_000_000
             names = "\n".join(spec.filename for spec in self.pending_downloads)

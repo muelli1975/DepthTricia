@@ -71,7 +71,7 @@ jobs:
           import hashlib, json, os, pathlib, zipfile
           root = pathlib.Path('payload')
           report = json.loads((root / 'smoke-test.json').read_text())
-          for key in ['ok', 'gui', 'presets', 'da2_inference', 'stereo_inpainting', 'metadata', 'cache', 'offline']:
+          for key in ['ok', 'gui', 'presets', 'depthpro_weights', 'da2_inference', 'stereo_inpainting', 'metadata', 'cache', 'offline']:
               assert report[key] is True, key
           assert report['inference_device'] == 'cpu' and report['cuda_runtime'] == '12.6'
           with zipfile.ZipFile(root / 'DepthTricia_1.0.zip') as package:
@@ -107,4 +107,5 @@ jobs:
             gh release create v1.0 --repo "$REPO" --draft --target "$VERIFIED_SHA" --title 'DepthTricia 1.0 — development draft' --notes-file .github/RELEASE_DRAFT.md
           fi
           gh release upload v1.0 payload/DepthTricia_Runtime_*.zip --repo "$REPO" --clobber
+          gh release upload v1.0 payload/DepthTricia_Models_*.zip --repo "$REPO" --clobber
           gh release upload v1.0 payload/DepthTricia_1.0.zip payload/smoke-test.json --repo "$REPO" --clobber

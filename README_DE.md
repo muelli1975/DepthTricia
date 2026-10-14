@@ -7,7 +7,7 @@ und Metadatenübernahme stammen aus SplatTricia.
 **Entwicklungsstand — noch kein geprüfter Windows-Release.**
 
 Unterstützte Modelle: Depth Anything V2 Small, Depth Anything 3 Mono Large
-und optional Depth Pro. Stereo-Erzeugung: `mlbw_l2_inpaint` mit
+und Depth Pro. Stereo-Erzeugung: `mlbw_l2_inpaint` mit
 `light_inpaint_v1`. Berechnung auf CPU oder NVIDIA/CUDA.
 
 Standard: 15‰ Deviation, Scheinfensterlage 100%, Edge Fix horizontal 2 /
@@ -24,6 +24,11 @@ CPU. Große Laufzeitdateien werden als zusätzliche ZIP-Pakete bereitgestellt.
 Vor der ersten Verarbeitung fragt DepthTricia, bevor fehlende Pakete
 installiert oder heruntergeladen werden. Lokale ZIPs neben dem Programm
 werden zuerst verwendet; anschließend funktioniert es offline.
+DA2 und DA3 liegen im Haupt-ZIP. Das originale Apple-Depth-Pro-Modell liegt
+in `DepthTricia_Models_DepthPro_1.0.zip` und wird nach Bestätigung zusammen
+mit den Laufzeitpaketen installiert. Für die Offline-Installation alle sechs
+ZIPs desselben Releases in einen Ordner laden, nur `DepthTricia_1.0.zip`
+entpacken und die übrigen ZIPs neben dem entpackten Programmordner liegen lassen.
 
 Ausgaben: `sbs`, `anaglyph` und `_temp` mit wiederverwendbaren Tiefenkarten.
 Geänderte Stereo-Einstellungen benötigen keine neue Tiefenschätzung.

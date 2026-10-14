@@ -47,7 +47,7 @@ def prepare(include_da3=True):
     collect(application / 'LICENSES.txt')
     models = application / 'models'
     models.mkdir(exist_ok=True)
-    for key in ['da2', 'warp', 'inpaint'] + (['da3'] if include_da3 else []):
+    for key in ['da2', 'depthpro', 'warp', 'inpaint'] + (['da3'] if include_da3 else []):
         spec = FILES[key]
         verify_model(ROOT / 'models', spec)
         shutil.copyfile(ROOT / 'models' / spec.filename, models / spec.filename)
@@ -58,7 +58,7 @@ def prepare(include_da3=True):
                 source_commit=subprocess.check_output(['git', '-C', str(ROOT), 'rev-parse', 'HEAD'], text=True).strip())
     (application / 'BUILD_INFO.json').write_text(json.dumps(info, indent=2), encoding='utf-8')
     from runtime_chunks import split_runtime
-    split_runtime(application)
+    split_runtime(application, include_depthpro=True)
     return application
 
 
@@ -67,6 +67,7 @@ def archive(application):
     runtime = json.loads((application / 'runtime_manifest.json').read_text(encoding='utf-8'))
     excluded = {application / item['path'] for item in runtime['files']}
     excluded.add(application / 'runtime_verified.json')
+    excluded.add(application / 'models/depth_pro.pt.verified.json')
     zip_folder(application, target, exclude=excluded)
     print(f'Complete archive: {target.stat().st_size / 1e6:.1f} MB', flush=True)
     models = application / 'models'
