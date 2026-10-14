@@ -35,20 +35,20 @@ def prepare(local_sources: Path | None = None):
     (nunif / "iw3/hub_dir.py").write_text(
         'import os\nHUB_MODEL_DIR = os.environ["DEPTHTRICIA_MODEL_DIR"]\n')
     path = nunif / "iw3/inpaint_utils.py"
-    text = path.read_text()
+    text = path.read_text(encoding="utf-8")
     original = 'path.join(ensure_home_dir("iw3"), "inpaint_models.yml")'
     if original not in text:
         raise RuntimeError("Upstream inpaint configuration changed")
-    path.write_text(text.replace(original, 'path.join(HUB_MODEL_DIR, "inpaint_models.yml")'))
+    path.write_text(text.replace(original, 'path.join(HUB_MODEL_DIR, "inpaint_models.yml")'), encoding="utf-8")
     # Map the checked local checkpoint rather than duplicating it in RAM while
     # loading. The model remains in the explicitly selected numerical precision.
     path = vendor / "depthpro/src/depth_pro/depth_pro.py"
-    text = path.read_text()
+    text = path.read_text(encoding="utf-8")
     original = 'torch.load(config.checkpoint_uri, map_location="cpu")'
     replacement = 'torch.load(config.checkpoint_uri, map_location="cpu", weights_only=True, mmap=True)'
     if original not in text:
         raise RuntimeError("Upstream Depth Pro checkpoint loader changed")
-    path.write_text(text.replace(original, replacement))
+    path.write_text(text.replace(original, replacement), encoding="utf-8")
 
 
 if __name__ == "__main__":

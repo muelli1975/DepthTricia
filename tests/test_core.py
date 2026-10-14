@@ -80,3 +80,19 @@ def test_download_cancel_keeps_existing_model(tmp_path, monkeypatch):
     with pytest.raises(DownloadCancelled):
         download_models(tmp_path, (spec(),), confirmed=True, cancelled=lambda: True)
     assert (tmp_path / "test.pth").read_bytes() == b"old"
+
+
+@pytest.mark.parametrize('available', [False, True])
+def test_automatic_device_and_explicit_cpu(monkeypatch, available):
+    import sys
+    from types import SimpleNamespace
+    from depthtricia.runtime import select_device
+    monkeypatch.setitem(sys.modules, 'torch', SimpleNamespace(
+        cuda=SimpleNamespace(is_available=lambda: available), device=lambda name: name))
+    assert select_device('auto') == ('cuda' if available else 'cpu')
+    assert select_device('cpu') == 'cpu'
+    if available:
+        assert select_device('cuda') == 'cuda'
+    else:
+        with pytest.raises(RuntimeError, match='NVIDIA/CUDA'):
+            select_device('cuda')

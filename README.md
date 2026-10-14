@@ -21,6 +21,11 @@ Models are stored visibly in `models`. Missing models can be downloaded only
 after explicit confirmation. Existing models are loaded locally without
 network checks, accounts, tokens or a Hugging Face cache dependency.
 
+One common Windows package selects CUDA when available, otherwise CPU.
+Large runtime files are supplied as additional ZIP assets. At first processing,
+DepthTricia asks before installing or downloading missing runtime packages.
+Local ZIPs beside the application are used first; afterwards it works offline.
+
 Output folders: `sbs`, `anaglyph`, `_temp` (reusable depth maps).
 Changing stereo settings reuses depth maps; changing the source, depth model,
 depth resolution or edge fix invalidates the corresponding cache.

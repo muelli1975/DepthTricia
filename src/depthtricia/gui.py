@@ -69,6 +69,7 @@ class DepthTriciaApp(ctk.CTk):
             self.depth_preset = DepthPreset()
             self.active_preset = ""
         self.pending_downloads = ()
+        self.pending_runtime = None
         self.preset_dialog = None
 
         ctk.set_appearance_mode("dark")
@@ -930,6 +931,18 @@ class DepthTriciaApp(ctk.CTk):
         except ValueError as exc:
             messagebox.showerror(self.tr("dialog.error_title"), str(exc))
             return
+        from .runtime_install import missing_runtime
+        try:
+            self.pending_runtime = missing_runtime(self.app_dir)
+        except (OSError, ValueError, KeyError, TypeError) as exc:
+            messagebox.showerror(self.tr("dialog.error_title"), str(exc))
+            return
+        if self.pending_runtime:
+            size_mb = sum(asset['size'] for asset in self.pending_runtime['archives']) / 1_000_000
+            if not messagebox.askyesno(self.tr("dialog.runtime_title"),
+                                      self.tr("dialog.runtime_confirm", size=size_mb)):
+                self.pending_runtime = None
+                return
         self.pending_downloads = missing_files(config.models_dir, config.model_id)
         if self.pending_downloads:
             size_mb = sum(spec.size for spec in self.pending_downloads) / 1_000_000
@@ -972,6 +985,18 @@ class DepthTriciaApp(ctk.CTk):
             self.ui_queue.put(("error", (exc, traceback.format_exc())))
             return
         try:
+            if self.pending_runtime:
+                from .runtime_install import install_runtime
+                from .downloads import DownloadCancelled
+                def runtime_progress(filename, received, total):
+                    self.ui_queue.put(("event", ProgressEvent("download", "progress.runtime_install", filename,
+                        details={"filename": filename, "percent": received / total * 100})))
+                try:
+                    install_runtime(self.app_dir, confirmed=True, progress=runtime_progress,
+                                    cancelled=self.cancel_event.is_set)
+                except DownloadCancelled:
+                    self.ui_queue.put(("cancelled", None))
+                    return
             if self.pending_downloads:
                 from .downloads import download_models, DownloadCancelled
                 def download_progress(filename, received, total):

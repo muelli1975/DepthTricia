@@ -19,6 +19,12 @@ Modelle liegen sichtbar im Ordner `models`. Fehlende Modelle werden nur nach
 ausdrücklicher Bestätigung heruntergeladen. Vorhandene Modelle funktionieren
 offline, ohne Konto, Token, Netzwerkprüfung oder externen Modellcache.
 
+Ein gemeinsames Windows-Paket wählt automatisch CUDA, wenn verfügbar, sonst
+CPU. Große Laufzeitdateien werden als zusätzliche ZIP-Pakete bereitgestellt.
+Vor der ersten Verarbeitung fragt DepthTricia, bevor fehlende Pakete
+installiert oder heruntergeladen werden. Lokale ZIPs neben dem Programm
+werden zuerst verwendet; anschließend funktioniert es offline.
+
 Ausgaben: `sbs`, `anaglyph` und `_temp` mit wiederverwendbaren Tiefenkarten.
 Geänderte Stereo-Einstellungen benötigen keine neue Tiefenschätzung.
 

@@ -38,13 +38,35 @@ jobs:
           if ($env:BUNDLE_DA3 -eq 'true') { python scripts/download_models.py da2 da3 --confirm }
           else { python scripts/download_models.py da2 --confirm }
       - run: python -m PyInstaller --noconfirm --clean DepthTricia.spec
-      - name: Package
+      - name: Prepare portable folder
         shell: pwsh
         run: |
-          if ($env:BUNDLE_DA3 -eq 'true') { python scripts/package_release.py }
-          else { python scripts/package_release.py --without-da3 }
+          if ($env:BUNDLE_DA3 -eq 'true') { python scripts/package_release.py --prepare-only }
+          else { python scripts/package_release.py --prepare-only --without-da3 }
+      - name: Verify packaged executable on CPU
+        shell: pwsh
+        run: |
+          $report = Join-Path (Get-Location) 'dist/smoke-test.json'
+          $process = Start-Process dist/DepthTricia/DepthTricia.exe -ArgumentList @('--smoke-test', $report) -Wait -PassThru
+          if (Test-Path $report) { Get-Content $report }
+          if ($process.ExitCode -ne 0 -or !(Test-Path $report)) { throw 'Packaged executable smoke test failed.' }
+      - run: python scripts/package_release.py --archive-only
       - uses: actions/upload-artifact@v4
         with:
           name: DepthTricia-development
-          path: dist/DepthTricia_1.0.zip
+          path: |
+            dist/DepthTricia_1.0.zip
+            dist/DepthTricia_Runtime_*.zip
+            dist/smoke-test.json
           compression-level: 0
+          retention-days: 7
+      - name: Save diagnostic report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: DepthTricia-diagnostics
+          path: |
+            dist/smoke-test.json
+            dist/DepthTricia/depthtricia_error.log
+            build/DepthTricia/warn-DepthTricia.txt
+          if-no-files-found: ignore

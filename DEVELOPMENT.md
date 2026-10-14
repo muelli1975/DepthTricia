@@ -10,9 +10,9 @@ The supplied icon and original ready.wav are preserved byte for byte.
 
 ## Verified locally
 
-- Seven regression tests cover depth normalization, width-based deviation,
+- Thirteen regression tests cover depth normalization, width-based deviation,
   window backshift, cache invalidation, download consent, checksum failure and
-  cancellation.
+  cancellation, automatic CPU/CUDA selection and verified runtime installation.
 - A complete CPU run with DA2 Small at depth resolution 1218 generated both
   stereo/anaglyph outputs with the real inpainting models. A second run reused
   the saved depth map without loading the depth model.
@@ -71,6 +71,24 @@ These results validate the width-based conversion in the controlled test,
 not exact disparity of every feature in a real photo. Learned backward warping,
 occlusion boundaries, inpainting and JPEG affect correspondence measurement.
 No experimental calibration correction is applied to upstream warping.
+
+## Portable runtime split
+
+The first complete CUDA ZIP exceeded GitHub's 2 GiB individual release-asset
+limit even without DA3. The common application now groups its matching large
+runtime files into normal ZIP assets under that limit. Files are not altered,
+and no CPU/CUDA binary mixing or numerical changes are involved.
+
+The GUI asks before installing missing runtime files. Verified local ZIPs are
+used before downloads. Every archive and extracted file is checked against
+the build manifest; cancellation leaves previously installed files intact
+within the current archive. Partially completed installations can be retried.
+The Windows workflow starts the frozen GUI before restoring the runtime from
+local ZIPs, then exercises CPU inference and metadata/cache handling. Its
+actual result must be checked before describing the package as validated.
+
+The online URLs target a future `v1.0` release. Until matching assets are
+published, development testers must supply the local ZIPs from the artifact.
 
 Pushes to main run source checks and create a Windows development artifact.
 The workflow does not publish a stable release automatically.
