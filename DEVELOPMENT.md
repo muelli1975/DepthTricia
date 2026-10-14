@@ -55,5 +55,22 @@ user can explicitly choose DA2 Small or a lower-resolution preset instead.
 The inherited SplatTricia working-image height limit remains 2160 pixels;
 depth resolution and output-image resolution are separate settings.
 
+## Deviation calibration
+
+`scripts/check_deviation.py` measures the actual CPU stereo/inpainting renderer
+using horizontal intensity ramps and separate constant depth endpoints (0/1).
+The median difference is measured in the image interior, before uint8/JPEG.
+With 15 permille, window 100% and no backshift:
+
+| Image | Target span | Measured span | Measured permille |
+| --- | ---: | ---: | ---: |
+| Landscape, width 1024, depth width 1218 | 15.360 px | 15.304 px | 14.945 |
+| Portrait, width 256, depth height 1218 | 3.840 px | 3.821 px | 14.925 |
+
+These results validate the width-based conversion in the controlled test,
+not exact disparity of every feature in a real photo. Learned backward warping,
+occlusion boundaries, inpainting and JPEG affect correspondence measurement.
+No experimental calibration correction is applied to upstream warping.
+
 Pushes to main run source checks and create a Windows development artifact.
 The workflow does not publish a stable release automatically.
