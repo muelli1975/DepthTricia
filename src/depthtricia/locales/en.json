@@ -97,7 +97,7 @@
   "device.auto": "Automatic",
   "button.presets": "Presets …",
   "label.preset": "Preset",
-  "preset.default": "Default",
+  "preset.default": "Standard",
   "preset.model_default": "Model default",
   "preset.name": "Name",
   "preset.resolution": "Depth resolution",
@@ -113,9 +113,14 @@
   "dialog.runtime_title": "Prepare application packages",
   "dialog.runtime_confirm": "Runtime or model files are required for processing.\n\nOne-time download: {size:.0f} MB in several packages, including Depth Pro.\nExisting ZIP packages in or beside the application folder are used first.\n\nInstall now and download missing packages from our GitHub release?\nDepthTricia works offline on CPU or NVIDIA GPU afterwards.",
   "progress.runtime_install": "Preparing runtime: {filename} – {percent:.0f} %",
-  "option.original_size": "Original size output",
-  "option.save_depth_map": "Save depth map",
+  "option.original_size": "Original size",
+  "option.save_depth_map": "Depth map (PNG)",
   "preset.quick": "Quick",
   "preset.fine": "Fine",
-  "preset.own_suffix": " (custom)"
+  "preset.own_suffix": " (custom)",
+  "preset.cpu": "CPU",
+  "preset.depthpro": "Depth Pro",
+  "preset.create": "Create custom preset …",
+  "preset.edit": "Edit preset …",
+  "preset.cancel": "Cancel"
 }

@@ -6,7 +6,7 @@ DepthTricia converts individual 2D photographs or image folders to stereo 3D
 using depth maps. It inherits SplatTricia's interface, stereo-window controls,
 floating-window curtains, SBS/anaglyph outputs and metadata handling.
 
-**Development build — not yet a verified Windows release.**
+[Download DepthTricia 1.0](https://github.com/muelli1975/DepthTricia/releases/tag/v1.0)
 
 Models: Depth Anything V2 Small, Depth Anything 3 Mono Large and
 Depth Pro. Stereo generation uses iw3's `mlbw_l2_inpaint` with
@@ -14,20 +14,23 @@ Depth Pro. Stereo generation uses iw3's `mlbw_l2_inpaint` with
 
 Defaults: 15‰ deviation, 100% stereo-window position, horizontal/vertical
 edge fix 2/1, and 1218 depth resolution for Depth Anything. Depth Pro uses its
-native model resolution. Presets Quick, Standard and Fine use model-standard,
-1218 and 2048 respectively, with edge fix 2/1. Custom values from 196 to 4096
-and custom edge settings can be saved under a separate preset name.
+native model resolution. Complete presets select model, device, resolution and
+edge fix together: Standard uses DA3 / 1218 / Automatic, CPU uses DA2 / 518 / CPU,
+Quick uses DA3 / 504 / Automatic, Fine uses DA3 / 2048 / Automatic, and Depth Pro
+uses its native resolution / Automatic. All use edge fix 2/1. The selected
+model and settings remain visible beside the preset list. Custom presets can
+include resolutions from 196 to 4096 and custom edge settings.
 Depth Anything internally rounds resolutions up to its 14-pixel grid (2048
 becomes 2058); Depth Pro's resolution remains fixed for all presets.
 The model-standard option displays its value: 518 for DA2, 504 for DA3;
 Depth Pro uses a fixed internal 1536×1536 resolution.
 
 Output is limited to 2160 pixels high by default, without upscaling smaller
-photos. **Original size output** keeps the full oriented source dimensions.
-**Save depth map** optionally exports the used relative depth map as a 16-bit
+photos. **Original size** keeps the full oriented source dimensions.
+**Depth map (PNG)** optionally exports the used relative depth map as a 16-bit
 grayscale PNG in `depth_maps`: near is white, far is black. It retains the
 computed map dimensions and is not a metric depth-in-metres export.
-Both checkboxes start off and their choices are saved. Named depth presets and
+Both checkboxes are under Options, start off and their choices are saved. Named depth presets and
 these options are stored locally in `settings.json` in the application folder;
 keep that file when updating. With settings in filenames enabled, outputs
 include the model tag, e.g. `scene_DA3MonoLarge_d15_w100_o0_sbs.jpg`.
@@ -57,3 +60,7 @@ See [DEVELOPMENT.md](DEVELOPMENT.md) for validation status and remaining work.
 
 Original DepthTricia code is MIT licensed. Third-party code and model weights
 retain their respective licenses; see [THIRD_PARTY.md](THIRD_PARTY.md).
+
+CPU users should choose the CPU preset. DA3 at 1218/2048 and Depth Pro require
+more time and memory; original-size output also increases inpainting memory.
+No quality setting or device is reduced automatically after a memory error.

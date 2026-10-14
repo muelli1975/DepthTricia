@@ -1,4 +1,4 @@
-name: Prepare release draft
+name: Release DepthTricia 1.0
 on:
   workflow_run:
     workflows: [Source checks, Windows development build]
@@ -76,7 +76,7 @@ jobs:
           import hashlib, json, os, pathlib, zipfile
           root = pathlib.Path('payload')
           report = json.loads((root / 'smoke-test.json').read_text())
-          for key in ['ok', 'gui', 'presets', 'depthpro_weights', 'depth_png', 'original_size', 'model_filename', 'da2_inference', 'stereo_inpainting', 'metadata', 'cache', 'offline']:
+          for key in ['ok', 'gui', 'presets', 'depthpro_weights', 'preset_model_device', 'depth_png', 'original_size', 'model_filename', 'da2_inference', 'stereo_inpainting', 'metadata', 'cache', 'offline']:
               assert report[key] is True, key
           assert report['inference_device'] == 'cpu' and report['cuda_runtime'] == '12.6'
           with zipfile.ZipFile(root / 'DepthTricia_1.0.zip') as package:
@@ -97,7 +97,18 @@ jobs:
               assert value.hexdigest() == item['sha256'], path.name
           print('All release assets match the verified Windows build.')
           PY
-      - name: Create unpublished release draft
+      - name: Check matching source checks
+        if: steps.build.outputs.run_id != ''
+        env:
+          VERIFIED_SHA: ${{ steps.build.outputs.source_sha }}
+        run: |
+          gh api "repos/$REPO/actions/runs?head_sha=$VERIFIED_SHA&per_page=100" > source-runs.json
+          python - <<'PY'
+          import json
+          runs = json.load(open('source-runs.json'))['workflow_runs']
+          assert any(r['name'] == 'Source checks' and r['conclusion'] == 'success' for r in runs)
+          PY
+      - name: Upload verified release assets
         if: steps.build.outputs.run_id != ''
         env:
           VERIFIED_SHA: ${{ steps.build.outputs.source_sha }}
@@ -109,8 +120,36 @@ jobs:
             fi
             gh release edit v1.0 --repo "$REPO" --draft --target "$VERIFIED_SHA" --notes-file .github/RELEASE_DRAFT.md
           else
-            gh release create v1.0 --repo "$REPO" --draft --target "$VERIFIED_SHA" --title 'DepthTricia 1.0 — development draft' --notes-file .github/RELEASE_DRAFT.md
+            gh release create v1.0 --repo "$REPO" --draft --target "$VERIFIED_SHA" --title 'DepthTricia 1.0' --notes-file .github/RELEASE_DRAFT.md
           fi
           gh release upload v1.0 payload/DepthTricia_Runtime_*.zip --repo "$REPO" --clobber
           gh release upload v1.0 payload/DepthTricia_Models_*.zip --repo "$REPO" --clobber
           gh release upload v1.0 payload/DepthTricia_1.0.zip payload/smoke-test.json --repo "$REPO" --clobber
+      - name: Verify uploaded assets and publish 1.0
+        if: steps.build.outputs.run_id != ''
+        env:
+          VERIFIED_SHA: ${{ steps.build.outputs.source_sha }}
+        run: |
+          gh api "repos/$REPO/releases/tags/v1.0" > uploaded-release.json
+          python - <<'PY'
+          import hashlib, json, pathlib
+          release = json.load(open('uploaded-release.json'))
+          assert release['draft'] is True
+          assets = {item['name']: item for item in release['assets']}
+          expected = {p.name: p for p in pathlib.Path('payload').iterdir() if p.is_file()}
+          assert set(assets) == set(expected)
+          for name, path in expected.items():
+              asset = assets[name]
+              assert asset['state'] == 'uploaded' and asset['size'] == path.stat().st_size, name
+              value = hashlib.sha256()
+              with path.open('rb') as stream:
+                  for block in iter(lambda: stream.read(4 * 1024 * 1024), b''):
+                      value.update(block)
+              assert asset['digest'] == 'sha256:' + value.hexdigest(), name
+          PY
+          current_source=$(gh api "repos/$REPO/git/ref/heads/main" --jq .object.sha)
+          if [ "$VERIFIED_SHA" != "$current_source" ]; then
+            echo 'Newer source exists; leave this build unpublished.'
+            exit 0
+          fi
+          gh release edit v1.0 --repo "$REPO" --draft=false --prerelease=false --latest --title 'DepthTricia 1.0' --target "$VERIFIED_SHA" --notes-file .github/RELEASE_DRAFT.md

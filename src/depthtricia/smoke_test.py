@@ -15,53 +15,9 @@ def run(app_dir: Path) -> dict:
         from PIL import Image, ImageDraw
         from .config import ProcessingConfig, DepthPreset
         from .controller import ProcessingController
-        from .gui import DepthTriciaApp
         from .runtime import prepare_imports
-        gui_settings = tempfile.TemporaryDirectory(prefix="depthtricia-gui-smoke-")
-        app = DepthTriciaApp(app_dir)
-        app.settings_path = Path(gui_settings.name) / 'settings.json'
-        try:
-            app.update()
-            app._set_processing_controls(True)
-            for widget in (app.model_menu, app.device_menu, app.preset_button,
-                           app.original_size_check, app.save_depth_map_check):
-                if widget.cget("state") != "disabled":
-                    raise RuntimeError("Processing controls are not locked")
-            app._set_processing_controls(False)
-            app.edit_presets()
-            app.update()
-            for key, value in [('quick', 0), ('standard', 1218), ('fine', 2048)]:
-                app.preset_dialog.load(app.preset_dialog.builtin_labels[key])
-                if app.preset_dialog.settings().resolution != value:
-                    raise RuntimeError('Built-in depth preset is incorrect')
-            for model, value in [('da2', 518), ('da3', 504), ('depthpro', 1536)]:
-                from .model_catalog import DEPTH_MODELS
-                app._choose_depth_model(DEPTH_MODELS[model])
-                if f'({value})' not in app.preset_dialog.model_default_label:
-                    raise RuntimeError('Model standard resolution label is incorrect')
-                if model != 'depthpro':
-                    app.preset_dialog.resolution.set(app.preset_dialog.model_default_label)
-                    if app.preset_dialog.settings().resolution != 0:
-                        raise RuntimeError('Model standard preset no longer stores zero')
-            if app.preset_dialog.res_menu.cget('state') != 'disabled':
-                raise RuntimeError('Depth Pro resolution is not fixed')
-            app.preset_dialog.destroy()
-            app.original_size.set(True)
-            app.save_depth_map.set(True)
-            app._save_paths()
-            from .settings import load_settings
-            saved = load_settings(app.settings_path)
-            if saved['original_size'] is not True or saved['save_depth_map'] is not True:
-                raise RuntimeError('Output checkbox settings were not saved')
-            for geometry in ('1280x800', '1100x700'):
-                app.geometry(geometry)
-                app.update()
-                for widget in (app.original_size_check, app.save_depth_map_check):
-                    if widget.winfo_rootx() + widget.winfo_width() > app.language_menu.winfo_rootx():
-                        raise RuntimeError('Output checkbox overlaps language menu')
-        finally:
-            app.destroy()
-            gui_settings.cleanup()
+        from .gui_check import check
+        gui_report = check(app_dir)
         # Start the GUI before installing the large libraries. Build tests use
         # verified local ZIPs; no online request is permitted in this test.
         from .runtime_install import install_runtime
@@ -122,7 +78,7 @@ def run(app_dir: Path) -> dict:
             if not items[0].depth_png_path.is_file():
                 raise RuntimeError('Cached depth PNG was not exported')
         return dict(torch=torch.__version__, cuda_runtime=torch.version.cuda,
-            inference_device="cpu", gui=True, presets=True, da3_configuration=True,
+            inference_device="cpu", gui=True, presets=True, preset_model_device=True, gui_layout=gui_report, da3_configuration=True,
             da3_parameters=da3_parameters, depthpro_import=True, depthpro_weights=True, da2_inference=True,
             stereo_inpainting=True, outputs=True, depth_png=True, original_size=True,
             model_filename=True, metadata=True, cache=True, offline=True)

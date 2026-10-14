@@ -5,7 +5,7 @@ import sys
 import threading
 import traceback
 from pathlib import Path
-from tkinter import filedialog, messagebox
+from tkinter import Canvas, filedialog, messagebox
 
 try:
     import customtkinter as ctk
@@ -16,7 +16,8 @@ except ModuleNotFoundError as exc:
 
 from . import __version__
 from .cache import clear_temporary_files
-from .config import ProcessingConfig, DepthPreset
+from .config import ProcessingConfig, InferencePreset, BUILTIN_PRESETS
+from .presets import restore_presets, preset_choices
 from .model_catalog import DEPTH_MODELS, missing_files
 from .i18n import Translator
 from .models import ProgressEvent
@@ -43,38 +44,16 @@ ERROR_LOG_NAME = "depthtricia_error.log"
 
 
 class DepthTriciaApp(ctk.CTk):
-    def __init__(self, app_dir: Path) -> None:
+    def __init__(self, app_dir: Path, *, settings_path: Path | None = None) -> None:
         super().__init__()
         self.app_dir = app_dir
-        self.settings_path = app_dir / "settings.json"
+        self.settings_path = settings_path or app_dir / "settings.json"
         self.settings = load_settings(self.settings_path)
         self.translator = Translator(str(self.settings.get("language", "de")))
         self.tr = self.translator.tr
-        self.model_id = str(self.settings.get("model_id", "da3"))
-        if self.model_id not in DEPTH_MODELS:
-            self.model_id = "da3"
-        self.device_id = str(self.settings.get("device", "auto"))
-        if self.device_id not in {"auto", "cpu", "cuda"}:
-            self.device_id = "auto"
-        self.depth_presets = self.settings.get("depth_presets", {})
-        if not isinstance(self.depth_presets, dict):
-            self.depth_presets = {}
-        self.active_preset = str(self.settings.get("active_preset", ""))
-        self.depth_preset = DepthPreset()
-        from .config import BUILTIN_PRESETS
-        self.builtin_preset = self.settings.get("builtin_preset", "standard")
-        if self.builtin_preset not in BUILTIN_PRESETS:
-            self.builtin_preset = "standard"
-        self.depth_preset = BUILTIN_PRESETS[self.builtin_preset]
-        try:
-            if self.active_preset in self.depth_presets:
-                self.depth_preset = DepthPreset(**self.depth_presets[self.active_preset])
-                self.depth_preset.validate()
-                self.builtin_preset = None
-        except (TypeError, ValueError):
-            self.depth_preset = DepthPreset()
-            self.active_preset = ""
-            self.builtin_preset = "standard"
+        self.depth_presets, self.active_preset, self.builtin_preset, profile = restore_presets(self.settings)
+        self.model_id, self.device_id = profile.model_id, profile.device
+        self.depth_preset = profile.depth_preset
         self.pending_downloads = ()
         self.pending_runtime = None
         self.preset_dialog = None
@@ -245,9 +224,7 @@ class DepthTriciaApp(ctk.CTk):
 
         for widget in (
             self.language_menu,
-            self.model_menu,
-            self.device_menu,
-            self.preset_button,
+            self.preset_menu,
             self.input_file_button,
             self.input_folder_button,
             self.output_button,
@@ -298,7 +275,7 @@ class DepthTriciaApp(ctk.CTk):
         ).grid(row=0, column=0, sticky="w", padx=24, pady=(18, 2))
         ctk.CTkLabel(
             header, text=self.tr("app.subtitle"), font=ctk.CTkFont(family=FONT_FAMILY, size=14),
-            text_color=TEXT_MUTED, wraplength=220, justify="left",
+            text_color=TEXT_MUTED, wraplength=320, justify="left",
         ).grid(row=1, column=0, sticky="w", padx=24, pady=(0, 16))
         language_values = ["Deutsch", "English"]
         current = "English" if self.translator.locale == "en" else "Deutsch"
@@ -324,48 +301,78 @@ class DepthTriciaApp(ctk.CTk):
                      button_hover_color=LANGUAGE_HOVER, text_color=TEXT,
                      dropdown_fg_color=LANGUAGE_DROPDOWN_BG,
                      dropdown_hover_color=LANGUAGE_DROPDOWN_HOVER, dropdown_text_color=TEXT)
-        ctk.CTkLabel(controls, text=self.tr("label.depth_model"), anchor="w").grid(row=0, column=0, sticky="w")
-        self.model_menu = ctk.CTkOptionMenu(controls, values=list(DEPTH_MODELS.values()), width=230,
-                                           command=self._choose_depth_model, **style)
-        self.model_menu.set(DEPTH_MODELS[self.model_id])
-        self.model_menu.grid(row=1, column=0, padx=(0, 8))
-        ctk.CTkLabel(controls, text=self.tr("label.device"), anchor="w").grid(row=0, column=1, sticky="w")
-        self.device_names = {"auto": self.tr("device.auto"), "cuda": "NVIDIA", "cpu": "CPU"}
-        self.device_menu = ctk.CTkOptionMenu(controls, values=list(self.device_names.values()), width=115,
-                                            command=self._choose_device, **style)
-        self.device_menu.set(self.device_names[self.device_id])
-        self.device_menu.grid(row=1, column=1, padx=(0, 8))
-        self.preset_button = ctk.CTkButton(controls, text=self.tr("button.presets"), width=80, command=self.edit_presets)
-        self.preset_button.grid(row=1, column=2)
-        self.save_depth_map_check = ctk.CTkCheckBox(controls, text=self.tr("option.save_depth_map"),
-            variable=self.save_depth_map, command=self._save_paths, width=200)
-        self.save_depth_map_check.grid(row=0, column=3, padx=(12, 0), sticky="w")
-        self.original_size_check = ctk.CTkCheckBox(controls, text=self.tr("option.original_size"),
-            variable=self.original_size, command=self._save_paths, width=200)
-        self.original_size_check.grid(row=1, column=3, padx=(12, 0), sticky="w")
+        ctk.CTkLabel(controls, text=self.tr("label.preset"), anchor="w").grid(row=0, column=0, sticky="w")
+        self.preset_menu = ctk.CTkOptionMenu(controls, values=[""], width=220,
+            dynamic_resizing=False, command=self._choose_preset, **style)
+        self.preset_menu.grid(row=1, column=0, padx=(0, 18), sticky="w")
+        self.preset_info = ctk.CTkLabel(controls, text="", width=275,
+            anchor="w", justify="left", text_color=TEXT_MUTED)
+        self.preset_info.grid(row=0, column=1, rowspan=2, sticky="w")
+        self._refresh_preset_menu()
 
-    def _choose_depth_model(self, value):
-        self.model_id = next(key for key, name in DEPTH_MODELS.items() if name == value)
+    def current_profile(self):
+        return InferencePreset(self.model_id, self.device_id, self.depth_preset.resolution,
+                               self.depth_preset.edge_x, self.depth_preset.edge_y)
+
+    def _refresh_preset_menu(self):
+        from .model_catalog import MODEL_STANDARD_RESOLUTIONS
+        self.preset_choices = preset_choices(self.tr, self.depth_presets)
+        self.preset_menu.configure(values=[*self.preset_choices, self.tr("preset.create"), self.tr("preset.edit")])
+        selected = ("own", self.active_preset) if self.active_preset else ("builtin", self.builtin_preset)
+        self.preset_menu.set(next(label for label, value in self.preset_choices.items() if value == selected))
+        names = {"da2": "DA2 Small", "da3": "DA3 Mono Large", "depthpro": "Depth Pro"}
+        resolution = self.depth_preset.resolution
+        if self.model_id == "depthpro" or resolution == 0:
+            resolution = MODEL_STANDARD_RESOLUTIONS[self.model_id]
+        device = {"auto": self.tr("device.auto"), "cuda": "NVIDIA", "cpu": "CPU"}[self.device_id]
+        self.preset_info.configure(text=f"{names[self.model_id]} · {resolution} px\n"
+            f"{device} · Edge Fix {self.depth_preset.edge_x}/{self.depth_preset.edge_y}")
+
+    def apply_profile(self, profile, *, name="", builtin=None):
+        profile.validate()
+        self.model_id, self.device_id = profile.model_id, profile.device
+        self.depth_preset = profile.depth_preset
+        self.active_preset, self.builtin_preset = name, builtin
+        self._refresh_preset_menu()
+        self._save_paths()
+
+    def _choose_preset(self, label):
+        if self.is_running:
+            return
+        if label in (self.tr("preset.create"), self.tr("preset.edit")):
+            self._refresh_preset_menu()
+            self.edit_presets(create=label == self.tr("preset.create"))
+            return
         if self.preset_dialog and self.preset_dialog.winfo_exists():
-            self.preset_dialog.refresh_model()
-        self._save_paths()
+            self.preset_dialog.destroy()
+        kind, key = self.preset_choices[label]
+        profile = BUILTIN_PRESETS[key] if kind == "builtin" else InferencePreset(**self.depth_presets[key])
+        self.apply_profile(profile, name=key if kind == "own" else "", builtin=key if kind == "builtin" else None)
 
-    def _choose_device(self, value):
-        self.device_id = next(key for key, name in self.device_names.items() if name == value)
-        self._save_paths()
-
-    def edit_presets(self):
+    def edit_presets(self, create=False):
         if self.is_running:
             return
         if self.preset_dialog and self.preset_dialog.winfo_exists():
             self.preset_dialog.focus()
             return
         from .preset_dialog import PresetDialog
-        self.preset_dialog = PresetDialog(self)
+        self.preset_dialog = PresetDialog(self, create=create)
 
     def _build_main_area(self) -> None:
-        main = ctk.CTkFrame(self, fg_color="transparent")
-        main.grid(row=1, column=0, sticky="nsew", padx=18, pady=18)
+        viewport = ctk.CTkFrame(self, fg_color="transparent")
+        viewport.grid(row=1, column=0, sticky="nsew", padx=18, pady=18)
+        viewport.grid_columnconfigure(0, weight=1)
+        viewport.grid_rowconfigure(0, weight=1)
+        self.main_canvas = Canvas(viewport, background=BG_MAIN, highlightthickness=0)
+        self.main_canvas.grid(row=0, column=0, sticky="nsew")
+        self.main_scrollbar = ctk.CTkScrollbar(viewport, command=self.main_canvas.yview,
+            fg_color=BG_MAIN, button_color=BORDER, button_hover_color=BUTTON_HOVER)
+        self.main_canvas.configure(yscrollcommand=self.main_scrollbar.set)
+        main = ctk.CTkFrame(self.main_canvas, fg_color=BG_MAIN)
+        self.main_area = main
+        self.main_window = self.main_canvas.create_window(0, 0, window=main, anchor="nw")
+        self.main_canvas.bind("<Configure>", self._resize_main)
+        main.bind("<Configure>", self._resize_main)
         main.grid_columnconfigure((0, 1, 2), weight=1)
         main.grid_rowconfigure(0, weight=1)
         left = ctk.CTkFrame(main, fg_color=PANEL, border_width=BORDER_WIDTH, border_color=BORDER, corner_radius=RADIUS_PANEL)
@@ -380,6 +387,16 @@ class DepthTriciaApp(ctk.CTk):
         self._build_stereo_card(center)
         self._build_options_card(right)
 
+    def _resize_main(self, event=None):
+        height = max(self.main_canvas.winfo_height(), self.main_area.winfo_reqheight())
+        self.main_canvas.itemconfigure(self.main_window, width=self.main_canvas.winfo_width(), height=height)
+        self.main_canvas.configure(scrollregion=(0, 0, self.main_canvas.winfo_width(), height))
+        if height > self.main_canvas.winfo_height():
+            self.main_scrollbar.grid(row=0, column=1, sticky="ns", padx=(8, 0))
+        else:
+            self.main_scrollbar.grid_remove()
+            self.main_canvas.yview_moveto(0)
+
     def _section_title(self, parent, key: str, row: int):
         label = ctk.CTkLabel(
             parent, text=self.tr(key), font=ctk.CTkFont(family=FONT_FAMILY, size=16, weight="bold"),
@@ -391,7 +408,7 @@ class DepthTriciaApp(ctk.CTk):
     def _hint(self, parent, key: str, row: int, pady=(0, 14)):
         label = ctk.CTkLabel(
             parent, text=self.tr(key), text_color=TEXT_MUTED,
-            wraplength=340, justify="left", anchor="w",
+            wraplength=300, justify="left", anchor="w",
         )
         label.grid(row=row, column=0, sticky="ew", padx=20, pady=pady)
         return label
@@ -459,24 +476,33 @@ class DepthTriciaApp(ctk.CTk):
         )
         self.gray_anaglyph_check.grid(row=10, column=0, sticky="w", padx=20, pady=(4, 14))
         self._separator(parent, 11, pady=(12, 4))
-        self._section_title(parent, "section.options", 12)
+        self._section_title(parent, "section.options", 12).grid_configure(pady=(14, 8))
         self.use_depth_cache_check = ctk.CTkCheckBox(
             parent, text=self.tr("option.reuse_depth"), variable=self.use_depth_cache
         )
         self.use_depth_cache_check.grid(
-            row=13, column=0, sticky="w", padx=20, pady=(0, 12)
+            row=13, column=0, sticky="w", padx=20, pady=(0, 8)
         )
         self.append_settings_check = ctk.CTkCheckBox(
             parent, text=self.tr("option.append_settings"),
             variable=self.append_settings_to_filename,
         )
         self.append_settings_check.grid(
-            row=14, column=0, sticky="w", padx=20, pady=(0, 20)
+            row=14, column=0, sticky="w", padx=20, pady=(0, 8)
         )
+
+        output_options = ctk.CTkFrame(parent, fg_color="transparent")
+        output_options.grid(row=15, column=0, sticky="w", padx=20, pady=(0, 14))
+        self.original_size_check = ctk.CTkCheckBox(output_options, text=self.tr("option.original_size"),
+            variable=self.original_size, command=self._save_paths, width=120)
+        self.original_size_check.grid(row=0, column=0, sticky="w", padx=(0, 12))
+        self.save_depth_map_check = ctk.CTkCheckBox(output_options, text=self.tr("option.save_depth_map"),
+            variable=self.save_depth_map, command=self._save_paths, width=150)
+        self.save_depth_map_check.grid(row=0, column=1, sticky="w")
 
     def _build_stereo_card(self, parent) -> None:
         self._section_title(parent, "section.stereo", 0)
-        self.deviation_label = ctk.CTkLabel(parent, text="", width=340, anchor="w")
+        self.deviation_label = ctk.CTkLabel(parent, text="", width=1, anchor="w")
         self.deviation_label.grid(row=1, column=0, sticky="ew", padx=20, pady=(0, 6))
         self.deviation_slider = ctk.CTkSlider(
             parent, from_=5, to=30, variable=self.deviation,
@@ -488,10 +514,10 @@ class DepthTriciaApp(ctk.CTk):
         self._hint(parent, "hint.deviation", 3, pady=(0, 18))
         self._separator(parent, 4, pady=(6, 4))
         self._section_title(parent, "section.window", 5)
-        self.window_position_label = ctk.CTkLabel(parent, text="", width=340, anchor="w")
+        self.window_position_label = ctk.CTkLabel(parent, text="", width=1, anchor="w")
         self.window_position_label.grid(row=6, column=0, sticky="ew", padx=20, pady=(0, 2))
         self.window_position_info_label = ctk.CTkLabel(
-            parent, text="", width=340, anchor="w", text_color=TEXT_MUTED
+            parent, text="", width=1, anchor="w", text_color=TEXT_MUTED
         )
         self.window_position_info_label.grid(row=7, column=0, sticky="ew", padx=20, pady=(0, 6))
         self.window_position_slider = ctk.CTkSlider(
@@ -502,7 +528,7 @@ class DepthTriciaApp(ctk.CTk):
             row=8, column=0, sticky="ew", padx=20, pady=(0, 8)
         )
         self._hint(parent, "hint.window_position", 9, pady=(0, 18))
-        self.window_backshift_label = ctk.CTkLabel(parent, text="", width=340, anchor="w")
+        self.window_backshift_label = ctk.CTkLabel(parent, text="", width=1, anchor="w")
         self.window_backshift_label.grid(row=10, column=0, sticky="ew", padx=20, pady=(0, 6))
         self.window_backshift_slider = ctk.CTkSlider(
             parent, from_=0, to=10, variable=self.window_backshift,
@@ -525,28 +551,28 @@ class DepthTriciaApp(ctk.CTk):
             variable=self.float_lr_symmetric, command=self._on_float_symmetry_changed,
         )
         self.float_symmetry_check.grid(row=2, column=0, sticky="w", padx=20, pady=(0, 10))
-        self.float_left_label = ctk.CTkLabel(parent, text="", width=340, anchor="w")
+        self.float_left_label = ctk.CTkLabel(parent, text="", width=1, anchor="w")
         self.float_left_label.grid(row=3, column=0, sticky="ew", padx=20, pady=(0, 4))
         self.float_left_slider = ctk.CTkSlider(
             parent, from_=0, to=30, variable=self.float_left,
             number_of_steps=30, command=self._on_float_left_changed,
         )
         self.float_left_slider.grid(row=4, column=0, sticky="ew", padx=20, pady=(0, 8))
-        self.float_right_label = ctk.CTkLabel(parent, text="", width=340, anchor="w")
+        self.float_right_label = ctk.CTkLabel(parent, text="", width=1, anchor="w")
         self.float_right_label.grid(row=5, column=0, sticky="ew", padx=20, pady=(0, 4))
         self.float_right_slider = ctk.CTkSlider(
             parent, from_=0, to=30, variable=self.float_right,
             number_of_steps=30, command=self._on_float_right_changed,
         )
         self.float_right_slider.grid(row=6, column=0, sticky="ew", padx=20, pady=(0, 12))
-        self.float_top_label = ctk.CTkLabel(parent, text="", width=340, anchor="w")
+        self.float_top_label = ctk.CTkLabel(parent, text="", width=1, anchor="w")
         self.float_top_label.grid(row=7, column=0, sticky="ew", padx=20, pady=(0, 4))
         self.float_top_slider = ctk.CTkSlider(
             parent, from_=0, to=30, variable=self.float_top,
             number_of_steps=30, command=self._on_float_top_changed,
         )
         self.float_top_slider.grid(row=8, column=0, sticky="ew", padx=20, pady=(0, 8))
-        self.float_bottom_label = ctk.CTkLabel(parent, text="", width=340, anchor="w")
+        self.float_bottom_label = ctk.CTkLabel(parent, text="", width=1, anchor="w")
         self.float_bottom_label.grid(row=9, column=0, sticky="ew", padx=20, pady=(0, 4))
         self.float_bottom_slider = ctk.CTkSlider(
             parent, from_=0, to=30, variable=self.float_bottom,
@@ -702,6 +728,7 @@ class DepthTriciaApp(ctk.CTk):
                 "use_input_subfolder": bool(self.use_input_subfolder.get()),
                 "model_id": self.model_id,
                 "device": self.device_id,
+                "preset_schema": 1,
                 "depth_presets": self.depth_presets,
                 "active_preset": self.active_preset,
                 "builtin_preset": self.builtin_preset,
@@ -892,10 +919,7 @@ class DepthTriciaApp(ctk.CTk):
         self.use_depth_cache.set(True)
         self.original_size.set(False)
         self.save_depth_map.set(False)
-        self.depth_preset = DepthPreset()
-        self.active_preset = ""
-        self.builtin_preset = "standard"
-        self._save_paths()
+        self.apply_profile(BUILTIN_PRESETS["standard"], builtin="standard")
         self._update_backshift_state()
         self._update_floating_window_state()
         self._refresh_dynamic_labels()

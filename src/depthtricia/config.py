@@ -18,10 +18,31 @@ class DepthPreset:
             raise ValueError("Edge Fix muss zwischen 0 und 8 liegen.")
 
 
+@dataclass(frozen=True)
+class InferencePreset:
+    model_id: str = "da3"
+    device: str = "auto"
+    resolution: int = 1218
+    edge_x: int = 2
+    edge_y: int = 1
+
+    @property
+    def depth_preset(self) -> DepthPreset:
+        return DepthPreset(self.resolution, self.edge_x, self.edge_y)
+
+    def validate(self) -> None:
+        from .model_catalog import DEPTH_MODELS
+        self.depth_preset.validate()
+        if self.model_id not in DEPTH_MODELS or self.device not in {"auto", "cuda", "cpu"}:
+            raise ValueError("Ungültiges Modell oder Berechnungsgerät.")
+
+
 BUILTIN_PRESETS = {
-    "quick": DepthPreset(resolution=0),
-    "standard": DepthPreset(),
-    "fine": DepthPreset(resolution=2048),
+    "standard": InferencePreset(),
+    "cpu": InferencePreset(model_id="da2", device="cpu", resolution=0),
+    "quick": InferencePreset(resolution=0),
+    "fine": InferencePreset(resolution=2048),
+    "depthpro": InferencePreset(model_id="depthpro", resolution=0),
 }
 
 

@@ -1,6 +1,7 @@
 # Development status
 
-This is the initial implementation, not a validated Windows release.
+Validation notes for DepthTricia 1.0. Target-hardware results remain separate
+from the automated Windows package checks below.
 
 Implemented: the inherited SplatTricia interface and stereo controls; local
 DA2 Small, DA3 Mono Large and Depth Pro loading; resolution/edge presets;
@@ -10,7 +11,7 @@ The supplied icon and original ready.wav are preserved byte for byte.
 
 ## Verified locally
 
-- Thirteen regression tests cover depth normalization, width-based deviation,
+- Regression tests cover depth normalization, width-based deviation,
   window backshift, cache invalidation, download consent, checksum failure and
   cancellation, automatic CPU/CUDA selection and verified runtime installation.
 - A complete CPU run with DA2 Small at depth resolution 1218 generated both
@@ -55,7 +56,7 @@ third call reused the first DA2 cache without depth inference.
 
 Photo source: https://github.com/DepthAnything/Depth-Anything-V2/blob/main/assets/examples/demo01.jpg
 
-## Required before a public release
+## Further target-hardware validation
 
 - Validate Windows 10/11 on user hardware and NVIDIA/CUDA inference.
 - Run DA3 at 2048 and Depth Pro on suitable target hardware. Full-precision
@@ -136,8 +137,8 @@ The Windows workflow starts the frozen GUI before restoring the runtime from
 local ZIPs, then exercises CPU inference and metadata/cache handling. Its
 actual result must be checked before describing the package as validated.
 
-The online URLs target a future `v1.0` release. Until matching assets are
-published, development testers must supply the local ZIPs from the artifact.
+The online URLs target the matching `v1.0` release; downloads become available
+only once all verified assets have been uploaded and the release is published.
 
 The complete distribution now also supplies the original Apple CDN Depth Pro
 checkpoint in `DepthTricia_Models_DepthPro_1.0.zip`. The package manifest pins
@@ -150,7 +151,9 @@ an inference test of DA2, not full Depth Pro inference. The earlier five-ZIP
 size table above records the previous build without the Depth Pro model ZIP.
 
 Pushes to main run source checks and create a Windows development artifact.
-The workflow does not publish a stable release automatically.
+The one-time 1.0 release workflow publishes only after matching source checks,
+Windows GUI checks, frozen CPU conversion and archive verification pass.
+A published v1.0 cannot be replaced by subsequent builds.
 
 Output additions: the Original size checkbox selects target_height=0; the
 default remains 2160. The optional depth PNG directly quantizes the used
@@ -169,3 +172,17 @@ Built-in Quick/Standard/Fine presets use resolutions 0/1218/2048 and edge fix
 own preset values and names remain in depth_presets and are not overwritten.
 Model-standard labels track model changes without replacing the stored zero.
 The editable resolution field remains available for custom presets.
+
+## Complete inference presets
+
+The header preset list owns model, device, resolution and edge fix. Standard,
+CPU, Quick, Fine and Depth Pro have edge fix 2/1. Standard/Quick/Fine/Depth Pro
+select Automatic; CPU selects DA2 Small explicitly on CPU. Model/device/resolution
+are visible alongside the list. Creating/editing a custom profile opens the
+modeless editor; built-ins are unchanged. Custom profiles remain in settings.json.
+Legacy profiles inherit their former model/device; separate legacy selections
+are retained as a custom profile when they differ from a new built-in.
+Original-size and PNG options share one row under Options. At insufficient
+window height, the main cards can be scrolled without hiding controls.
+Automated Windows GUI checks exercise DE/EN, 100%/150% scaling, complete preset
+switching, custom names/resolutions, settings persistence and busy states.

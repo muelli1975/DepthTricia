@@ -98,3 +98,23 @@ def test_automatic_device_and_explicit_cpu(monkeypatch, available):
     else:
         with pytest.raises(RuntimeError, match='NVIDIA/CUDA'):
             select_device('cuda')
+
+
+def test_complete_preset_migration_preserves_own_names_and_old_cpu_choice():
+    from depthtricia.config import BUILTIN_PRESETS
+    from depthtricia.presets import restore_presets, preset_choices
+    from depthtricia.i18n import Translator
+    own, active, builtin, profile = restore_presets({
+        'model_id': 'da2', 'device': 'cpu', 'builtin_preset': 'fine',
+        'depth_presets': {'Standard': {'resolution': 1218, 'edge_x': 2, 'edge_y': 1}}})
+    assert profile.model_id == 'da2' and profile.device == 'cpu'
+    assert profile.resolution == 2048 and active in own and builtin is None
+    assert own['Standard']['model_id'] == 'da2' and own['Standard']['device'] == 'cpu'
+    choices = preset_choices(Translator().tr, own)
+    assert choices['Standard'] == ('builtin', 'standard')
+    assert ('own', 'Standard') in choices.values()
+    own2, active2, builtin2, profile2 = restore_presets({
+        'preset_schema': 1, 'model_id': 'da2', 'device': 'cpu', 'builtin_preset': 'standard',
+        'depth_presets': own})
+    assert profile2 == BUILTIN_PRESETS['standard']
+    assert active2 == '' and builtin2 == 'standard' and own2 == own
