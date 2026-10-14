@@ -59,7 +59,7 @@ class DepthTriciaApp(ctk.CTk):
         self.preset_dialog = None
 
         ctk.set_appearance_mode("dark")
-        self.title(f"{APP_NAME} – {__version__}")
+        self.title(f"{APP_NAME} - {__version__}")
         self.geometry("1280x800")
         self.minsize(1100, 700)
         self.configure(fg_color=BG_MAIN)
@@ -156,7 +156,7 @@ class DepthTriciaApp(ctk.CTk):
                     )
             except Exception as exc:
                 self.error_log_lines.append(
-                    f"UI-Stil konnte für {name} nicht angewendet werden: {exc}\n"
+                    f"UI-Stil konnte f�r {name} nicht angewendet werden: {exc}\n"
                     f"{traceback.format_exc()}"
                 )
             for child in widget.winfo_children():
@@ -326,8 +326,8 @@ class DepthTriciaApp(ctk.CTk):
         if self.model_id == "depthpro" or resolution == 0:
             resolution = MODEL_STANDARD_RESOLUTIONS[self.model_id]
         device = {"auto": self.tr("device.auto"), "cuda": "NVIDIA", "cpu": "CPU"}[self.device_id]
-        self.preset_info.configure(text=f"{names[self.model_id]} · {resolution} px\n"
-            f"{device} · Edge Fix {self.depth_preset.edge_x}/{self.depth_preset.edge_y}")
+        self.preset_info.configure(text=f"{names[self.model_id]} � {resolution} px\n"
+            f"{device} � Edge Fix {self.depth_preset.edge_x}/{self.depth_preset.edge_y}")
 
     def apply_profile(self, profile, *, name="", builtin=None):
         profile.validate()
@@ -763,11 +763,12 @@ class DepthTriciaApp(ctk.CTk):
     def _refresh_dynamic_labels(self) -> None:
         deviation = round(float(self.deviation.get()) / 5) * 5
         position = round(float(self.window_position.get()) / 5) * 5
-        near_front = deviation * (100.0 - position) / 100.0
+        near_front = deviation * (100.0 - position) / 100.0 - float(self.window_backshift.get())
         self.deviation_label.configure(text=self.tr("label.deviation", value=deviation))
         self.window_position_label.configure(text=self.tr("label.window_position", value=position))
         self.window_position_info_label.configure(
-            text=self.tr("label.near_front", value=self._format_permille(near_front))
+            text=self.tr("label.near_behind" if near_front < 0 else "label.near_front",
+                         value=self._format_permille(abs(near_front)))
         )
         self.window_backshift_label.configure(
             text=self.tr("label.window_back", value=round(float(self.window_backshift.get())))
@@ -1278,4 +1279,5 @@ def run_gui() -> int:
     else:
         app_dir = Path(__file__).resolve().parents[2]
     return main(app_dir)
+
 

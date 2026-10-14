@@ -26,6 +26,11 @@ def check(app_dir: Path):
                 assert app.original_size_check.cget('fg_color') == CHECKBOX_DISABLED
                 assert app.save_depth_map_check.cget('fg_color') == CHECKBOX_DISABLED
                 app._set_processing_controls(False)
+                app.window_position.set(100)
+                app._on_window_backshift_changed(10)
+                assert app.window_position_info_label.cget('text') == app.tr('label.near_behind', value='10')
+                app._on_window_backshift_changed(0)
+                assert app.window_position_info_label.cget('text') == app.tr('label.near_front', value='0')
                 for key, profile in BUILTIN_PRESETS.items():
                     label = next(label for label, entry in app.preset_choices.items() if entry == ('builtin', key))
                     app._choose_preset(label)
@@ -77,3 +82,4 @@ def check(app_dir: Path):
                 ctk.set_widget_scaling(1.0)
                 ctk.set_window_scaling(1.0)
     return report
+

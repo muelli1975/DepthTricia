@@ -12,6 +12,7 @@
   "label.deviation": "Deviation: {value}%",
   "label.window_position": "Window position: {value}%",
   "label.near_front": "Near point: {value}% in front of the stereo window",
+  "label.near_behind": "Near point: {value}% behind the stereo window",
   "label.window_back": "Additional window setback: {value}%",
   "label.left": "Left: {value}%",
   "label.right": "Right: {value}%",
