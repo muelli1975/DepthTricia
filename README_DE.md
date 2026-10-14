@@ -12,8 +12,11 @@ und Depth Pro. Stereo-Erzeugung: `mlbw_l2_inpaint` mit
 
 Standard: 15‰ Deviation, Scheinfensterlage 100%, Edge Fix horizontal 2 /
 vertikal 1 und Tiefenauflösung 1218 bei Depth Anything. Depth Pro verwendet
-seine eigene Modellauflösung. Presets ermöglichen Modellstandard, 1218,
-2048 und eigene Tiefenauflösungen sowie eigene Edge-Fix-Werte.
+seine eigene Modellauflösung. Die Presets Schnell, Standard und Fein verwenden
+Modellstandard, 1218 beziehungsweise 2040, jeweils mit Edge Fix 2/1.
+Eigene Werte von 196 bis 4096 und eigene Edge-Fix-Werte lassen sich unter
+einem eigenen Presetnamen speichern. Depth Anything rundet intern auf sein
+14-Pixel-Raster auf (2040 wird zu 2044); Depth Pro bleibt bei allen Presets fest.
 Hinter Modellstandard steht der Wert: 518 bei DA2, 504 bei DA3.
 Depth Pro verwendet intern fest 1536×1536 Pixel.
 

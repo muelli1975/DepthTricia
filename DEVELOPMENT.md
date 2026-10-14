@@ -133,3 +133,9 @@ The frozen smoke test covers these controls, the 1100/1280-wide header, preset
 resolution semantics, output names and PNG values/dimensions, including PNG
 export on a subsequent cache hit. It writes GUI settings only to a temporary
 folder, and packaging excludes settings/logs from the public ZIP.
+
+Built-in Quick/Standard/Fine presets use resolutions 0/1218/2040 and edge fix
+2/1. Their selection is stored by a language-independent builtin_preset key;
+own preset values and names remain in depth_presets and are not overwritten.
+Model-standard labels track model changes without replacing the stored zero.
+The editable resolution field remains available for custom presets.

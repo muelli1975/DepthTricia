@@ -18,6 +18,13 @@ class DepthPreset:
             raise ValueError("Edge Fix muss zwischen 0 und 8 liegen.")
 
 
+BUILTIN_PRESETS = {
+    "quick": DepthPreset(resolution=0),
+    "standard": DepthPreset(),
+    "fine": DepthPreset(resolution=2040),
+}
+
+
 @dataclass(frozen=True)
 class ProcessingConfig:
     app_dir: Path

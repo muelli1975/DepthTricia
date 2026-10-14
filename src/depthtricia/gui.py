@@ -61,13 +61,20 @@ class DepthTriciaApp(ctk.CTk):
             self.depth_presets = {}
         self.active_preset = str(self.settings.get("active_preset", ""))
         self.depth_preset = DepthPreset()
+        from .config import BUILTIN_PRESETS
+        self.builtin_preset = self.settings.get("builtin_preset", "standard")
+        if self.builtin_preset not in BUILTIN_PRESETS:
+            self.builtin_preset = "standard"
+        self.depth_preset = BUILTIN_PRESETS[self.builtin_preset]
         try:
             if self.active_preset in self.depth_presets:
                 self.depth_preset = DepthPreset(**self.depth_presets[self.active_preset])
                 self.depth_preset.validate()
+                self.builtin_preset = None
         except (TypeError, ValueError):
             self.depth_preset = DepthPreset()
             self.active_preset = ""
+            self.builtin_preset = "standard"
         self.pending_downloads = ()
         self.pending_runtime = None
         self.preset_dialog = None
@@ -697,6 +704,7 @@ class DepthTriciaApp(ctk.CTk):
                 "device": self.device_id,
                 "depth_presets": self.depth_presets,
                 "active_preset": self.active_preset,
+                "builtin_preset": self.builtin_preset,
                 "original_size": bool(self.original_size.get()),
                 "save_depth_map": bool(self.save_depth_map.get()),
             }
@@ -886,6 +894,7 @@ class DepthTriciaApp(ctk.CTk):
         self.save_depth_map.set(False)
         self.depth_preset = DepthPreset()
         self.active_preset = ""
+        self.builtin_preset = "standard"
         self._save_paths()
         self._update_backshift_state()
         self._update_floating_window_state()

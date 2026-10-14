@@ -114,5 +114,8 @@
   "dialog.runtime_confirm": "Für die Berechnung fehlen noch Laufzeit- oder Modelldateien.\n\nEinmaliger Download: insgesamt {size:.0f} MB in mehreren Paketen, einschließlich Depth Pro.\nBereits vorhandene ZIP-Pakete im Programmordner oder daneben werden zuerst verwendet.\n\nJetzt installieren und fehlende Pakete von unserem GitHub-Release herunterladen?\nDanach funktioniert DepthTricia offline auf CPU oder NVIDIA-GPU.",
   "progress.runtime_install": "Laufzeit vorbereiten: {filename} – {percent:.0f} %",
   "option.original_size": "Ausgabe in Originalgröße",
-  "option.save_depth_map": "Tiefenkarte speichern"
+  "option.save_depth_map": "Tiefenkarte speichern",
+  "preset.quick": "Schnell",
+  "preset.fine": "Fein",
+  "preset.own_suffix": " (eigen)"
 }
