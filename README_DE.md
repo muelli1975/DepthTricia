@@ -8,6 +8,8 @@ Die Tiefenschätzung verwendet **Depth Anything V2 Small**, **Depth Anything 3 M
 
 Die Verarbeitung läuft lokal, ohne Konto, Cloud oder Tracking. Fehlende Laufzeitpakete oder Modelle werden nur nach Bestätigung installiert oder heruntergeladen. Nach der Einrichtung funktioniert die Verarbeitung offline.
 
+[![DepthTricia 1.0 – Benutzeroberfläche](docs/Screenshots/DepthTricia.png)](docs/Screenshots/DepthTricia.png)
+
 [DepthTricia 1.0 herunterladen](https://github.com/muelli1975/DepthTricia/releases/tag/v1.0)
 
 ## Voraussetzungen und Installation

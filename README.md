@@ -8,6 +8,8 @@ Depth estimation uses **Depth Anything V2 Small**, **Depth Anything 3 Mono Large
 
 Processing runs locally, without an account, cloud or tracking. Missing runtime packages or models are installed or downloaded only after confirmation. Once installed, they work offline.
 
+[![DepthTricia 1.0 user interface](docs/Screenshots/DepthTricia.png)](docs/Screenshots/DepthTricia.png)
+
 [Download DepthTricia 1.0](https://github.com/muelli1975/DepthTricia/releases/tag/v1.0)
 
 ## Requirements and installation
