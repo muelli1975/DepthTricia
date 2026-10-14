@@ -288,6 +288,7 @@ class DepthTriciaApp(ctk.CTk):
             button_color=LANGUAGE_BUTTON_BG,
             button_hover_color=LANGUAGE_HOVER,
             text_color=TEXT,
+            text_color_disabled=TEXT_DISABLED,
             dropdown_fg_color=LANGUAGE_DROPDOWN_BG,
             dropdown_hover_color=LANGUAGE_DROPDOWN_HOVER,
             dropdown_text_color=TEXT,
@@ -298,7 +299,7 @@ class DepthTriciaApp(ctk.CTk):
         controls = ctk.CTkFrame(header, fg_color="transparent")
         controls.grid(row=0, column=1, rowspan=2, padx=(8, 0), pady=16)
         style = dict(fg_color=LANGUAGE_BG, button_color=LANGUAGE_BUTTON_BG,
-                     button_hover_color=LANGUAGE_HOVER, text_color=TEXT,
+                     button_hover_color=LANGUAGE_HOVER, text_color=TEXT, text_color_disabled=TEXT_DISABLED,
                      dropdown_fg_color=LANGUAGE_DROPDOWN_BG,
                      dropdown_hover_color=LANGUAGE_DROPDOWN_HOVER, dropdown_text_color=TEXT)
         ctk.CTkLabel(controls, text=self.tr("label.preset"), anchor="w").grid(row=0, column=0, sticky="w")

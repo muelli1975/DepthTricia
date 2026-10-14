@@ -20,6 +20,11 @@ def check(app_dir: Path):
                 app._set_processing_controls(True)
                 for widget in (app.preset_menu, app.original_size_check, app.save_depth_map_check):
                     assert widget.cget('state') == 'disabled', 'Processing controls are not locked'
+                from .theme import TEXT_DISABLED, CHECKBOX_DISABLED
+                assert app.preset_menu.cget('text_color_disabled') == TEXT_DISABLED
+                assert app.language_menu.cget('text_color_disabled') == TEXT_DISABLED
+                assert app.original_size_check.cget('fg_color') == CHECKBOX_DISABLED
+                assert app.save_depth_map_check.cget('fg_color') == CHECKBOX_DISABLED
                 app._set_processing_controls(False)
                 for key, profile in BUILTIN_PRESETS.items():
                     label = next(label for label, entry in app.preset_choices.items() if entry == ('builtin', key))

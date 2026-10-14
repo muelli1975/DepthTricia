@@ -8,8 +8,8 @@ def restore_presets(settings):
     model = settings.get("model_id", "da3")
     device = settings.get("device", "auto")
     from .model_catalog import DEPTH_MODELS
-    model = model if model in DEPTH_MODELS else "da3"
-    device = device if device in {"auto", "cpu", "cuda"} else "auto"
+    model = model if isinstance(model, str) and model in DEPTH_MODELS else "da3"
+    device = device if isinstance(device, str) and device in {"auto", "cpu", "cuda"} else "auto"
     own = {}
     raw = settings.get("depth_presets", {})
     for name, values in (raw.items() if isinstance(raw, dict) else []):
@@ -22,10 +22,10 @@ def restore_presets(settings):
         except (TypeError, ValueError):
             continue
     active = settings.get("active_preset", "")
-    if active in own:
+    if isinstance(active, str) and active in own:
         return own, active, None, InferencePreset(**own[active])
     builtin = settings.get("builtin_preset", "standard")
-    builtin = builtin if builtin in BUILTIN_PRESETS else "standard"
+    builtin = builtin if isinstance(builtin, str) and builtin in BUILTIN_PRESETS else "standard"
     profile = BUILTIN_PRESETS[builtin]
     # An old model/device selection must not disappear when profiles gain them.
     if not settings.get("preset_schema") and ("model_id" in settings or "device" in settings):
