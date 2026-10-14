@@ -28,7 +28,7 @@ Models are stored visibly in `models`. Existing models are loaded without networ
 2. Use **Use a subfolder inside the input folder** or choose a custom output folder.
 3. Select a preset. For CPU processing, choose **CPU**.
 4. Adjust deviation and stereo-window position as needed.
-5. Optionally select grayscale anaglyphs, **Original size** or **Depth map (PNG)**.
+5. Optionally select grayscale anaglyphs, **Output original size** or **Save depth map**.
 6. Click **Start**.
 
 The selected model, resolution, device and edge settings remain visible beside the preset list. **Cancel** requests cancellation; the current processing step may need to finish first.
@@ -72,9 +72,9 @@ The selected output location contains:
 
 SBS uses JPEG quality **95**, anaglyphs **90**; both use **4:4:4** without chroma subsampling. Suitable source metadata is copied to the JPEG outputs where technically possible.
 
-Each view is limited to 2160 pixels high by default, without upscaling smaller photographs. **Original size** retains the full, correctly oriented source dimensions.
+Each view is limited to 2160 pixels high by default, without upscaling smaller photographs. **Output original size** retains the full, correctly oriented source dimensions.
 
-**Depth map (PNG)** exports the computed relative depth map without resizing: near is white, far is black. These are relative values, not distances in metres. The separate `.npy` cache retains normalized 32-bit floating-point values for computation.
+**Save depth map** exports the computed relative depth map without resizing: near is white, far is black. These are relative values, not distances in metres. The separate `.npy` cache retains normalized 32-bit floating-point values for computation.
 
 With **Reuse depth maps** enabled, stereo settings can be changed without running depth estimation again. Changes to the source, depth model, depth resolution or edge fix invalidate the corresponding cache. **Delete temporary files** removes `_temp`; finished images remain.
 

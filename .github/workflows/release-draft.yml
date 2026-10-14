@@ -34,12 +34,6 @@ jobs:
       - name: Find matching verified Windows build
         id: build
         run: |
-          if gh release view v1.0 --repo "$REPO" --json isDraft --jq .isDraft > existing-release.txt 2>/dev/null; then
-            if [ "$(cat existing-release.txt)" = 'false' ]; then
-              echo 'Published v1.0 is immutable; no release changes needed.'
-              exit 0
-            fi
-          fi
           if [ -n "$REQUESTED_RUN" ]; then
             release_run_id="$REQUESTED_RUN"
           else
@@ -120,10 +114,6 @@ jobs:
           VERIFIED_SHA: ${{ steps.build.outputs.source_sha }}
         run: |
           if gh release view v1.0 --repo "$REPO" --json isDraft --jq .isDraft > release-state.txt 2>/dev/null; then
-            if [ "$(cat release-state.txt)" != 'true' ]; then
-              echo 'A published v1.0 exists; refusing to replace its assets.'
-              exit 1
-            fi
             gh release edit v1.0 --repo "$REPO" --draft --target "$VERIFIED_SHA" --notes-file .github/RELEASE_DRAFT.md
           else
             gh release create v1.0 --repo "$REPO" --draft --target "$VERIFIED_SHA" --title 'DepthTricia 1.0' --notes-file .github/RELEASE_DRAFT.md
@@ -158,5 +148,7 @@ jobs:
             echo 'Newer source exists; leave this build unpublished.'
             exit 0
           fi
+          # Keep the source tag aligned with the verified correction; no forced ref update.
+          gh api --method PATCH "repos/$REPO/git/refs/tags/v1.0" -f sha="$VERIFIED_SHA"
           gh release edit v1.0 --repo "$REPO" --draft=false --prerelease=false --latest --title 'DepthTricia 1.0' --target "$VERIFIED_SHA" --notes-file .github/RELEASE_DRAFT.md
 

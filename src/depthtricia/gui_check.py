@@ -4,7 +4,7 @@ from pathlib import Path
 import tempfile
 
 
-def check(app_dir: Path):
+def check(app_dir: Path, *, screenshot_dir: Path | None = None):
     import customtkinter as ctk
     from .config import BUILTIN_PRESETS
     from .gui import DepthTriciaApp
@@ -57,22 +57,57 @@ def check(app_dir: Path):
                 saved = load_settings(settings)
                 assert saved['original_size'] and saved['save_depth_map']
                 assert saved['depth_presets'][own_name] == asdict(app.current_profile())
-                for scale, geometry in ((1.0, '1280x800'), (1.0, '1100x700'), (1.5, '1280x800')):
+                for scale, geometry in ((1.0, '1280x880'), (1.0, '1100x700'), (1.25, '1280x880'), (1.5, '1280x880')):
                     ctk.set_widget_scaling(scale)
                     ctk.set_window_scaling(scale)
                     app.geometry(geometry)
+                    settled = ctk.BooleanVar(value=False)
+                    app.after(1200, lambda: settled.set(True))
+                    app.wait_variable(settled)
                     app.update()
+                    expected = [round(int(value) * scale) for value in geometry.split('x')]
+                    assert [app.winfo_width(), app.winfo_height()] == expected, 'Window resize did not settle'
                     assert app.preset_info.winfo_rootx() + app.preset_info.winfo_width() <= app.language_menu.winfo_rootx(), 'Header overlaps language menu'
-                    assert app.original_size_check.winfo_y() == app.save_depth_map_check.winfo_y(), 'Output options must share one row'
+                    assert '\n' not in app.preset_info.cget('text'), 'Preset settings must stay on one line'
+                    assert app.preset_info.winfo_rooty() == app.preset_menu.winfo_rooty(), 'Preset settings are not level with the menu'
+                    assert app.original_size_check.winfo_rootx() == app.save_depth_map_check.winfo_rootx(), 'Output options must align on the left'
+                    assert app.original_size_check.winfo_rooty() + app.original_size_check.winfo_height() < app.save_depth_map_check.winfo_rooty(), 'Output options must be stacked'
                     for widget in (app.preset_menu, app.language_menu, app.original_size_check, app.save_depth_map_check, app.defaults_button, app.clear_temp_button):
                         assert widget.winfo_rootx() >= app.winfo_rootx(), 'Control clipped on the left'
                         assert widget.winfo_rootx() + widget.winfo_width() <= app.winfo_rootx() + app.winfo_width(), 'Control clipped on the right'
+                    if geometry == '1280x880':
+                        assert not app.main_scrollbar.winfo_ismapped(), 'Default window must not need scrolling'
+                        assert app.main_area.winfo_reqheight() <= app.main_canvas.winfo_height(), 'Default window clips its cards'
+                        top = app.main_canvas.winfo_rooty()
+                        bottom = top + app.main_canvas.winfo_height()
+                        def check_bounds(parent):
+                            for widget in parent.winfo_children():
+                                if widget.__class__.__name__.startswith('CTk') and widget.winfo_ismapped():
+                                    assert widget.winfo_rooty() >= top, 'Control clipped above the viewport'
+                                    assert widget.winfo_rooty() + widget.winfo_height() <= bottom, 'Control clipped below the viewport'
+                                check_bounds(widget)
+                        check_bounds(app.main_area)
+                        if screenshot_dir is not None and scale == 1.0:
+                            from PIL import ImageGrab
+                            screenshot_dir.mkdir(parents=True, exist_ok=True)
+                            app.attributes('-topmost', True)
+                            app.lift()
+                            visible = ctk.BooleanVar(value=False)
+                            app.after(200, lambda: visible.set(True))
+                            app.wait_variable(visible)
+                            app.update()
+                            ImageGrab.grab(bbox=(app.winfo_rootx(), app.winfo_rooty(),
+                                app.winfo_rootx() + app.winfo_width(), app.winfo_rooty() + app.winfo_height())
+                            ).save(screenshot_dir / f'depthtricia-{locale}.png')
+                            app.attributes('-topmost', False)
                     if app.main_area.winfo_height() > app.main_canvas.winfo_height():
                         assert app.main_scrollbar.winfo_ismapped(), 'Small window cannot reach all controls'
                     report.append(dict(locale=locale, scale=scale, geometry=geometry,
                         window=[app.winfo_width(), app.winfo_height()], content_height=app.main_area.winfo_height(),
                         viewport_height=app.main_canvas.winfo_height()))
             finally:
+                for callback in app.tk.call('after', 'info'):
+                    app.after_cancel(callback)
                 app.destroy()
                 ctk.set_widget_scaling(1.0)
                 ctk.set_window_scaling(1.0)

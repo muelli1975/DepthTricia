@@ -4,4 +4,4 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'src'))
 from depthtricia.gui_check import check
-print(json.dumps(check(ROOT), indent=2))
+print(json.dumps(check(ROOT, screenshot_dir=ROOT / 'build/gui-check'), indent=2))

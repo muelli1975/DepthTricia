@@ -60,7 +60,7 @@ class DepthTriciaApp(ctk.CTk):
 
         ctk.set_appearance_mode("dark")
         self.title(f"{APP_NAME} – {__version__}")
-        self.geometry("1280x800")
+        self.geometry("1280x880")
         self.minsize(1100, 700)
         self.configure(fg_color=BG_MAIN)
         icon_path = self.app_dir / "assets" / "depthtricia.ico"
@@ -268,14 +268,14 @@ class DepthTriciaApp(ctk.CTk):
     def _build_header(self) -> None:
         header = ctk.CTkFrame(self, corner_radius=0, fg_color=BG_SOFT)
         header.grid(row=0, column=0, sticky="ew")
-        header.grid_columnconfigure(0, weight=1)
+        header.grid_columnconfigure(1, weight=1)
         ctk.CTkLabel(
             header, text=APP_NAME, font=ctk.CTkFont(family=FONT_FAMILY, size=26, weight="bold"),
             text_color=GOLD_LIGHT,
         ).grid(row=0, column=0, sticky="w", padx=24, pady=(18, 2))
         ctk.CTkLabel(
             header, text=self.tr("app.subtitle"), font=ctk.CTkFont(family=FONT_FAMILY, size=14),
-            text_color=TEXT_MUTED, wraplength=320, justify="left",
+            text_color=TEXT_MUTED, wraplength=220, justify="left",
         ).grid(row=1, column=0, sticky="w", padx=24, pady=(0, 16))
         language_values = ["Deutsch", "English"]
         current = "English" if self.translator.locale == "en" else "Deutsch"
@@ -297,7 +297,7 @@ class DepthTriciaApp(ctk.CTk):
         self.language_menu.set(current)
         self.language_menu.grid(row=0, column=2, rowspan=2, padx=24, pady=18)
         controls = ctk.CTkFrame(header, fg_color="transparent")
-        controls.grid(row=0, column=1, rowspan=2, padx=(8, 0), pady=16)
+        controls.grid(row=0, column=1, rowspan=2, padx=(20, 0), pady=16, sticky="w")
         style = dict(fg_color=LANGUAGE_BG, button_color=LANGUAGE_BUTTON_BG,
                      button_hover_color=LANGUAGE_HOVER, text_color=TEXT, text_color_disabled=TEXT_DISABLED,
                      dropdown_fg_color=LANGUAGE_DROPDOWN_BG,
@@ -306,9 +306,9 @@ class DepthTriciaApp(ctk.CTk):
         self.preset_menu = ctk.CTkOptionMenu(controls, values=[""], width=220,
             dynamic_resizing=False, command=self._choose_preset, **style)
         self.preset_menu.grid(row=1, column=0, padx=(0, 18), sticky="w")
-        self.preset_info = ctk.CTkLabel(controls, text="", width=275,
+        self.preset_info = ctk.CTkLabel(controls, text="", width=390,
             anchor="w", justify="left", text_color=TEXT_MUTED)
-        self.preset_info.grid(row=0, column=1, rowspan=2, sticky="w")
+        self.preset_info.grid(row=1, column=1, sticky="w")
         self._refresh_preset_menu()
 
     def current_profile(self):
@@ -326,7 +326,7 @@ class DepthTriciaApp(ctk.CTk):
         if self.model_id == "depthpro" or resolution == 0:
             resolution = MODEL_STANDARD_RESOLUTIONS[self.model_id]
         device = {"auto": self.tr("device.auto"), "cuda": "NVIDIA", "cpu": "CPU"}[self.device_id]
-        self.preset_info.configure(text=f"{names[self.model_id]} · {resolution} px\n"
+        self.preset_info.configure(text=f"{names[self.model_id]} · {resolution} px · "
             f"{device} · Edge Fix {self.depth_preset.edge_x}/{self.depth_preset.edge_y}")
 
     def apply_profile(self, profile, *, name="", builtin=None):
@@ -496,10 +496,10 @@ class DepthTriciaApp(ctk.CTk):
         output_options.grid(row=15, column=0, sticky="w", padx=20, pady=(0, 14))
         self.original_size_check = ctk.CTkCheckBox(output_options, text=self.tr("option.original_size"),
             variable=self.original_size, command=self._save_paths, width=120)
-        self.original_size_check.grid(row=0, column=0, sticky="w", padx=(0, 12))
+        self.original_size_check.grid(row=0, column=0, sticky="w", pady=(0, 8))
         self.save_depth_map_check = ctk.CTkCheckBox(output_options, text=self.tr("option.save_depth_map"),
             variable=self.save_depth_map, command=self._save_paths, width=150)
-        self.save_depth_map_check.grid(row=0, column=1, sticky="w")
+        self.save_depth_map_check.grid(row=1, column=0, sticky="w")
 
     def _build_stereo_card(self, parent) -> None:
         self._section_title(parent, "section.stereo", 0)

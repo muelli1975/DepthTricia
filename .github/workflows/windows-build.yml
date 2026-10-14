@@ -31,6 +31,12 @@ jobs:
           python -m pip install -r requirements.txt pyinstaller==6.16.0 pytest==8.4.2
       - name: Check preset editor and responsive layout
         run: python scripts/check_gui.py
+      - name: Save layout screenshots
+        uses: actions/upload-artifact@v4
+        with:
+          name: DepthTricia-layout
+          path: build/gui-check/*.png
+          retention-days: 7
       - run: python scripts/prepare_runtime.py
       - run: python scripts/prepare_tools.py
       - run: python -m pytest -q

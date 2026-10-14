@@ -28,7 +28,7 @@ Die Modelle liegen sichtbar im Ordner `models`. Vorhandene Modelle werden ohne N
 2. **Unterordner im Input-Ordner verwenden** aktivieren oder einen eigenen Ausgabeordner auswählen.
 3. Ein Preset wählen. Für CPU-Berechnung **CPU** verwenden.
 4. Deviation und Scheinfensterlage nach Bedarf einstellen.
-5. Optional Graustufen-Anaglyphen, **Originalgröße** oder **Tiefenkarte (PNG)** wählen.
+5. Optional Graustufen-Anaglyphen, **Originalgröße ausgeben** oder **Tiefenkarte speichern** wählen.
 6. Auf **Start** klicken.
 
 Modell, Auflösung, Berechnungsgerät und Edge Fix bleiben neben der Presetliste sichtbar. **Abbrechen** fordert den Abbruch an; der aktuelle Verarbeitungsschritt muss gegebenenfalls zunächst beendet werden.
@@ -72,9 +72,9 @@ Der gewählte Ausgabeordner enthält:
 
 SBS verwendet JPEG-Qualität **95**, Anaglyphen **90**; beide verwenden **4:4:4** ohne Farbunterabtastung. Geeignete Metadaten der Quelldateien werden, soweit technisch möglich, in die JPEG-Ausgaben übernommen.
 
-Jedes Halbbild wird standardmäßig auf 2160 Pixel Höhe begrenzt; kleinere Fotos werden nicht vergrößert. **Originalgröße** erhält die vollständigen, korrekt ausgerichteten Bildabmessungen.
+Jedes Halbbild wird standardmäßig auf 2160 Pixel Höhe begrenzt; kleinere Fotos werden nicht vergrößert. **Originalgröße ausgeben** erhält die vollständigen, korrekt ausgerichteten Bildabmessungen.
 
-**Tiefenkarte (PNG)** exportiert die berechnete relative Tiefenkarte ohne Größenänderung: nah ist weiß, fern ist schwarz. Die Werte sind relativ und keine Entfernungen in Metern. Der separate `.npy`-Cache bewahrt normalisierte 32-Bit-Gleitkommawerte für die Berechnung.
+**Tiefenkarte speichern** exportiert die berechnete relative Tiefenkarte ohne Größenänderung: nah ist weiß, fern ist schwarz. Die Werte sind relativ und keine Entfernungen in Metern. Der separate `.npy`-Cache bewahrt normalisierte 32-Bit-Gleitkommawerte für die Berechnung.
 
 Mit **Tiefenkarten wiederverwenden** lassen sich Stereoeinstellungen ohne erneute Tiefenschätzung ändern. Änderungen an Quelldatei, Tiefenmodell, Tiefenauflösung oder Edge Fix machen den jeweiligen Cache ungültig. **Temporäre Dateien löschen** entfernt `_temp`; fertige Bilder bleiben erhalten.
 
