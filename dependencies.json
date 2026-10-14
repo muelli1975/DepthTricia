@@ -1,0 +1,6 @@
+{
+  "nunif": {"repo": "nagadomi/nunif", "commit": "9fd1812477a2a7f372c87ac7ac14fdfab0a7c3ed"},
+  "da2": {"repo": "nagadomi/Depth-Anything_iw3", "commit": "92eaac92bcc2c275f48c1f866ec708861055e435"},
+  "da3": {"repo": "nagadomi/Depth-Anything-3_iw3", "commit": "1087894cb489ed7b299a197610a6a9c781ef266c"},
+  "depthpro": {"repo": "apple-aiml-research/ml-depth-pro", "commit": "9e65e4dbe9568d23c546fcec53302b10445e109e"}
+}

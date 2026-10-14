@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+.venv/
+build/
+dist/
+third_party/
+tools/
+models/*.pt
+models/*.pth
+models/*.safetensors
+models/*.partial
+models/*.verified.json
+output/
+_temp/
+settings.json
+*.log
+.pytest_cache/
