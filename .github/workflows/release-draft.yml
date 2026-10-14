@@ -102,6 +102,7 @@ jobs:
               echo 'A published v1.0 exists; refusing to replace its assets.'
               exit 1
             fi
+            gh release edit v1.0 --repo "$REPO" --draft --target "$VERIFIED_SHA" --notes-file .github/RELEASE_DRAFT.md
           else
             gh release create v1.0 --repo "$REPO" --draft --target "$VERIFIED_SHA" --title 'DepthTricia 1.0 — development draft' --notes-file .github/RELEASE_DRAFT.md
           fi
