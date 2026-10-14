@@ -77,10 +77,41 @@ def run(app_dir: Path) -> dict:
                 raise RuntimeError("Packaged depth cache reuse failed")
             if not items[0].depth_png_path.is_file():
                 raise RuntimeError('Cached depth PNG was not exported')
+        # Real shipped checkpoints, float ramps, landscape and portrait.
+        from dataclasses import replace
+        from .stereo_backend import StereoSession
+        stereo = StereoSession(config, torch.device('cpu'))
+        backshift_checks = []
+        try:
+            with torch.inference_mode():
+                for height, width, depth_h, depth_w in ((128, 320, 140, 350), (256, 128, 280, 140)):
+                    ramp = torch.linspace(.2, .8, width).reshape(1, 1, 1, width).expand(1, 3, height, width).contiguous()
+                    endpoint_separations = []
+                    for endpoint in (0., 1.):
+                        depth = torch.full((1, 1, depth_h, depth_w), endpoint)
+                        stereo.config = config
+                        base_left, base_right = stereo._infer_pair(ramp, depth)
+                        stereo.config = replace(config, window_back_permille=10)
+                        left, right = stereo._infer_pair(ramp, depth)
+                        center = (..., slice(height//3, 2*height//3), slice(width//4, 3*width//4))
+                        slope = .6 / (width - 1)
+                        added = float(((left - right - base_left + base_right)[center] / slope).median())
+                        if abs(added - width * .01) > .5:
+                            raise RuntimeError(f'Scene setback has wrong direction or amount: {added}')
+                        if left[..., -1].min() < .01 or right[..., 0].min() < .01:
+                            raise RuntimeError('Scene setback left black output borders')
+                        endpoint_separations.append(float(((left - right)[center] / slope).median()))
+                        backshift_checks.append(dict(width=width, endpoint=endpoint, added_px=added, expected_added_px=width * .01))
+                    if abs(endpoint_separations[0] - endpoint_separations[1] - width * .015) > .5:
+                        raise RuntimeError('Scene setback changed the deviation span')
+        finally:
+            stereo.close()
         return dict(torch=torch.__version__, cuda_runtime=torch.version.cuda,
             inference_device="cpu", gui=True, presets=True, preset_model_device=True, gui_layout=gui_report, da3_configuration=True,
             da3_parameters=da3_parameters, depthpro_import=True, depthpro_weights=True, da2_inference=True,
             stereo_inpainting=True, outputs=True, depth_png=True, original_size=True,
-            model_filename=True, metadata=True, cache=True, offline=True)
+            model_filename=True, metadata=True, cache=True, offline=True,
+            window_backshift=True, backshift_checks=backshift_checks)
     finally:
         socket.socket.connect, socket.create_connection = original_connect, original_create
+

@@ -49,7 +49,7 @@ jobs:
         shell: pwsh
         run: |
           $report = Join-Path (Get-Location) 'dist/smoke-test.json'
-          $process = Start-Process dist/DepthTricia/DepthTricia.exe -ArgumentList @('--smoke-test', $report) -Wait -PassThru
+          $process = Start-Process dist/DepthTricia/DepthTricia.exe -ArgumentList @('--smoke-test', $report) -WindowStyle Hidden -Wait -PassThru
           if (Test-Path $report) { Get-Content $report }
           if ($process.ExitCode -ne 0 -or !(Test-Path $report)) { throw 'Packaged executable smoke test failed.' }
       - run: python scripts/package_release.py --archive-only
@@ -73,3 +73,4 @@ jobs:
             dist/DepthTricia/depthtricia_error.log
             build/DepthTricia/warn-DepthTricia.txt
           if-no-files-found: ignore
+

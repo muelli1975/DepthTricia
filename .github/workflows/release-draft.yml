@@ -82,7 +82,7 @@ jobs:
           import hashlib, json, os, pathlib, zipfile
           root = pathlib.Path('payload')
           report = json.loads((root / 'smoke-test.json').read_text())
-          for key in ['ok', 'gui', 'presets', 'depthpro_weights', 'preset_model_device', 'depth_png', 'original_size', 'model_filename', 'da2_inference', 'stereo_inpainting', 'metadata', 'cache', 'offline']:
+          for key in ['ok', 'gui', 'presets', 'depthpro_weights', 'preset_model_device', 'depth_png', 'original_size', 'model_filename', 'da2_inference', 'stereo_inpainting', 'metadata', 'cache', 'offline', 'window_backshift']:
               assert report[key] is True, key
           assert report['inference_device'] == 'cpu' and report['cuda_runtime'] == '12.6'
           with zipfile.ZipFile(root / 'DepthTricia_1.0.zip') as package:
@@ -161,3 +161,4 @@ jobs:
           echo 'Publication paused for stereo-window backshift correction.'
           exit 0
           gh release edit v1.0 --repo "$REPO" --draft=false --prerelease=false --latest --title 'DepthTricia 1.0' --target "$VERIFIED_SHA" --notes-file .github/RELEASE_DRAFT.md
+

@@ -7,8 +7,10 @@ support, SBS/anaglyph JPEG output, metadata copying and reusable depth maps.
 - Complete presets: Standard (DA3, 1218), CPU (DA2, 518), Quick (DA3, 504),
   Fine (DA3, 2048) and Depth Pro (native). All use edge fix 2/1. Custom presets
   save model, device, resolution and edge fix; model/settings remain visible.
-- Defaults: 15‰ deviation and 100% stereo-window position. Stereo generation
+- Defaults: 15% deviation and 100% stereo-window position. Stereo generation
   uses `mlbw_l2_inpaint` with `light_inpaint_v1`.
+- Additional setback moves the whole scene behind the stereo window. Newly
+  exposed borders are filled with the same inpainting as internal holes.
 - Original-size output or the default maximum height of 2160 pixels. Optional
   16-bit relative depth PNGs retain the computed map dimensions. Settings
   filenames can include the selected model. Keep `settings.json` when updating.
@@ -33,3 +35,4 @@ also checks DA3 configuration and the installed Depth Pro checkpoint. These
 checks do not constitute full Depth Pro or CUDA inference validation on all
 hardware. Source snapshots and complete third-party license notices are included;
 original DepthTricia code is MIT licensed, models retain their own licenses.
+

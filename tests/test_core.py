@@ -10,7 +10,7 @@ from depthtricia.cache import cache_identity, cache_paths, load_depth, save_dept
 from depthtricia.config import ProcessingConfig, DepthPreset
 from depthtricia.downloads import DownloadCancelled, download_models
 from depthtricia.model_catalog import ModelFile
-from depthtricia.stereo_geometry import iw3_parameters, normalize_disparity, shift_pair
+from depthtricia.stereo_geometry import iw3_parameters, normalize_disparity
 
 
 def test_depth_extrema_and_flat_scene():
@@ -23,14 +23,6 @@ def test_depth_extrema_and_flat_scene():
 def test_width_based_deviation_for_portrait_and_landscape():
     assert iw3_parameters(1920, (1218, 1820), 15, 100) == (1.5, 1)
     assert iw3_parameters(1080, (1820, 1218), 15, 50) == (1.5 * 1218 / 1820, .5)
-
-
-def test_window_backshift_direction():
-    image = np.zeros((16, 1000, 3), dtype=np.uint8)
-    image[:, 500] = 255
-    left, right = shift_pair(image, image, 10)
-    assert np.argmax(left[8, :, 0]) == 495
-    assert np.argmax(right[8, :, 0]) == 505
 
 
 def test_cache_reuses_depth_for_stereo_changes_but_not_depth_changes(tmp_path):
@@ -118,3 +110,4 @@ def test_complete_preset_migration_preserves_own_names_and_old_cpu_choice():
         'depth_presets': own})
     assert profile2 == BUILTIN_PRESETS['standard']
     assert active2 == '' and builtin2 == 'standard' and own2 == own
+

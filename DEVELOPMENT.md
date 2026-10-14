@@ -1,5 +1,19 @@
 # Development status
 
+## Scene setback correction
+
+Nonzero window_back_permille translates both float stereo views and their
+postprocessed hole masks before LightInpaintV1 inference. Each eye moves by
+half the requested width-based pixel disparity: left content moves left,
+right content moves right. Fractional pixels are retained. Out-of-source
+samples are explicitly marked as holes and filled together with internal
+disocclusions. No black-border translation is applied to completed outputs.
+The zero-backshift path uses the unchanged upstream MLBWInpaintImage.infer.
+The depth cache, deviation, floating-window curtains and model precision stay
+unchanged. Tensor checks cover translation/masks and inpainting call order;
+the frozen smoke test measures near/far endpoints in landscape and portrait.
+These checks must pass before the paused 1.0 release is published.
+
 Validation notes for DepthTricia 1.0. Target-hardware results remain separate
 from the automated Windows package checks below.
 
@@ -33,7 +47,7 @@ paths in sequential fresh worker processes. Host: AMD EPYC 9V74, Linux,
 8-thread CPU quota, PyTorch 2.8.0+cpu, FP32, edge fix 2/1, 15 permille,
 window 100%. Eight threads are a benchmark setting, not an application cap.
 Input: Depth Anything V2's public `assets/examples/demo01.jpg`, resized by
-the normal image loader to 1624×1080. Medians of three calls; model loading,
+the normal image loader to 1624�1080. Medians of three calls; model loading,
 JPEG saving and metadata copying are excluded from the per-image times.
 
 | Model / resolution | Depth (s) | Stereo + inpainting (s) | LightInpaint part (s) | Depth / stereo peak process RSS (MB) |
@@ -186,3 +200,4 @@ Original-size and PNG options share one row under Options. At insufficient
 window height, the main cards can be scrolled without hiding controls.
 Automated Windows GUI checks exercise DE/EN, 100%/150% scaling, complete preset
 switching, custom names/resolutions, settings persistence and busy states.
+
