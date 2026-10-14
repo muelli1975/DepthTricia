@@ -121,3 +121,15 @@ size table above records the previous build without the Depth Pro model ZIP.
 
 Pushes to main run source checks and create a Windows development artifact.
 The workflow does not publish a stable release automatically.
+
+Output additions: the Original size checkbox selects target_height=0; the
+default remains 2160. The optional depth PNG directly quantizes the used
+normalized disparity to 16-bit grayscale without resizing or modifying the
+float32 NPY cache. Export and filename options do not invalidate the cache;
+changing the image working size does. Settings filenames include a fixed
+ASCII model tag. Model-standard labels share the inference defaults and
+update on model changes, with Depth Pro's fixed resolution disabled.
+The frozen smoke test covers these controls, the 1100/1280-wide header, preset
+resolution semantics, output names and PNG values/dimensions, including PNG
+export on a subsequent cache hit. It writes GUI settings only to a temporary
+folder, and packaging excludes settings/logs from the public ZIP.

@@ -5,7 +5,7 @@ import time
 import numpy as np
 
 from .config import ProcessingConfig
-from .model_catalog import FILES
+from .model_catalog import FILES, MODEL_STANDARD_RESOLUTIONS
 from .runtime import prepare_imports
 from .stereo_geometry import normalize_disparity
 
@@ -52,7 +52,7 @@ class DepthSession:
                 depth = self.model.infer(prepared)["depth"]
                 disparity = depth.clamp(1e-4, 1e4).reciprocal().reshape(1, 1, *depth.shape[-2:])
             else:
-                default = 518 if self.config.model_id == "da2" else 504
+                default = MODEL_STANDARD_RESOLUTIONS[self.config.model_id]
                 resolution = self.config.preset.resolution or default
                 resolution = ((resolution + 13) // 14) * 14
                 x = batch_preprocess(x, lower_bound=resolution, limit_resolution=False)

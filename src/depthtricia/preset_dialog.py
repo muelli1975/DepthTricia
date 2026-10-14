@@ -3,6 +3,7 @@ from tkinter import messagebox
 import customtkinter as ctk
 
 from .config import DepthPreset
+from .model_catalog import MODEL_STANDARD_RESOLUTIONS
 from .theme import (BG_MAIN, TEXT, INPUT_BG, BORDER, BUTTON_BG, BUTTON_HOVER,
                     LANGUAGE_BG, LANGUAGE_BUTTON_BG, LANGUAGE_HOVER,
                     LANGUAGE_DROPDOWN_BG, LANGUAGE_DROPDOWN_HOVER)
@@ -24,7 +25,10 @@ class PresetDialog(ctk.CTkToplevel):
                           dropdown_hover_color=LANGUAGE_DROPDOWN_HOVER, dropdown_text_color=TEXT)
         self.choice = ctk.StringVar(value=app.active_preset or app.tr("preset.default"))
         self.name = ctk.StringVar(value=app.active_preset)
-        self.resolution = ctk.StringVar(value=str(app.depth_preset.resolution) if app.depth_preset.resolution else app.tr("preset.model_default"))
+        self.current_model = app.model_id
+        self.stored_resolution = app.depth_preset.resolution
+        self.model_default_label = self.standard_label()
+        self.resolution = ctk.StringVar()
         self.edge_x = ctk.StringVar(value=str(app.depth_preset.edge_x))
         self.edge_y = ctk.StringVar(value=str(app.depth_preset.edge_y))
         ctk.CTkLabel(self, text=app.tr("label.preset")).grid(row=0, column=0, padx=18, pady=12, sticky="w")
@@ -33,11 +37,10 @@ class PresetDialog(ctk.CTkToplevel):
         self.menu.grid(row=0, column=1, padx=18, pady=12, sticky="ew")
         self.row(1, "preset.name", self.name)
         ctk.CTkLabel(self, text=app.tr("preset.resolution")).grid(row=2, column=0, padx=18, pady=8, sticky="w")
-        self.res_menu = ctk.CTkComboBox(self, variable=self.resolution, values=[app.tr("preset.model_default"), "1218", "2048"],
+        self.res_menu = ctk.CTkComboBox(self, variable=self.resolution, values=[self.model_default_label, "1218", "2048"],
                                        border_color=BORDER, **menu_style)
         self.res_menu.grid(row=2, column=1, padx=18, pady=8, sticky="ew")
-        if app.model_id == "depthpro":
-            self.res_menu.configure(state="disabled", text_color="#727272")
+        self.refresh_model()
         self.row(3, "preset.edge_x", self.edge_x)
         self.row(4, "preset.edge_y", self.edge_y)
         buttons = ctk.CTkFrame(self, fg_color="transparent")
@@ -51,16 +54,38 @@ class PresetDialog(ctk.CTkToplevel):
         ctk.CTkLabel(self, text=self.app.tr(key)).grid(row=row, column=0, padx=18, pady=8, sticky="w")
         ctk.CTkEntry(self, textvariable=variable, fg_color=INPUT_BG, border_color=BORDER).grid(row=row, column=1, padx=18, pady=8, sticky="ew")
 
+    def standard_label(self):
+        return self.app.tr("preset.model_default") + f" ({MODEL_STANDARD_RESOLUTIONS[self.app.model_id]})"
+
+    def resolution_value(self):
+        if self.current_model == "depthpro" or not self.resolution.get():
+            return self.stored_resolution
+        return 0 if self.resolution.get() == self.model_default_label else int(self.resolution.get())
+
+    def refresh_model(self):
+        try:
+            self.stored_resolution = self.resolution_value()
+        except ValueError:
+            self.stored_resolution = self.resolution.get()
+        self.current_model = self.app.model_id
+        self.model_default_label = self.standard_label()
+        native = self.current_model == "depthpro"
+        self.res_menu.configure(values=[self.model_default_label, "1218", "2048"],
+            state="disabled" if native else "normal", text_color="#727272" if native else TEXT)
+        self.resolution.set(self.model_default_label if native or self.stored_resolution == 0
+                            else str(self.stored_resolution))
+
     def load(self, name):
         data = self.app.depth_presets.get(name, asdict(DepthPreset()))
         self.name.set(name if name in self.app.depth_presets else "")
         value = data.get("resolution", 1218)
-        self.resolution.set(str(value) if value else self.app.tr("preset.model_default"))
+        self.stored_resolution = value
+        self.resolution.set(self.model_default_label if self.current_model == "depthpro" or value == 0 else str(value))
         self.edge_x.set(str(data.get("edge_x", 2)))
         self.edge_y.set(str(data.get("edge_y", 1)))
 
     def settings(self):
-        resolution = 0 if self.resolution.get() == self.app.tr("preset.model_default") else int(self.resolution.get())
+        resolution = int(self.resolution_value())
         preset = DepthPreset(resolution, int(self.edge_x.get()), int(self.edge_y.get()))
         preset.validate()
         return preset

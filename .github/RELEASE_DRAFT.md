@@ -1,6 +1,11 @@
 DepthTricia converts 2D photos to stereo 3D using DA2 Small, DA3 Mono Large
 or Depth Pro. One common Windows package uses CUDA when available,
 otherwise CPU. Stereo generation uses mlbw_l2_inpaint with light_inpaint_v1.
+Output can use original photo dimensions or the default 2160-pixel height
+limit. Optional 16-bit grayscale depth PNGs are saved in depth_maps. Settings
+filenames include the selected model. Model-standard preset resolutions are
+shown numerically; named presets and the two output choices remain local in
+settings.json, which should be retained when updating.
 
 This is a development draft. The frozen Windows executable passed CPU
 conversion, runtime installation, GUI/preset startup, metadata copying and

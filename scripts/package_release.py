@@ -68,6 +68,7 @@ def archive(application):
     excluded = {application / item['path'] for item in runtime['files']}
     excluded.add(application / 'runtime_verified.json')
     excluded.add(application / 'models/depth_pro.pt.verified.json')
+    excluded.update(application / name for name in ['settings.json', 'depthtricia_error.log'])
     zip_folder(application, target, exclude=excluded)
     print(f'Complete archive: {target.stat().st_size / 1e6:.1f} MB', flush=True)
     models = application / 'models'

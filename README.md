@@ -16,6 +16,18 @@ Defaults: 15‰ deviation, 100% stereo-window position, horizontal/vertical
 edge fix 2/1, and 1218 depth resolution for Depth Anything. Depth Pro uses its
 native model resolution. Presets allow model-standard, 1218, 2048 or custom
 depth resolution and custom edge settings.
+The model-standard option displays its value: 518 for DA2, 504 for DA3;
+Depth Pro uses a fixed internal 1536×1536 resolution.
+
+Output is limited to 2160 pixels high by default, without upscaling smaller
+photos. **Original size output** keeps the full oriented source dimensions.
+**Save depth map** optionally exports the used relative depth map as a 16-bit
+grayscale PNG in `depth_maps`: near is white, far is black. It retains the
+computed map dimensions and is not a metric depth-in-metres export.
+Both checkboxes start off and their choices are saved. Named depth presets and
+these options are stored locally in `settings.json` in the application folder;
+keep that file when updating. With settings in filenames enabled, outputs
+include the model tag, e.g. `scene_DA3MonoLarge_d15_w100_o0_sbs.jpg`.
 
 Models are stored visibly in `models`. Missing models can be downloaded only
 after explicit confirmation. Existing models are loaded locally without
@@ -32,6 +44,8 @@ one folder, extract only `DepthTricia_1.0.zip`, and leave the other ZIPs beside
 the extracted application folder for offline installation.
 
 Output folders: `sbs`, `anaglyph`, `_temp` (reusable depth maps).
+The `.npy` files in `_temp` preserve normalized 32-bit floating-point depth
+values for computation; the optional PNG is a separate graphic export.
 Changing stereo settings reuses depth maps; changing the source, depth model,
 depth resolution or edge fix invalidates the corresponding cache.
 

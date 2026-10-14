@@ -16,9 +16,12 @@ def main():
     parser.add_argument("--window", type=float, default=100)
     parser.add_argument("--recursive", action="store_true")
     parser.add_argument("--rebuild-depth", action="store_true")
+    parser.add_argument("--original-size", action="store_true")
+    parser.add_argument("--save-depth-map", action="store_true")
     args = parser.parse_args()
     config = ProcessingConfig(app_dir=args.app_dir.resolve(), model_id=args.model, device=args.device,
                               preset=DepthPreset(resolution=args.resolution), deviation_permille=args.deviation,
+                              target_height=0 if args.original_size else 2160, save_depth_map=args.save_depth_map,
                               window_position_percent=args.window, exiftool_path=args.app_dir / "tools/exiftool.exe")
     def progress(event):
         print(event.current, event.total, event.item_key, event.fallback_message, flush=True)

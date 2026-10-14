@@ -11,6 +11,8 @@ DEFAULT_SETTINGS: dict[str, Any] = {
     "last_input_folder": "",
     "last_output_folder": "",
     "use_input_subfolder": True,
+    "original_size": False,
+    "save_depth_map": False,
 }
 
 

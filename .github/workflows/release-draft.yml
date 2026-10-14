@@ -37,6 +37,11 @@ jobs:
           if [ -n "$REQUESTED_RUN" ]; then
             release_run_id="$REQUESTED_RUN"
           else
+            current_source=$(gh api "repos/$REPO/git/ref/heads/main" --jq .object.sha)
+            if [ "$SOURCE_SHA" != "$current_source" ]; then
+              echo 'A newer source revision exists; keep its release preparation.'
+              exit 0
+            fi
             release_run_id=$(gh api "repos/$REPO/actions/runs?head_sha=$SOURCE_SHA&per_page=100" --jq '.workflow_runs[] | select(.name == "Windows development build" and .conclusion == "success") | .id' | head -n 1)
           fi
           if [ -z "$release_run_id" ]; then
@@ -71,7 +76,7 @@ jobs:
           import hashlib, json, os, pathlib, zipfile
           root = pathlib.Path('payload')
           report = json.loads((root / 'smoke-test.json').read_text())
-          for key in ['ok', 'gui', 'presets', 'depthpro_weights', 'da2_inference', 'stereo_inpainting', 'metadata', 'cache', 'offline']:
+          for key in ['ok', 'gui', 'presets', 'depthpro_weights', 'depth_png', 'original_size', 'model_filename', 'da2_inference', 'stereo_inpainting', 'metadata', 'cache', 'offline']:
               assert report[key] is True, key
           assert report['inference_device'] == 'cpu' and report['cuda_runtime'] == '12.6'
           with zipfile.ZipFile(root / 'DepthTricia_1.0.zip') as package:

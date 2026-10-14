@@ -91,6 +91,8 @@ class DepthTriciaApp(ctk.CTk):
             value=bool(self.settings.get("use_input_subfolder", True))
         )
         self.use_depth_cache = ctk.BooleanVar(value=True)
+        self.original_size = ctk.BooleanVar(value=bool(self.settings.get("original_size", False)))
+        self.save_depth_map = ctk.BooleanVar(value=bool(self.settings.get("save_depth_map", False)))
         self.append_settings_to_filename = ctk.BooleanVar(value=False)
         self.gray_anaglyph = ctk.BooleanVar(value=False)
         self.deviation = ctk.DoubleVar(value=15)
@@ -258,6 +260,8 @@ class DepthTriciaApp(ctk.CTk):
             self.gray_anaglyph_check,
             self.use_depth_cache_check,
             self.append_settings_check,
+            self.original_size_check,
+            self.save_depth_map_check,
         ):
             self._set_checkbox_enabled(checkbox, not running)
 
@@ -287,7 +291,7 @@ class DepthTriciaApp(ctk.CTk):
         ).grid(row=0, column=0, sticky="w", padx=24, pady=(18, 2))
         ctk.CTkLabel(
             header, text=self.tr("app.subtitle"), font=ctk.CTkFont(family=FONT_FAMILY, size=14),
-            text_color=TEXT_MUTED,
+            text_color=TEXT_MUTED, wraplength=220, justify="left",
         ).grid(row=1, column=0, sticky="w", padx=24, pady=(0, 16))
         language_values = ["Deutsch", "English"]
         current = "English" if self.translator.locale == "en" else "Deutsch"
@@ -314,7 +318,7 @@ class DepthTriciaApp(ctk.CTk):
                      dropdown_fg_color=LANGUAGE_DROPDOWN_BG,
                      dropdown_hover_color=LANGUAGE_DROPDOWN_HOVER, dropdown_text_color=TEXT)
         ctk.CTkLabel(controls, text=self.tr("label.depth_model"), anchor="w").grid(row=0, column=0, sticky="w")
-        self.model_menu = ctk.CTkOptionMenu(controls, values=list(DEPTH_MODELS.values()), width=260,
+        self.model_menu = ctk.CTkOptionMenu(controls, values=list(DEPTH_MODELS.values()), width=230,
                                            command=self._choose_depth_model, **style)
         self.model_menu.set(DEPTH_MODELS[self.model_id])
         self.model_menu.grid(row=1, column=0, padx=(0, 8))
@@ -324,11 +328,19 @@ class DepthTriciaApp(ctk.CTk):
                                             command=self._choose_device, **style)
         self.device_menu.set(self.device_names[self.device_id])
         self.device_menu.grid(row=1, column=1, padx=(0, 8))
-        self.preset_button = ctk.CTkButton(controls, text=self.tr("button.presets"), width=90, command=self.edit_presets)
+        self.preset_button = ctk.CTkButton(controls, text=self.tr("button.presets"), width=80, command=self.edit_presets)
         self.preset_button.grid(row=1, column=2)
+        self.save_depth_map_check = ctk.CTkCheckBox(controls, text=self.tr("option.save_depth_map"),
+            variable=self.save_depth_map, command=self._save_paths, width=200)
+        self.save_depth_map_check.grid(row=0, column=3, padx=(12, 0), sticky="w")
+        self.original_size_check = ctk.CTkCheckBox(controls, text=self.tr("option.original_size"),
+            variable=self.original_size, command=self._save_paths, width=200)
+        self.original_size_check.grid(row=1, column=3, padx=(12, 0), sticky="w")
 
     def _choose_depth_model(self, value):
         self.model_id = next(key for key, name in DEPTH_MODELS.items() if name == value)
+        if self.preset_dialog and self.preset_dialog.winfo_exists():
+            self.preset_dialog.refresh_model()
         self._save_paths()
 
     def _choose_device(self, value):
@@ -685,6 +697,8 @@ class DepthTriciaApp(ctk.CTk):
                 "device": self.device_id,
                 "depth_presets": self.depth_presets,
                 "active_preset": self.active_preset,
+                "original_size": bool(self.original_size.get()),
+                "save_depth_map": bool(self.save_depth_map.get()),
             }
         )
         try:
@@ -868,6 +882,8 @@ class DepthTriciaApp(ctk.CTk):
         self.gray_anaglyph.set(False)
         self.append_settings_to_filename.set(False)
         self.use_depth_cache.set(True)
+        self.original_size.set(False)
+        self.save_depth_map.set(False)
         self.depth_preset = DepthPreset()
         self.active_preset = ""
         self._save_paths()
@@ -915,7 +931,8 @@ class DepthTriciaApp(ctk.CTk):
             device=self.device_id,
             preset=self.depth_preset,
             exiftool_path=(self.app_dir / "tools" / "exiftool.exe"),
-            target_height=2160,
+            target_height=0 if self.original_size.get() else 2160,
+            save_depth_map=bool(self.save_depth_map.get()),
             deviation_permille=round(float(self.deviation.get())),
             window_position_percent=round(float(self.window_position.get())),
             window_back_permille=round(float(self.window_backshift.get())),

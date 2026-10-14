@@ -9,7 +9,8 @@ from .image_input import collect_images, load_work_image, make_item_key
 from .metadata import copy_metadata_to_outputs
 from .model_catalog import FILES, missing_files, required_files
 from .models import ProcessingItem, ProgressEvent
-from .naming import build_suffix
+from .naming import build_output_suffix
+from .output_writer import save_depth_png
 from .runtime import select_device
 
 
@@ -55,12 +56,7 @@ class ProcessingController:
         directories = {key: output_dir / key for key in ("_temp", "sbs", "anaglyph")}
         for directory in directories.values():
             directory.mkdir(parents=True, exist_ok=True)
-        suffix = ""
-        if self.config.append_settings_to_filename:
-            suffix = build_suffix(self.config.deviation_permille, self.config.window_position_percent,
-                                  self.config.window_back_permille, self.config.float_left_permille,
-                                  self.config.float_right_permille, self.config.float_top_permille,
-                                  self.config.float_bottom_permille)
+        suffix = build_output_suffix(self.config)
         items, records, pending = [], {}, []
         checkpoint = self.config.models_dir / FILES[self.config.model_id].filename
         for index, source in enumerate(images, 1):
@@ -69,7 +65,9 @@ class ProcessingController:
             identity = cache_identity(source, self.config, checkpoint)
             paths = cache_paths(directories["_temp"], key, identity)
             item = ProcessingItem(source, key, directories["sbs"] / f"{key}{suffix}_sbs.jpg",
-                                  directories["anaglyph"] / f"{key}{suffix}_anaglyph.jpg")
+                                  directories["anaglyph"] / f"{key}{suffix}_anaglyph.jpg",
+                                  depth_png_path=output_dir / "depth_maps" / f"{key}{suffix}_depth.png"
+                                  if self.config.save_depth_map else None)
             items.append(item)
             records[key] = paths, identity
             if rebuild_depth or load_depth(*paths, identity) is None:
@@ -120,6 +118,8 @@ class ProcessingController:
                     def progress(step, fraction):
                         self._emit("render_step", "progress." + step, step, index, len(items), item.key, step_fraction=fraction)
                     seconds = write_outputs(left, right, item, self.config, progress)
+                    if item.depth_png_path is not None:
+                        save_depth_png(depth, item.depth_png_path)
                     item.status = "ok"
                     if self.config.copy_metadata:
                         self._emit("metadata", "progress.metadata", "Übertrage Metadaten …", index, len(items), item.key)

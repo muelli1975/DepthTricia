@@ -10,6 +10,7 @@ class ProcessingItem:
     sbs_path: Path
     anaglyph_path: Path
     status: str = "offen"
+    depth_png_path: Path | None = None
 
 @dataclass(frozen=True)
 class ProgressEvent:

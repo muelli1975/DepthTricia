@@ -30,3 +30,14 @@ def build_suffix(
             parts.append(f"{key}{format_number(value)}")
     return "_" + "_".join(parts)
 
+
+def build_output_suffix(config) -> str:
+    if not config.append_settings_to_filename:
+        return ""
+    from .model_catalog import MODEL_FILENAME_TAGS
+    return "_" + MODEL_FILENAME_TAGS[config.model_id] + build_suffix(
+        config.deviation_permille, config.window_position_percent,
+        config.window_back_permille, config.float_left_permille,
+        config.float_right_permille, config.float_top_permille,
+        config.float_bottom_permille)
+

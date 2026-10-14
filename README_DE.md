@@ -14,6 +14,20 @@ Standard: 15‰ Deviation, Scheinfensterlage 100%, Edge Fix horizontal 2 /
 vertikal 1 und Tiefenauflösung 1218 bei Depth Anything. Depth Pro verwendet
 seine eigene Modellauflösung. Presets ermöglichen Modellstandard, 1218,
 2048 und eigene Tiefenauflösungen sowie eigene Edge-Fix-Werte.
+Hinter Modellstandard steht der Wert: 518 bei DA2, 504 bei DA3.
+Depth Pro verwendet intern fest 1536×1536 Pixel.
+
+Die Ausgabe wird standardmäßig auf 2160 Pixel Höhe begrenzt; kleinere Fotos
+werden nicht vergrößert. **Ausgabe in Originalgröße** erhält die vollständigen,
+korrekt ausgerichteten Bildabmessungen. **Tiefenkarte speichern** erzeugt
+zusätzlich eine 16-Bit-Graustufen-PNG im Ordner `depth_maps`: nah ist hell,
+fern ist dunkel. Die berechnete Kartenauflösung bleibt erhalten; die Werte
+sind relativ und keine Entfernungsangaben in Metern.
+Beide Checkboxen starten ausgeschaltet und merken sich ihre Auswahl.
+Eigene Tiefen-Presets und diese Optionen stehen lokal in `settings.json`
+im Programmordner; diese Datei bei einem Update erhalten. Bei aktivierter
+Ergänzung der Einstellungen im Dateinamen steht auch das Modell darin,
+z. B. `bild_DA3MonoLarge_d15_w100_o0_sbs.jpg`.
 
 Modelle liegen sichtbar im Ordner `models`. Fehlende Modelle werden nur nach
 ausdrücklicher Bestätigung heruntergeladen. Vorhandene Modelle funktionieren
@@ -32,6 +46,9 @@ entpacken und die übrigen ZIPs neben dem entpackten Programmordner liegen lasse
 
 Ausgaben: `sbs`, `anaglyph` und `_temp` mit wiederverwendbaren Tiefenkarten.
 Geänderte Stereo-Einstellungen benötigen keine neue Tiefenschätzung.
+Die `.npy`-Dateien unter `_temp` enthalten die normalisierten Tiefenwerte mit
+32-Bit-Gleitkommagenauigkeit als Rechencache. Die optionale PNG ist davon
+getrennt und zum Betrachten oder Weiterverwenden gedacht.
 
 [Build und Quellcodebetrieb](BUILD.md) · [Entwicklungsstand](DEVELOPMENT.md) ·
 [Drittanbieter und Lizenzen](THIRD_PARTY.md)

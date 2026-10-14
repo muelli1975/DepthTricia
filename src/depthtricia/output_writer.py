@@ -64,3 +64,16 @@ def save_sbs_jpeg(
 def save_anaglyph_jpeg(image: np.ndarray, output_path: Path, quality: int) -> None:
     _save_jpeg(image, output_path, quality)
 
+
+def save_depth_png(depth: np.ndarray, path: Path) -> None:
+    """Export the used relative disparity as 16-bit grayscale, without resizing."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_name(path.stem + ".partial.png")
+    try:
+        pixels = np.rint(np.clip(depth, 0, 1) * 65535).astype(np.uint16)
+        Image.fromarray(pixels).save(temporary, format="PNG")
+        _replace_with_retry(temporary, path)
+    except Exception:
+        temporary.unlink(missing_ok=True)
+        raise
+

@@ -38,6 +38,7 @@ class ProcessingConfig:
     jpeg_quality_sbs: int = 95
     jpeg_quality_anaglyph: int = 90
     copy_metadata: bool = True
+    save_depth_map: bool = False
 
     @property
     def models_dir(self) -> Path:

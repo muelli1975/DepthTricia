@@ -40,6 +40,8 @@ def test_cache_reuses_depth_for_stereo_changes_but_not_depth_changes(tmp_path):
     cfg = ProcessingConfig(tmp_path)
     identity = cache_identity(source, cfg, checkpoint)
     assert identity == cache_identity(source, replace(cfg, deviation_permille=20), checkpoint)
+    assert identity == cache_identity(source, replace(cfg, save_depth_map=True, append_settings_to_filename=True), checkpoint)
+    assert identity != cache_identity(source, replace(cfg, target_height=0), checkpoint)
     assert identity != cache_identity(source, replace(cfg, preset=DepthPreset(resolution=2048)), checkpoint)
     paths = cache_paths(tmp_path, "image", identity)
     data = np.array([[0, .5, 1]], dtype=np.float32)

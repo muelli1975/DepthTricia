@@ -13,6 +13,8 @@ class ModelFile:
 
 
 DEPTH_MODELS = {"da2": "Depth Anything V2 Small", "da3": "Depth Anything 3 Mono Large", "depthpro": "Depth Pro"}
+MODEL_STANDARD_RESOLUTIONS = {"da2": 518, "da3": 504, "depthpro": 1536}
+MODEL_FILENAME_TAGS = {"da2": "DA2Small", "da3": "DA3MonoLarge", "depthpro": "DepthPro"}
 FILES = {
     "da2": ModelFile("depth_anything_v2_vits.pth", "https://huggingface.co/depth-anything/Depth-Anything-V2-Small/resolve/main/depth_anything_v2_vits.pth", 99218434, "715fade13be8f229f8a70cc02066f656f2423a59effd0579197bbf57860e1378", "Apache-2.0"),
     "da3": ModelFile("da3mono-large.safetensors", "https://huggingface.co/depth-anything/DA3MONO-LARGE/resolve/main/model.safetensors", 1336734448, "7a799a7f95eb8d4c404c2ca8be3dc3276b350a417ddc4420db72ba850cc0e960", "Apache-2.0"),
