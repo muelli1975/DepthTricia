@@ -5,7 +5,8 @@ support, SBS/anaglyph JPEG output, metadata copying and reusable depth maps.
 - One portable Windows package for NVIDIA and CPU. Automatic uses CUDA when
   available, otherwise CPU; no separate CUDA toolkit or Python is needed.
 - Complete presets: Standard (DA3, 1218), CPU (DA2, 518), Quick (DA2, 518, Automatic),
-  Fine (DA3, 2048) and Depth Pro (native). All use edge fix 2/1. Custom presets
+  Balanced (DA3, 504, Automatic), Fine (DA3, 2048) and Depth Pro (native).
+  All use edge fix 2/1. Custom presets
   save model, device, resolution and edge fix; model/settings remain visible.
 - Defaults: 15‰ deviation and 100% stereo-window position. Stereo generation
   uses `mlbw_l2_inpaint` with `light_inpaint_v1`.

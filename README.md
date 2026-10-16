@@ -44,6 +44,7 @@ Presets select the depth model, processing device, resolution and edge fix toget
 | Standard | DA3 Mono Large | 1218 | Automatic |
 | CPU | DA2 Small | Model default: 518 | CPU |
 | Quick | DA2 Small | Model default: 518 | Automatic |
+| Balanced | DA3 Mono Large | Model default: 504 | Automatic |
 | Fine | DA3 Mono Large | 2048 | Automatic |
 | Depth Pro | Depth Pro | Native: 1536 × 1536 internally | Automatic |
 

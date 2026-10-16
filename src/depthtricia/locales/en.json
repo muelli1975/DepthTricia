@@ -116,6 +116,7 @@
   "option.original_size": "Output original size",
   "option.save_depth_map": "Save depth map as PNG",
   "preset.quick": "Quick",
+  "preset.balanced": "Balanced",
   "preset.fine": "Fine",
   "preset.own_suffix": " (custom)",
   "preset.cpu": "CPU",

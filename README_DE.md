@@ -44,6 +44,7 @@ Presets wählen Tiefenmodell, Berechnungsgerät, Auflösung und Edge Fix gemeins
 | Standard | DA3 Mono Large | 1218 | Automatisch |
 | CPU | DA2 Small | Modellstandard: 518 | CPU |
 | Schnell | DA2 Small | Modellstandard: 518 | Automatisch |
+| Ausgewogen | DA3 Mono Large | Modellstandard: 504 | Automatisch |
 | Fein | DA3 Mono Large | 2048 | Automatisch |
 | Depth Pro | Depth Pro | Nativ: intern 1536 × 1536 | Automatisch |
 

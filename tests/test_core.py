@@ -67,6 +67,7 @@ def test_quick_uses_automatic_da2_and_preserves_saved_custom_profiles():
     quick = BUILTIN_PRESETS["quick"]
     assert quick == InferencePreset(model_id="da2", device="auto", resolution=0)
     assert BUILTIN_PRESETS["standard"] == InferencePreset(resolution=1218)
+    assert BUILTIN_PRESETS["balanced"] == InferencePreset(model_id="da3", device="auto", resolution=0)
     saved = {"My DA3": asdict(InferencePreset(resolution=0))}
     own, active, builtin, selected = restore_presets({
         "preset_schema": 1, "builtin_preset": "quick", "depth_presets": saved})

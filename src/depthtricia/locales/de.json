@@ -116,6 +116,7 @@
   "option.original_size": "Originalgröße ausgeben",
   "option.save_depth_map": "Tiefenkarte als PNG speichern",
   "preset.quick": "Schnell",
+  "preset.balanced": "Ausgewogen",
   "preset.fine": "Fein",
   "preset.own_suffix": " (eigen)",
   "preset.cpu": "CPU",
