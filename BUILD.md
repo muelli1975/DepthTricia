@@ -7,7 +7,7 @@ Create a virtual environment and install the matching PyTorch build:
 
 ```powershell
 py -3.12 -m venv .venv
-.venv\Scripts\python -m pip install torch==2.8.0 torchvision==0.23.0 --index-url https://download.pytorch.org/whl/cu126
+.venv\Scripts\python -m pip install torch==2.8.0 torchvision==0.23.0 --index-url https://download.pytorch.org/whl/cu128
 .venv\Scripts\python -m pip install -r requirements.txt pyinstaller==6.16.0
 .venv\Scripts\python scripts/prepare_runtime.py
 .venv\Scripts\python scripts/prepare_tools.py
@@ -65,11 +65,11 @@ used first. Otherwise the confirmed installer downloads the release assets.
 After installation processing is offline. Files are staged and checked before
 replacement; interrupted installations can be retried.
 
-The build currently prepares URLs for tag `v1.0`. Publish the main ZIP and
-all matching runtime archives from the same build on that tag before the
-online runtime downloader can be used. No public release is automatically
-created by this workflow. Development testing uses the local runtime ZIPs
-from the build artifact; put them beside the extracted DepthTricia folder.
+The build prepares URLs for tag `v1.0`. The release workflow publishes only
+the matching main ZIP and runtime archives after source checks and the frozen
+Windows test pass. Maintenance corrections retain version 1.0 and replace the
+matching verified assets together. Development testing uses the local runtime
+ZIPs from the build artifact; put them beside the extracted DepthTricia folder.
 
 The workflow assembles the folder, then runs `DepthTricia.exe --smoke-test
 REPORT.json` before compressing it. This checks GUI startup, preset editing,

@@ -40,7 +40,7 @@ class InferencePreset:
 BUILTIN_PRESETS = {
     "standard": InferencePreset(),
     "cpu": InferencePreset(model_id="da2", device="cpu", resolution=0),
-    "quick": InferencePreset(resolution=0),
+    "quick": InferencePreset(model_id="da2", resolution=0),
     "fine": InferencePreset(resolution=2048),
     "depthpro": InferencePreset(model_id="depthpro", resolution=0),
 }

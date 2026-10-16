@@ -43,6 +43,40 @@ def test_cache_reuses_depth_for_stereo_changes_but_not_depth_changes(tmp_path):
     assert load_depth(*paths, identity) is None
 
 
+def test_depthpro_native_pipeline_invalidates_only_old_depthpro_maps(tmp_path):
+    source, checkpoint = tmp_path / "source.jpg", tmp_path / "model.pth"
+    source.write_bytes(b"source")
+    checkpoint.write_bytes(b"model")
+    for model_id in ("da2", "da3", "depthpro"):
+        config = ProcessingConfig(tmp_path, model_id=model_id)
+        current = cache_identity(source, config, checkpoint)
+        previous = {**current, "pipeline": "iw3-normalized-disparity-v1"}
+        paths = cache_paths(tmp_path, model_id, previous)
+        save_depth(*paths, np.array([[0, .5, 1]], dtype=np.float32), previous)
+        if model_id == "depthpro":
+            assert load_depth(*paths, current) is None
+            assert cache_paths(tmp_path, model_id, current) != paths
+        else:
+            assert load_depth(*paths, current) is not None
+
+
+def test_quick_uses_automatic_da2_and_preserves_saved_custom_profiles():
+    from dataclasses import asdict
+    from depthtricia.config import BUILTIN_PRESETS, InferencePreset
+    from depthtricia.presets import restore_presets
+    quick = BUILTIN_PRESETS["quick"]
+    assert quick == InferencePreset(model_id="da2", device="auto", resolution=0)
+    assert BUILTIN_PRESETS["standard"] == InferencePreset(resolution=1218)
+    saved = {"My DA3": asdict(InferencePreset(resolution=0))}
+    own, active, builtin, selected = restore_presets({
+        "preset_schema": 1, "builtin_preset": "quick", "depth_presets": saved})
+    assert selected == quick and builtin == "quick" and active == "" and own == saved
+    _, active, builtin, selected = restore_presets({
+        "preset_schema": 1, "active_preset": "My DA3", "depth_presets": saved})
+    assert selected.model_id == "da3" and selected.resolution == 0
+    assert active == "My DA3" and builtin is None
+
+
 def spec(data=b"weights"):
     return ModelFile("test.pth", "https://example.invalid/model", len(data), hashlib.sha256(data).hexdigest(), "MIT")
 

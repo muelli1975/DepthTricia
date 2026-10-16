@@ -10,6 +10,31 @@ from .runtime import prepare_imports
 from .stereo_geometry import normalize_disparity
 
 
+def _infer_depthpro_native(model, x):
+    """Use iw3's Depth Pro preprocessing and native inverse-depth output.
+
+    Apple's general infer() helper resizes its prediction back to the input
+    image. The learned stereo mask must instead receive iw3's native map.
+    Keep the existing device precision: FP16 on CUDA, FP32 on CPU.
+    """
+    import torch
+    import torch.nn.functional as F
+    from iw3.depth_pro_model import batch_preprocess
+
+    height, width = x.shape[-2:]
+    prepared, _ = batch_preprocess(x, img_size=model.img_size)
+    canonical_inverse_depth, fov_deg = model(prepared.to(next(model.parameters()).dtype))
+    canonical_inverse_depth = canonical_inverse_depth.float()
+    focal_px = 0.5 * width / torch.tan(0.5 * torch.deg2rad(fov_deg.float()))
+    disparity = (canonical_inverse_depth * (width / focal_px)).clamp(1e-4, 1e4)
+    # Match iw3: do not enlarge maps for large photos, but retain the source
+    # dimensions if either side is smaller than the native model input.
+    if height < prepared.shape[-2] or width < prepared.shape[-1]:
+        disparity = F.interpolate(disparity, size=(height, width),
+                                  mode="bilinear", align_corners=False)
+    return disparity
+
+
 class DepthSession:
     """Local weights only; no torch.hub/Hugging Face network loader."""
     def __init__(self, config: ProcessingConfig, device):
@@ -35,7 +60,7 @@ class DepthSession:
             from depth_pro.depth_pro import create_model_and_transforms, DEFAULT_MONODEPTH_CONFIG_DICT
             settings = replace(DEFAULT_MONODEPTH_CONFIG_DICT, checkpoint_uri=str(checkpoint))
             precision = torch.float16 if device.type == "cuda" else torch.float32
-            self.model, self.transform = create_model_and_transforms(config=settings, device=device, precision=precision)
+            self.model, _ = create_model_and_transforms(config=settings, device=device, precision=precision)
         self.model = self.model.eval().to(device)
         self.load_seconds = time.perf_counter() - start
 
@@ -48,9 +73,7 @@ class DepthSession:
         edge = (self.config.preset.edge_x, self.config.preset.edge_y)
         with torch.inference_mode():
             if self.config.model_id == "depthpro":
-                prepared = self.transform(__import__("PIL.Image", fromlist=["Image"]).fromarray(rgb))
-                depth = self.model.infer(prepared)["depth"]
-                disparity = depth.clamp(1e-4, 1e4).reciprocal().reshape(1, 1, *depth.shape[-2:])
+                disparity = _infer_depthpro_native(self.model, x)
             else:
                 default = MODEL_STANDARD_RESOLUTIONS[self.config.model_id]
                 resolution = self.config.preset.resolution or default

@@ -7,8 +7,8 @@ on:
       torch_backend:
         description: PyTorch runtime
         type: choice
-        options: [cu126, cpu]
-        default: cu126
+        options: [cu128, cpu]
+        default: cu128
       bundle_da3:
         description: Try to bundle DA3 in the main ZIP
         type: boolean
@@ -17,7 +17,7 @@ jobs:
   build:
     runs-on: windows-latest
     env:
-      TORCH_BACKEND: ${{ inputs.torch_backend || 'cu126' }}
+      TORCH_BACKEND: ${{ inputs.torch_backend || 'cu128' }}
       BUNDLE_DA3: ${{ github.event_name == 'push' || inputs.bundle_da3 }}
     steps:
       - uses: actions/checkout@v4

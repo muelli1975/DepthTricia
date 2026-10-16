@@ -20,7 +20,7 @@ Processing runs locally, without an account, cloud or tracking. Missing runtime 
 
 Download and extract `DepthTricia_1.0.zip`, then start `DepthTricia.exe`. DA2 and DA3 are included in the main ZIP. On first processing, the program asks before installing or downloading missing packages.
 
-For offline installation, download **all six ZIP files from the same release** into one folder. Extract only `DepthTricia_1.0.zip`; leave the other five ZIPs beside the extracted `DepthTricia` folder. They contain four runtime packages and the original Apple Depth Pro checkpoint. Local packages are used first. Archives and installed files are checksum-verified; each ZIP is below 2 GiB.
+For offline installation, download **all ZIP files from the same release** into one folder. Extract only `DepthTricia_1.0.zip`; leave the other ZIPs beside the extracted `DepthTricia` folder. They contain the matching CUDA 12.8 runtime packages and the original Apple Depth Pro checkpoint. Local packages are used first. Archives and installed files are checksum-verified; each ZIP is below 2 GiB. When updating 1.0, replace the application and obtain all matching runtime packages from the updated release; retain your `settings.json`.
 
 Models are stored visibly in `models`. Existing models are loaded without network checks, accounts, tokens or a Hugging Face cache dependency.
 
@@ -43,11 +43,13 @@ Presets select the depth model, processing device, resolution and edge fix toget
 | --- | --- | --- | --- |
 | Standard | DA3 Mono Large | 1218 | Automatic |
 | CPU | DA2 Small | Model default: 518 | CPU |
-| Quick | DA3 Mono Large | Model default: 504 | Automatic |
+| Quick | DA2 Small | Model default: 518 | Automatic |
 | Fine | DA3 Mono Large | 2048 | Automatic |
 | Depth Pro | Depth Pro | Native: 1536 × 1536 internally | Automatic |
 
 All built-in presets use edge fix **2 horizontal / 1 vertical**. **Automatic** selects CUDA when available, otherwise CPU. Custom presets save model, device, resolution and edge fix together. Depth Anything accepts custom resolutions from 196 to 4096 and internally rounds up to its 14-pixel grid; 2048 becomes 2058. Depth Pro's internal resolution stays fixed.
+
+Depth Pro uses iw3's preprocessing and native inverse-depth map, without first enlarging that map to the working image size. Output photos retain their selected size; small-source depth maps follow iw3's size handling. Previous Depth Pro caches are recalculated automatically. The original Apple model and weights are unchanged, as are model precision settings. **Fine** remains experimental: very high depth resolutions or deviation can produce incorrect learned hole masks. No resolution, deviation or device is reduced automatically.
 
 DA3 at high resolution, Depth Pro and original-size inpainting need more time and memory. Settings and the selected device are never reduced automatically after a memory error.
 

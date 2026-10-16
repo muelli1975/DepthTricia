@@ -33,7 +33,8 @@ def cache_identity(source: Path, config, checkpoint: Path) -> dict:
             "model": config.model_id, "checkpoint": model_signature(checkpoint),
             "height": config.target_height, "resolution": config.preset.resolution,
             "edge_x": config.preset.edge_x, "edge_y": config.preset.edge_y,
-            "pipeline": "iw3-normalized-disparity-v1"}
+            "pipeline": ("iw3-depthpro-native-disparity-v2" if config.model_id == "depthpro"
+                         else "iw3-normalized-disparity-v1")}
 
 
 def cache_paths(directory: Path, key: str, identity: dict):

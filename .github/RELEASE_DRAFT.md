@@ -4,7 +4,7 @@ support, SBS/anaglyph JPEG output, metadata copying and reusable depth maps.
 
 - One portable Windows package for NVIDIA and CPU. Automatic uses CUDA when
   available, otherwise CPU; no separate CUDA toolkit or Python is needed.
-- Complete presets: Standard (DA3, 1218), CPU (DA2, 518), Quick (DA3, 504),
+- Complete presets: Standard (DA3, 1218), CPU (DA2, 518), Quick (DA2, 518, Automatic),
   Fine (DA3, 2048) and Depth Pro (native). All use edge fix 2/1. Custom presets
   save model, device, resolution and edge fix; model/settings remain visible.
 - Defaults: 15‰ deviation and 100% stereo-window position. Stereo generation
@@ -21,9 +21,16 @@ Download `DepthTricia_1.0.zip`, extract it and start `DepthTricia.exe`. On first
 processing, confirm the installation of matching runtime packages. DA2 and DA3
 are in the main ZIP; the original Apple Depth Pro checkpoint is supplied in
 `DepthTricia_Models_DepthPro_1.0.zip` and installed with the runtime packages.
-For offline setup, download all six ZIP files into one folder, extract only
+For offline setup, download all ZIP files into one folder, extract only
 the main ZIP and leave the remaining ZIPs beside the extracted DepthTricia folder.
 All archives are below 2 GiB; archives and installed files are checksum-verified.
+
+This maintenance correction retains version 1.0. The matching runtime now uses
+CUDA 12.8. Depth Pro uses iw3's preprocessing/native inverse-depth map instead
+of passing an enlarged working-size map to the stereo mask model; old Depth Pro
+caches are invalidated. Apple model weights, stereo controls and the GUI are
+unchanged. Fine remains experimental. When updating 1.0, replace the application
+and obtain all matching runtime ZIPs from this release; retain settings.json.
 
 CPU users should select the CPU preset. DA3 at high resolution, Depth Pro and
 original-size inpainting need more memory and processing time. Quality or

@@ -167,7 +167,7 @@ size table above records the previous build without the Depth Pro model ZIP.
 Pushes to main run source checks and create a Windows development artifact.
 The one-time 1.0 release workflow publishes only after matching source checks,
 Windows GUI checks, frozen CPU conversion and archive verification pass.
-A published v1.0 cannot be replaced by subsequent builds.
+The agreed maintenance correction replaces the matching v1.0 assets only after all checks pass; the version remains 1.0.
 
 Output additions: the Original size checkbox selects target_height=0; the
 default remains 2160. The optional depth PNG directly quantizes the used
@@ -191,7 +191,7 @@ The editable resolution field remains available for custom presets.
 
 The header preset list owns model, device, resolution and edge fix. Standard,
 CPU, Quick, Fine and Depth Pro have edge fix 2/1. Standard/Quick/Fine/Depth Pro
-select Automatic; CPU selects DA2 Small explicitly on CPU. Model/device/resolution
+select Automatic; Quick uses DA2 Small at 518, while CPU selects DA2 Small explicitly on CPU. Model/device/resolution
 are visible alongside the list. Creating/editing a custom profile opens the
 modeless editor; built-ins are unchanged. Custom profiles remain in settings.json.
 Legacy profiles inherit their former model/device; separate legacy selections
@@ -201,3 +201,47 @@ window height, the main cards can be scrolled without hiding controls.
 Automated Windows GUI checks exercise DE/EN, 100%/150% scaling, complete preset
 switching, custom names/resolutions, settings persistence and busy states.
 
+
+
+## 1.0 maintenance correction, 2026-10-16
+
+The Windows build uses PyTorch 2.8.0 / torchvision 0.23.0 with CUDA 12.8.
+Application and runtime ZIPs belong to the same build; existing 12.6 libraries
+must not be mixed into the corrected package. Runtime archive counts are derived
+from the manifest, not fixed in installation instructions.
+
+Depth Pro now uses the pinned iw3 batch_preprocess function (normalization and
+1536-square interpolation) and its native inverse-depth/FOV conversion and
+small-source size rule. Apple's original model and checkpoint remain unchanged.
+CUDA stays FP16, CPU stays FP32; no precision option is added. The general Apple
+infer() method is no longer used because it enlarges the map to the working
+image size before learned stereo mask estimation. Only the Depth Pro cache
+pipeline identity changes, leaving DA2/DA3 caches reusable.
+
+Quick now selects DA2 Small / Automatic / model standard 518. Standard remains
+DA3 / Automatic / 1218, and Fine remains DA3 / 2048 (experimental). Own presets,
+GUI layout, stereo geometry and controls remain unchanged.
+
+Diagnostic CPU tests on the user's exported 16-bit Depth Pro map reproduced the
+gray stripes without AMP. The learned mask marked about 74.5% of the original
+5472x3648 image at 20 permille. With diagnostic native-map resampling the mask
+covered about 0.14%; a checked inpainting band no longer showed the gray stripes.
+The ordinary DepthTricia stereo call and direct pinned iw3 call were bit-identical
+in three comparisons. These are stereo tests on an exported map, not new Depth
+Pro inference or a GPU compatibility matrix. Native 1536-square maps still gave
+incorrect broad masks at 40-50 permille in this example; this correction does not
+claim to remove all learned-mask limits.
+
+New tensor tests compare the adapter with pinned iw3 preprocessing/inverse-depth
+math, including large landscape/portrait and small-source dimensions; a surrogate
+model avoids loading large weights. The frozen smoke test exercises the native
+adapter with a surrogate too. Full Depth Pro and target-GPU quality checks remain
+separate from those package/import/math checks.
+
+Local correction checks passed: 40 pytest cases (including actual pinned iw3
+tensor comparisons), compileall and diff whitespace checks. A real offline
+Quick/DA2/Automatic run on CPU produced SBS 1536x512, anaglyph 768x512 and a
+770x518 depth map; a second run reused its cache. The actual stereo calibration
+remained 14.945/14.925 permille for landscape/portrait at a requested 15, matching
+the previous measurements. These checks do not establish full Depth Pro
+inference quality or target NVIDIA hardware compatibility.

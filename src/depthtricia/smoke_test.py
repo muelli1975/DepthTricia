@@ -36,6 +36,21 @@ def run(app_dir: Path) -> dict:
         da3_parameters = sum(parameter.numel() for parameter in da3.parameters())
         del da3
         gc.collect()
+        # Exercise the packaged native-map adapter with a small surrogate.
+        # This checks imports/math/output size, not full Depth Pro inference.
+        from .depth_backend import _infer_depthpro_native
+        class NativeDepthProbe(torch.nn.Module):
+            img_size = 64
+            def __init__(self):
+                super().__init__()
+                self.anchor = torch.nn.Parameter(torch.zeros(()))
+            def forward(self, image):
+                return image[:, :1].abs() + .5, torch.full((image.shape[0], 1), 63.)
+        with torch.inference_mode():
+            native_depth = _infer_depthpro_native(NativeDepthProbe(), torch.zeros(1, 3, 96, 144))
+        if native_depth.shape != (1, 1, 64, 64) or not torch.isfinite(native_depth).all():
+            raise RuntimeError('Depth Pro native-map adapter failed')
+        del native_depth
         with tempfile.TemporaryDirectory(prefix="depthtricia-smoke-") as folder:
             temporary = Path(folder)
             source = temporary / "scene.jpg"
@@ -109,7 +124,7 @@ def run(app_dir: Path) -> dict:
             stereo.close()
         return dict(torch=torch.__version__, cuda_runtime=torch.version.cuda,
             inference_device="cpu", gui=True, presets=True, preset_model_device=True, gui_layout=gui_report, da3_configuration=True,
-            da3_parameters=da3_parameters, depthpro_import=True, depthpro_weights=True, da2_inference=True,
+            da3_parameters=da3_parameters, depthpro_import=True, depthpro_weights=True, depthpro_native=True, da2_inference=True,
             stereo_inpainting=True, outputs=True, depth_png=True, original_size=True,
             model_filename=True, metadata=True, cache=True, offline=True,
             window_backshift=True, backshift_checks=backshift_checks)

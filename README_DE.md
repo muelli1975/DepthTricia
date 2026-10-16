@@ -20,7 +20,7 @@ Die Verarbeitung läuft lokal, ohne Konto, Cloud oder Tracking. Fehlende Laufzei
 
 `DepthTricia_1.0.zip` herunterladen und entpacken, anschließend `DepthTricia.exe` starten. DA2 und DA3 sind im Haupt-ZIP enthalten. Vor der ersten Verarbeitung fragt das Programm, bevor fehlende Pakete installiert oder heruntergeladen werden.
 
-Für eine Offline-Installation **alle sechs ZIP-Dateien desselben Releases** in einen Ordner herunterladen. Nur `DepthTricia_1.0.zip` entpacken; die übrigen fünf ZIPs neben dem entpackten Ordner `DepthTricia` liegen lassen. Sie enthalten vier Laufzeitpakete und das originale Apple-Depth-Pro-Modell. Lokale Pakete werden zuerst verwendet. Archive und installierte Dateien werden anhand ihrer Prüfsummen geprüft; jedes ZIP ist kleiner als 2 GiB.
+Für eine Offline-Installation **alle ZIP-Dateien desselben Releases** in einen Ordner herunterladen. Nur `DepthTricia_1.0.zip` entpacken; die übrigen ZIPs neben dem entpackten Ordner `DepthTricia` liegen lassen. Sie enthalten die passenden CUDA-12.8-Laufzeitpakete und das originale Apple-Depth-Pro-Modell. Lokale Pakete werden zuerst verwendet. Archive und installierte Dateien werden anhand ihrer Prüfsummen geprüft; jedes ZIP ist kleiner als 2 GiB. Beim Aktualisieren der 1.0 die Anwendung ersetzen und alle passenden Laufzeitpakete des aktualisierten Releases herunterladen; die eigene `settings.json` beibehalten.
 
 Die Modelle liegen sichtbar im Ordner `models`. Vorhandene Modelle werden ohne Netzwerkprüfung, Konto, Token oder Abhängigkeit vom Hugging-Face-Cache geladen.
 
@@ -43,11 +43,13 @@ Presets wählen Tiefenmodell, Berechnungsgerät, Auflösung und Edge Fix gemeins
 | --- | --- | --- | --- |
 | Standard | DA3 Mono Large | 1218 | Automatisch |
 | CPU | DA2 Small | Modellstandard: 518 | CPU |
-| Schnell | DA3 Mono Large | Modellstandard: 504 | Automatisch |
+| Schnell | DA2 Small | Modellstandard: 518 | Automatisch |
 | Fein | DA3 Mono Large | 2048 | Automatisch |
 | Depth Pro | Depth Pro | Nativ: intern 1536 × 1536 | Automatisch |
 
 Alle mitgelieferten Presets verwenden Edge Fix **horizontal 2 / vertikal 1**. **Automatisch** wählt CUDA, wenn verfügbar, andernfalls die CPU. Eigene Presets speichern Modell, Berechnungsgerät, Auflösung und Edge Fix gemeinsam. Depth Anything erlaubt eigene Auflösungen von 196 bis 4096 und rundet intern auf sein 14-Pixel-Raster auf; aus 2048 wird 2058. Die interne Auflösung von Depth Pro bleibt fest.
+
+Depth Pro verwendet die iw3-Vorverarbeitung und die native inverse Tiefenkarte, ohne diese zunächst auf die Arbeitsbildgröße zu vergrößern. Die Ausgabefotos behalten ihre gewählte Größe; bei kleinen Quellen folgt die Tiefenkartengröße dem iw3-Ablauf. Bisherige Depth-Pro-Caches werden automatisch neu berechnet. Apples originales Modell und seine Gewichte bleiben ebenso erhalten wie die modellübliche Rechengenauigkeit. **Fein** bleibt experimentell: Sehr hohe Tiefenauflösungen oder Deviationen können fehlerhafte gelernte Lückenmasken erzeugen. Auflösung, Deviation und Gerät werden nicht automatisch reduziert.
 
 DA3 mit hoher Auflösung, Depth Pro und Inpainting in Originalgröße benötigen mehr Zeit und Speicher. Nach einem Speicherfehler werden weder Einstellungen noch Berechnungsgerät automatisch reduziert oder gewechselt.
 
