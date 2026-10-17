@@ -45,7 +45,7 @@ Presets select the depth model, processing device, resolution and edge fix toget
 | CPU | DA2 Small | Model default: 518 | CPU |
 | Quick | DA2 Small | Model default: 518 | Automatic |
 | Balanced | DA3 Mono Large | Model default: 504 | Automatic |
-| Fine | DA3 Mono Large | 2048 | Automatic |
+| Fine (experimental) | DA3 Mono Large | 2048 | Automatic |
 | Depth Pro | Depth Pro | Native: 1536 × 1536 internally | Automatic |
 
 All built-in presets use edge fix **2 horizontal / 1 vertical**. **Automatic** selects CUDA when available, otherwise CPU. Custom presets save model, device, resolution and edge fix together. Depth Anything accepts custom resolutions from 196 to 4096 and internally rounds up to its 14-pixel grid; 2048 becomes 2058. Depth Pro's internal resolution stays fixed.

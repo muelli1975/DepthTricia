@@ -45,7 +45,7 @@ Presets wählen Tiefenmodell, Berechnungsgerät, Auflösung und Edge Fix gemeins
 | CPU | DA2 Small | Modellstandard: 518 | CPU |
 | Schnell | DA2 Small | Modellstandard: 518 | Automatisch |
 | Ausgewogen | DA3 Mono Large | Modellstandard: 504 | Automatisch |
-| Fein | DA3 Mono Large | 2048 | Automatisch |
+| Fein (experimentell) | DA3 Mono Large | 2048 | Automatisch |
 | Depth Pro | Depth Pro | Nativ: intern 1536 × 1536 | Automatisch |
 
 Alle mitgelieferten Presets verwenden Edge Fix **horizontal 2 / vertikal 1**. **Automatisch** wählt CUDA, wenn verfügbar, andernfalls die CPU. Eigene Presets speichern Modell, Berechnungsgerät, Auflösung und Edge Fix gemeinsam. Depth Anything erlaubt eigene Auflösungen von 196 bis 4096 und rundet intern auf sein 14-Pixel-Raster auf; aus 2048 wird 2058. Die interne Auflösung von Depth Pro bleibt fest.

@@ -117,7 +117,7 @@
   "option.save_depth_map": "Tiefenkarte als PNG speichern",
   "preset.quick": "Schnell",
   "preset.balanced": "Ausgewogen",
-  "preset.fine": "Fein",
+  "preset.fine": "Fein (experimentell)",
   "preset.own_suffix": " (eigen)",
   "preset.cpu": "CPU",
   "preset.depthpro": "Depth Pro",
