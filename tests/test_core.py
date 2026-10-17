@@ -5,6 +5,7 @@ from pathlib import Path
 
 import numpy as np
 import pytest
+from PIL import Image
 
 from depthtricia.cache import cache_identity, cache_paths, load_depth, save_depth
 from depthtricia.config import ProcessingConfig, DepthPreset
@@ -58,6 +59,27 @@ def test_depthpro_native_pipeline_invalidates_only_old_depthpro_maps(tmp_path):
             assert cache_paths(tmp_path, model_id, current) != paths
         else:
             assert load_depth(*paths, current) is not None
+
+
+@pytest.mark.parametrize('model_id', ['da2', 'da3', 'depthpro'])
+def test_white_alpha_compositing_rebuilds_only_affected_input_caches(tmp_path, model_id):
+    checkpoint = tmp_path / 'model.pth'
+    checkpoint.write_bytes(b'model')
+    config = ProcessingConfig(tmp_path, model_id=model_id)
+    for mode in ('RGB', 'RGBA'):
+        source = tmp_path / (mode + '.png')
+        Image.new(mode, (3, 2), (20, 40, 60) if mode == 'RGB' else (20, 40, 60, 0)).save(source)
+        current = cache_identity(source, config, checkpoint)
+        previous = {key: value for key, value in current.items() if key != 'input'}
+        paths = cache_paths(tmp_path, mode, previous)
+        depth = np.array([[0, .5, 1]], dtype=np.float32)
+        save_depth(*paths, depth, previous)
+        if mode == 'RGBA':
+            assert load_depth(*paths, current) is None
+            assert cache_paths(tmp_path, mode, current) != paths
+        else:
+            assert np.array_equal(load_depth(*paths, current), depth)
+            assert cache_paths(tmp_path, mode, current) == paths
 
 
 def test_quick_uses_automatic_da2_and_preserves_saved_custom_profiles():

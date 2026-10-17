@@ -6,6 +6,9 @@ import shutil
 from pathlib import Path
 
 import numpy as np
+from PIL import Image
+
+from .image_input import has_transparency
 
 CACHE_VERSION = 1
 
@@ -29,12 +32,21 @@ def model_signature(path: Path) -> dict:
 
 
 def cache_identity(source: Path, config, checkpoint: Path) -> dict:
-    return {"version": CACHE_VERSION, "source": fingerprint_file(source),
+    identity = {"version": CACHE_VERSION, "source": fingerprint_file(source),
             "model": config.model_id, "checkpoint": model_signature(checkpoint),
             "height": config.target_height, "resolution": config.preset.resolution,
             "edge_x": config.preset.edge_x, "edge_y": config.preset.edge_y,
             "pipeline": ("iw3-depthpro-native-disparity-v2" if config.model_id == "depthpro"
                          else "iw3-normalized-disparity-v1")}
+    # Only inputs affected by white alpha compositing need a new depth map.
+    try:
+        with Image.open(source) as image:
+            if has_transparency(image):
+                identity["input"] = "iw3-white-alpha-v1"
+    except (OSError, ValueError, Image.DecompressionBombError):
+        # The processing loop reports unreadable images per item as before.
+        pass
+    return identity
 
 
 def cache_paths(directory: Path, key: str, identity: dict):

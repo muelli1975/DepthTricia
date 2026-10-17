@@ -20,6 +20,50 @@ def test_original_size_preserves_oriented_dimensions_while_default_limits_height
     assert Image.open(source).size == (2300, 400)
 
 
+@pytest.mark.parametrize('mode', ['RGBA', 'LA', 'palette_index', 'palette_alpha', 'RGB_key', 'L_key'])
+def test_transparent_png_uses_white_background_without_changing_source(tmp_path, mode):
+    source = tmp_path / 'transparent.png'
+    options = {}
+    if mode == 'RGBA':
+        image = Image.new('RGBA', (3, 1))
+        image.putdata([(255, 0, 0, 0), (0, 0, 255, 128), (0, 255, 0, 255)])
+        expected = [[255, 255, 255], [127, 127, 255], [0, 255, 0]]
+    elif mode == 'LA':
+        image = Image.new('LA', (3, 1))
+        image.putdata([(0, 0), (0, 128), (80, 255)])
+        expected = [[255, 255, 255], [127, 127, 127], [80, 80, 80]]
+    elif mode.startswith('palette'):
+        image = Image.new('P', (3, 1))
+        image.putpalette([255, 0, 0, 0, 0, 255, 0, 255, 0] + [0] * 759)
+        image.putdata([0, 1, 2])
+        options['transparency'] = 0 if mode == 'palette_index' else bytes([0, 128, 255])
+        expected = [[255, 255, 255], [0, 0, 255] if mode == 'palette_index' else [127, 127, 255], [0, 255, 0]]
+    elif mode == 'RGB_key':
+        image = Image.new('RGB', (2, 1))
+        image.putdata([(255, 0, 0), (0, 255, 0)])
+        options['transparency'] = (255, 0, 0)
+        expected = [[255, 255, 255], [0, 255, 0]]
+    else:
+        image = Image.new('L', (2, 1))
+        image.putdata([0, 80])
+        options['transparency'] = 0
+        expected = [[255, 255, 255], [80, 80, 80]]
+    image.save(source, **options)
+    original = source.read_bytes()
+    assert np.array_equal(load_work_image(source, 0), [expected])
+    assert source.read_bytes() == original
+
+
+@pytest.mark.parametrize('mode,extension', [('RGB', '.png'), ('L', '.png'), ('RGB', '.jpg')])
+def test_opaque_images_retain_previous_pixels(tmp_path, mode, extension):
+    source = tmp_path / ('opaque' + extension)
+    image = Image.new(mode, (7, 5), (25, 90, 160) if mode == 'RGB' else 75)
+    image.save(source)
+    with Image.open(source) as saved:
+        expected = np.asarray(saved.convert('RGB'))
+    assert np.array_equal(load_work_image(source, 0), expected)
+
+
 def test_depth_png_retains_resolution_16bit_range_and_leaves_float_cache_unchanged(tmp_path):
     depth = np.array([[0, .0001, .25], [.5, .9999, 1]], dtype=np.float32)
     original = depth.copy()

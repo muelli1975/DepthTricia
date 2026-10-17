@@ -70,18 +70,29 @@ def make_item_key(source_path: Path, input_path: Path) -> str:
     return "__".join(relative.parts)
 
 
+def has_transparency(image: Image.Image) -> bool:
+    return "A" in image.getbands() or "transparency" in image.info
+
+
 def load_work_image(
     path: Path,
     target_height: int,
 ) -> np.ndarray:
     """
-    Lädt das Bild, berücksichtigt ausschließlich die EXIF-Orientierung
-    und skaliert nur dann, wenn die Höhe über target_height liegt.
+    Lädt das Bild, berücksichtigt die EXIF-Orientierung, setzt Transparenz
+    wie iw3 auf Weiß und skaliert nur bei einer Höhe über target_height.
 
     EXIF-Brennweiten werden hier bewusst nicht gelesen.
     """
     with Image.open(path) as source:
-        image = ImageOps.exif_transpose(source).convert("RGB")
+        image = ImageOps.exif_transpose(source)
+        if has_transparency(image):
+            image = image.convert("RGBA")
+            background = Image.new("RGB", image.size, (255, 255, 255))
+            background.paste(image, image.getchannel("A"))
+            image = background
+        else:
+            image = image.convert("RGB")
         width, height = image.size
 
         if target_height > 0 and height > target_height:
