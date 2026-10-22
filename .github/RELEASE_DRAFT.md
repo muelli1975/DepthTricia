@@ -1,48 +1,20 @@
-DepthTricia turns 2D photos into stereo 3D with local depth models and learned
-inpainting. This first release includes DA2 Small, DA3 Mono Large and Depth Pro
-support, SBS/anaglyph JPEG output, metadata copying and reusable depth maps.
+# DepthTricia 1.0
 
-- One portable Windows package for NVIDIA and CPU. Automatic uses CUDA when
-  available, otherwise CPU; no separate CUDA toolkit or Python is needed.
-- Complete presets: Standard (DA3, 1218), CPU (DA2, 518), Quick (DA2, 518, Automatic),
-  Balanced (DA3, 504, Automatic), Fine (experimental, DA3, 2048) and Depth Pro (native).
-  All use edge fix 2/1. Custom presets
-  save model, device, resolution and edge fix; model/settings remain visible.
-- Defaults: 15‰ deviation and 100% stereo-window position. Stereo generation
-  uses `mlbw_l2_inpaint` with `light_inpaint_v1`.
-- Additional setback moves the whole scene behind the stereo window. Newly
-  exposed borders are filled with the same inpainting as internal holes.
-- Original-size output or the default maximum height of 2160 pixels. Optional
-  16-bit relative depth PNGs retain the computed map dimensions. Settings
-  filenames can include the selected model. Keep `settings.json` when updating.
-- Local processing without accounts, tokens or network checks. Missing runtime
-  packages/models are installed or downloaded only after confirmation.
+Convert 2D photographs into stereo 3D with local depth estimation and inpainting.
 
-Download `DepthTricia_1.0.zip`, extract it and start `DepthTricia.exe`. On first
-processing, confirm the installation of matching runtime packages. DA2 and DA3
-are in the main ZIP; the original Apple Depth Pro checkpoint is supplied in
-`DepthTricia_Models_DepthPro_1.0.zip` and installed with the runtime packages.
-For offline setup, download all ZIP files into one folder, extract only
-the main ZIP and leave the remaining ZIPs beside the extracted DepthTricia folder.
-All archives are below 2 GiB; archives and installed files are checksum-verified.
+- Choose Depth Anything V2 Small, Depth Anything 3 Mono Large or Depth Pro.
+- Export SBS and anaglyph JPEGs, with optional 16-bit depth-map PNGs.
+- Adjust deviation, stereo-window position and scene setback; reuse cached depth maps.
+- Use built-in or custom presets with CPU or NVIDIA processing.
+- Correct Depth Pro preprocessing and transparent-image handling.
+- German and English interface.
 
-This maintenance correction retains version 1.0. The matching runtime now uses
-CUDA 12.8. Depth Pro uses iw3's preprocessing/native inverse-depth map instead
-of passing an enlarged working-size map to the stereo mask model; old Depth Pro
-caches are invalidated. Apple model weights and stereo controls are unchanged.
-Fine is labelled experimental. Transparent image inputs are composited
-on white as in iw3; only their existing depth caches are recalculated.
-When updating 1.0, replace the application
-and obtain all matching runtime ZIPs from this release; retain settings.json.
+## Installation
 
-CPU users should select the CPU preset. DA3 at high resolution, Depth Pro and
-original-size inpainting need more memory and processing time. Quality or
-hardware settings are never reduced automatically.
+64-bit Windows is required. CPU processing is supported; a compatible NVIDIA graphics card enables CUDA acceleration. No separate Python installation or CUDA toolkit is required.
 
-The Windows executable is checked for GUI/preset handling, offline DA2 CPU
-conversion, inpainting, metadata, depth PNG export and cache reuse. The build
-also checks DA3 configuration and the installed Depth Pro checkpoint. These
-checks do not constitute full Depth Pro or CUDA inference validation on all
-hardware. Source snapshots and complete third-party license notices are included;
-original DepthTricia code is MIT licensed, models retain their own licenses.
+Download and extract `DepthTricia_1.0.zip`, then start `DepthTricia.exe`. On first processing, confirm installation of the matching runtime packages. DA2 and DA3 are included in the main ZIP; Depth Pro is supplied in its separate model ZIP.
 
+For offline setup, download **all seven ZIP files** into one folder. **Extract only the main ZIP** and leave the remaining ZIPs beside the extracted `DepthTricia` folder. Local packages are used first.
+
+When updating, replace the application and obtain all matching runtime ZIPs from this release. Keep `settings.json`. For CPU processing, choose the CPU preset; the Fine preset remains experimental. High-resolution processing needs more memory and time.

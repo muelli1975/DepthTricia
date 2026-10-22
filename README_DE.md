@@ -1,6 +1,6 @@
 # DepthTricia 1.0
 
-[English](README.md)
+[Downloads und SHA-256](https://github.com/muelli1975/DepthTricia/releases/tag/v1.0) · [English](README.md)
 
 DepthTricia ist ein lokales Windows-Programm, das einzelne 2D-Fotos oder Bildordner in Stereo-3D umwandelt. Aus jedem Foto entstehen ein paralleles Side-by-Side-Stereobild (SBS) und eine Farb- oder Graustufen-Anaglyphe.
 
@@ -10,17 +10,15 @@ Die Verarbeitung läuft lokal, ohne Konto, Cloud oder Tracking. Fehlende Laufzei
 
 [![DepthTricia 1.0 – Benutzeroberfläche](docs/Screenshots/DepthTricia.png)](docs/Screenshots/DepthTricia.png)
 
-[DepthTricia 1.0 herunterladen](https://github.com/muelli1975/DepthTricia/releases/tag/v1.0)
-
 ## Voraussetzungen und Installation
 
 - Windows mit 64 Bit.
 - Die Berechnung ist auf der CPU möglich; eine kompatible NVIDIA-Grafikkarte mit aktuellem Treiber ermöglicht CUDA-Beschleunigung.
 - Das portable Paket benötigt keine separate Python-Installation und kein CUDA-Toolkit.
 
-`DepthTricia_1.0.zip` herunterladen und entpacken, anschließend `DepthTricia.exe` starten. DA2 und DA3 sind im Haupt-ZIP enthalten. Vor der ersten Verarbeitung fragt das Programm, bevor fehlende Pakete installiert oder heruntergeladen werden.
+[DepthTricia_1.0.zip](https://github.com/muelli1975/DepthTricia/releases/download/v1.0/DepthTricia_1.0.zip) herunterladen und entpacken, anschließend `DepthTricia.exe` starten. DA2 und DA3 sind im Haupt-ZIP enthalten. Vor der ersten Verarbeitung fragt das Programm, bevor fehlende Pakete installiert oder heruntergeladen werden.
 
-Für eine Offline-Installation **alle ZIP-Dateien desselben Releases** in einen Ordner herunterladen. Nur `DepthTricia_1.0.zip` entpacken; die übrigen ZIPs neben dem entpackten Ordner `DepthTricia` liegen lassen. Sie enthalten die passenden CUDA-12.8-Laufzeitpakete und das originale Apple-Depth-Pro-Modell. Lokale Pakete werden zuerst verwendet. Archive und installierte Dateien werden anhand ihrer Prüfsummen geprüft; jedes ZIP ist kleiner als 2 GiB. Beim Aktualisieren der 1.0 die Anwendung ersetzen und alle passenden Laufzeitpakete des aktualisierten Releases herunterladen; die eigene `settings.json` beibehalten.
+Für eine Offline-Installation **alle ZIP-Dateien desselben Releases** in einen Ordner herunterladen. Nur [DepthTricia_1.0.zip](https://github.com/muelli1975/DepthTricia/releases/download/v1.0/DepthTricia_1.0.zip) entpacken; die übrigen ZIPs neben dem entpackten Ordner `DepthTricia` liegen lassen. Sie enthalten die passenden CUDA-12.8-Laufzeitpakete und das originale Apple-Depth-Pro-Modell. Lokale Pakete werden zuerst verwendet. Archive und installierte Dateien werden anhand ihrer Prüfsummen geprüft; jedes ZIP ist kleiner als 2 GiB. Beim Aktualisieren der 1.0 die Anwendung ersetzen und alle passenden Laufzeitpakete des aktualisierten Releases herunterladen; die eigene `settings.json` beibehalten.
 
 Die Modelle liegen sichtbar im Ordner `models`. Vorhandene Modelle werden ohne Netzwerkprüfung, Konto, Token oder Abhängigkeit vom Hugging-Face-Cache geladen.
 
