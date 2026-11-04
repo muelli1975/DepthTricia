@@ -23,6 +23,5 @@
     "DepthTricia_Runtime_1.0_04.zip",
     "DepthTricia_Runtime_1.0_05.zip",
     "smoke-test.json"
-  ],
-  "notes_prefix": "- Add optional full-colour cross-view JPEG export in R/L order (`cross`).\n- Group grayscale anaglyph, cross-view and depth-map exports under Output; remember grayscale and cross-view choices.\n- Verify the packaged offline CPU conversion, reversed-eye export, metadata and responsive German/English interface."
+  ]
 }
