@@ -18,7 +18,7 @@ def check(app_dir: Path, *, screenshot_dir: Path | None = None):
             try:
                 app.update()
                 app._set_processing_controls(True)
-                for widget in (app.preset_menu, app.original_size_check, app.save_depth_map_check):
+                for widget in (app.preset_menu, app.original_size_check, app.save_depth_map_check, app.save_cross_check, app.gray_anaglyph_check):
                     assert widget.cget('state') == 'disabled', 'Processing controls are not locked'
                 from .theme import TEXT_DISABLED, CHECKBOX_DISABLED
                 assert app.preset_menu.cget('text_color_disabled') == TEXT_DISABLED
@@ -53,9 +53,11 @@ def check(app_dir: Path, *, screenshot_dir: Path | None = None):
                 assert app.preset_menu.cget('width') == 220
                 app.original_size.set(True)
                 app.save_depth_map.set(True)
+                app.save_cross.set(True)
+                app.gray_anaglyph.set(True)
                 app._save_paths()
                 saved = load_settings(settings)
-                assert saved['original_size'] and saved['save_depth_map']
+                assert saved['original_size'] and saved['save_depth_map'] and saved['save_cross'] and saved['gray_anaglyph']
                 assert saved['depth_presets'][own_name] == asdict(app.current_profile())
                 for scale, geometry in ((1.0, '1280x880'), (1.0, '1100x700'), (1.25, '1280x880'), (1.5, '1280x880')):
                     ctk.set_widget_scaling(scale)

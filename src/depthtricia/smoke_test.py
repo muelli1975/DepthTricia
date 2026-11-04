@@ -61,17 +61,25 @@ def run(app_dir: Path) -> dict:
             image.save(source, exif=exif)
             config = ProcessingConfig(app_dir, model_id="da2", device="cpu",
                 preset=DepthPreset(resolution=392), exiftool_path=app_dir / "tools/exiftool.exe",
-                target_height=0, save_depth_map=True, append_settings_to_filename=True)
+                target_height=0, save_depth_map=True, save_cross=True, append_settings_to_filename=True)
             stages = []
             controller = ProcessingController(config, lambda event: stages.append(event.stage))
             items = controller.run(source, temporary / "output")
             if len(items) != 1 or items[0].status != "ok":
                 raise RuntimeError("Packaged CPU conversion failed")
             for path, dimensions in ((items[0].sbs_path, (384, 128)),
-                                     (items[0].anaglyph_path, (192, 128))):
+                                     (items[0].anaglyph_path, (192, 128)),
+                                     (items[0].cross_path, (384, 128))):
                 with Image.open(path) as output:
                     if output.size != dimensions or output.getexif().get(315) != exif[315]:
                         raise RuntimeError("Output dimensions or metadata are incorrect")
+            import numpy as np
+            with Image.open(items[0].sbs_path) as output:
+                sbs = np.asarray(output)
+            with Image.open(items[0].cross_path) as output:
+                cross = np.asarray(output)
+            if not (np.array_equal(cross[:, :192], sbs[:, 192:]) and np.array_equal(cross[:, 192:], sbs[:, :192])):
+                raise RuntimeError('Cross-view did not preserve the finished stereo eyes')
             from .cache import load_depth
             import json
             import numpy as np
@@ -83,7 +91,7 @@ def run(app_dir: Path) -> dict:
                     raise RuntimeError('Depth PNG resolution changed')
                 if not np.array_equal(np.asarray(output), np.rint(depth * 65535).astype(np.uint16)):
                     raise RuntimeError('Depth PNG values differ from the used depth cache')
-            for output_path in (items[0].sbs_path, items[0].anaglyph_path, items[0].depth_png_path):
+            for output_path in (items[0].sbs_path, items[0].anaglyph_path, items[0].cross_path, items[0].depth_png_path):
                 if '_DA2Small_r392_d15_w100_o0_' not in output_path.name:
                     raise RuntimeError('Model or depth resolution missing from settings filename')
             items[0].depth_png_path.unlink()
@@ -125,7 +133,7 @@ def run(app_dir: Path) -> dict:
         return dict(torch=torch.__version__, cuda_runtime=torch.version.cuda,
             inference_device="cpu", gui=True, presets=True, preset_model_device=True, gui_layout=gui_report, da3_configuration=True,
             da3_parameters=da3_parameters, depthpro_import=True, depthpro_weights=True, depthpro_native=True, da2_inference=True,
-            stereo_inpainting=True, outputs=True, depth_png=True, original_size=True,
+            stereo_inpainting=True, outputs=True, cross_view=True, depth_png=True, original_size=True,
             model_filename=True, metadata=True, cache=True, offline=True,
             window_backshift=True, backshift_checks=backshift_checks)
     finally:

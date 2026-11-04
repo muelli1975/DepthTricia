@@ -4,6 +4,8 @@
 
 DepthTricia is a local Windows tool for converting individual 2D photographs or image folders into stereo 3D. Each photograph produces a parallel side-by-side stereo image (SBS) and either a colour or grayscale anaglyph.
 
+Enable **Save cross-view** under Output to also save the finished pair in R/L order in `cross`. Grayscale anaglyph selection affects only the anaglyph; SBS and cross-view retain their colours. Both export choices are remembered.
+
 Depth estimation uses **Depth Anything V2 Small**, **Depth Anything 3 Mono Large** or **Depth Pro**. The interface, stereo controls and metadata handling follow SplatTricia. The interface is available in German and English.
 
 Processing runs locally, without an account, cloud or tracking. Missing runtime packages or models are installed or downloaded only after confirmation. Once installed, they work offline.

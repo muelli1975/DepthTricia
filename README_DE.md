@@ -4,6 +4,8 @@
 
 DepthTricia ist ein lokales Windows-Programm, das einzelne 2D-Fotos oder Bildordner in Stereo-3D umwandelt. Aus jedem Foto entstehen ein paralleles Side-by-Side-Stereobild (SBS) und eine Farb- oder Graustufen-Anaglyphe.
 
+Unter **Ausgabe** lässt sich **Kreuzblick speichern** aktivieren. Die fertigen Halbbilder werden dann als R/L im Ordner `cross` gespeichert. **Graustufen-Anaglyphen** betrifft nur die Anaglyphe; SBS und Kreuzblick bleiben farbig. Beide Ausgabewahlen werden gespeichert.
+
 Die Tiefenschätzung verwendet **Depth Anything V2 Small**, **Depth Anything 3 Mono Large** oder **Depth Pro**. Oberfläche, Stereoregler und Metadatenübernahme orientieren sich an SplatTricia. Die Oberfläche ist auf Deutsch und Englisch verfügbar.
 
 Die Verarbeitung läuft lokal, ohne Konto, Cloud oder Tracking. Fehlende Laufzeitpakete oder Modelle werden nur nach Bestätigung installiert oder heruntergeladen. Nach der Einrichtung funktioniert die Verarbeitung offline.

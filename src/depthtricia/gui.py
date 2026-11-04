@@ -80,7 +80,8 @@ class DepthTriciaApp(ctk.CTk):
         self.original_size = ctk.BooleanVar(value=bool(self.settings.get("original_size", False)))
         self.save_depth_map = ctk.BooleanVar(value=bool(self.settings.get("save_depth_map", False)))
         self.append_settings_to_filename = ctk.BooleanVar(value=False)
-        self.gray_anaglyph = ctk.BooleanVar(value=False)
+        self.gray_anaglyph = ctk.BooleanVar(value=bool(self.settings.get("gray_anaglyph", False)))
+        self.save_cross = ctk.BooleanVar(value=bool(self.settings.get("save_cross", False)))
         self.deviation = ctk.DoubleVar(value=15)
         self.window_position = ctk.DoubleVar(value=100)
         self.window_backshift = ctk.DoubleVar(value=0)
@@ -242,6 +243,7 @@ class DepthTriciaApp(ctk.CTk):
         for checkbox in (
             self.input_subfolder_check,
             self.gray_anaglyph_check,
+            self.save_cross_check,
             self.use_depth_cache_check,
             self.append_settings_check,
             self.original_size_check,
@@ -473,33 +475,40 @@ class DepthTriciaApp(ctk.CTk):
         )
         self.output_button.grid(row=0, column=1, sticky="e")
         self.gray_anaglyph_check = ctk.CTkCheckBox(
-            parent, text=self.tr("option.gray_anaglyph"), variable=self.gray_anaglyph
+            parent, text=self.tr("option.gray_anaglyph"), variable=self.gray_anaglyph, command=self._save_paths
         )
-        self.gray_anaglyph_check.grid(row=10, column=0, sticky="w", padx=20, pady=(4, 14))
-        self._separator(parent, 11, pady=(12, 4))
-        self._section_title(parent, "section.options", 12).grid_configure(pady=(14, 8))
+        self.gray_anaglyph_check.grid(row=11, column=0, sticky="w", padx=20, pady=(4, 14))
+        self.save_cross_check = ctk.CTkCheckBox(
+            parent, text=self.tr("option.save_cross"), variable=self.save_cross,
+            command=self._save_paths,
+        )
+        self.save_cross_check.grid(row=12, column=0, sticky="w", padx=20, pady=(0, 10))
+        self.save_depth_map_check = ctk.CTkCheckBox(
+            parent, text=self.tr("option.save_depth_map"), variable=self.save_depth_map,
+            command=self._save_paths,
+        )
+        self.save_depth_map_check.grid(row=13, column=0, sticky="w", padx=20, pady=(0, 10))
+        self.original_size_check = ctk.CTkCheckBox(
+            parent, text=self.tr("option.original_size"), variable=self.original_size,
+            command=self._save_paths,
+        )
+        self.original_size_check.grid(row=10, column=0, sticky="w", padx=20, pady=(0, 10))
+        self._separator(parent, 14, pady=(12, 4))
+        self._section_title(parent, "section.options", 15).grid_configure(pady=(14, 8))
         self.use_depth_cache_check = ctk.CTkCheckBox(
             parent, text=self.tr("option.reuse_depth"), variable=self.use_depth_cache
         )
         self.use_depth_cache_check.grid(
-            row=13, column=0, sticky="w", padx=20, pady=(0, 8)
+            row=16, column=0, sticky="w", padx=20, pady=(0, 8)
         )
         self.append_settings_check = ctk.CTkCheckBox(
             parent, text=self.tr("option.append_settings"),
             variable=self.append_settings_to_filename,
         )
         self.append_settings_check.grid(
-            row=14, column=0, sticky="w", padx=20, pady=(0, 8)
+            row=17, column=0, sticky="w", padx=20, pady=(0, 8)
         )
 
-        output_options = ctk.CTkFrame(parent, fg_color="transparent")
-        output_options.grid(row=15, column=0, sticky="w", padx=20, pady=(0, 14))
-        self.original_size_check = ctk.CTkCheckBox(output_options, text=self.tr("option.original_size"),
-            variable=self.original_size, command=self._save_paths, width=120)
-        self.original_size_check.grid(row=0, column=0, sticky="w", pady=(0, 8))
-        self.save_depth_map_check = ctk.CTkCheckBox(output_options, text=self.tr("option.save_depth_map"),
-            variable=self.save_depth_map, command=self._save_paths, width=150)
-        self.save_depth_map_check.grid(row=1, column=0, sticky="w")
 
     def _build_stereo_card(self, parent) -> None:
         self._section_title(parent, "section.stereo", 0)
@@ -735,6 +744,8 @@ class DepthTriciaApp(ctk.CTk):
                 "builtin_preset": self.builtin_preset,
                 "original_size": bool(self.original_size.get()),
                 "save_depth_map": bool(self.save_depth_map.get()),
+                "save_cross": bool(self.save_cross.get()),
+                "gray_anaglyph": bool(self.gray_anaglyph.get()),
             }
         )
         try:
@@ -916,6 +927,7 @@ class DepthTriciaApp(ctk.CTk):
         self.float_bottom.set(0)
         self.float_lr_symmetric.set(True)
         self.gray_anaglyph.set(False)
+        self.save_cross.set(False)
         self.append_settings_to_filename.set(False)
         self.use_depth_cache.set(True)
         self.original_size.set(False)
@@ -975,6 +987,7 @@ class DepthTriciaApp(ctk.CTk):
             float_top_permille=round(float(self.float_top.get())),
             float_bottom_permille=round(float(self.float_bottom.get())),
             gray_anaglyph=bool(self.gray_anaglyph.get()),
+            save_cross=bool(self.save_cross.get()),
             append_settings_to_filename=bool(self.append_settings_to_filename.get()),
         )
         try:

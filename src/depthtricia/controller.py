@@ -66,6 +66,7 @@ class ProcessingController:
             paths = cache_paths(directories["_temp"], key, identity)
             item = ProcessingItem(source, key, directories["sbs"] / f"{key}{suffix}_sbs.jpg",
                                   directories["anaglyph"] / f"{key}{suffix}_anaglyph.jpg",
+                                  cross_path=output_dir / "cross" / f"{key}{suffix}_cross.jpg" if self.config.save_cross else None,
                                   depth_png_path=output_dir / "depth_maps" / f"{key}{suffix}_depth.png"
                                   if self.config.save_depth_map else None)
             items.append(item)
@@ -123,7 +124,7 @@ class ProcessingController:
                     item.status = "ok"
                     if self.config.copy_metadata:
                         self._emit("metadata", "progress.metadata", "Übertrage Metadaten …", index, len(items), item.key)
-                        result = copy_metadata_to_outputs(self.config.exiftool_path, item.source_path, (item.sbs_path, item.anaglyph_path))
+                        result = copy_metadata_to_outputs(self.config.exiftool_path, item.source_path, tuple(p for p in (item.sbs_path, item.anaglyph_path, item.cross_path) if p is not None))
                         if result.error:
                             self._emit("item_warning", "progress.metadata_warning", result.error, index, len(items), item.key, error=result.error)
                     self._emit("rendering_done", "progress.rendering_done", "Ausgaben gespeichert.", index, len(items), item.key, anaglyph_seconds=seconds)

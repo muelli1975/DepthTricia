@@ -1,0 +1,28 @@
+{
+  "repository": "muelli1975/DepthTricia",
+  "release_id": 412460164,
+  "tag": "v1.0",
+  "branch": "main",
+  "previous_tag": "180d1366f2a31d2b23a62750d48cc47c4239292e",
+  "assets": {
+    "DepthTricia_1.0.zip": "sha256:a2ba26f08eb9fa70a31056ed588a5f321c8965c67d76124df05407e74e8d5a76",
+    "DepthTricia_Models_DepthPro_1.0.zip": "sha256:8ac32a90db98e1ceea76ee561c809481aae4a224bd544ffe854f29ca22e0af37",
+    "DepthTricia_Runtime_1.0_01.zip": "sha256:a8bf6a63b8b92134eae4ee51f8b57fff55bbf91e3ff31dab4eddf738b3b4fd93",
+    "DepthTricia_Runtime_1.0_02.zip": "sha256:a7cfc2ed7a296d5da52ea8f32dc48d9ac25989b58bc4b1194b245b08e3698a57",
+    "DepthTricia_Runtime_1.0_03.zip": "sha256:68a1c8e8d5d91ef4417d8e1284334e9104229ed39922ebe7c6acd27b26c6fed5",
+    "DepthTricia_Runtime_1.0_04.zip": "sha256:b4eae926b8bb8761cbf8615c10e36b73527421e73becc7b9b1439aa03bfb45c3",
+    "DepthTricia_Runtime_1.0_05.zip": "sha256:f68198b9e6724a82be7ab55595203423b54cdb9f03bd0303463c6bd80208a5f8",
+    "smoke-test.json": "sha256:3d12eb627618a65c8d5d57ae230563a8534c21029b1b252c4f58ac91c4d6198f"
+  },
+  "replace": [
+    "DepthTricia_1.0.zip",
+    "DepthTricia_Models_DepthPro_1.0.zip",
+    "DepthTricia_Runtime_1.0_01.zip",
+    "DepthTricia_Runtime_1.0_02.zip",
+    "DepthTricia_Runtime_1.0_03.zip",
+    "DepthTricia_Runtime_1.0_04.zip",
+    "DepthTricia_Runtime_1.0_05.zip",
+    "smoke-test.json"
+  ],
+  "notes_prefix": "- Add optional full-colour cross-view JPEG export in R/L order (`cross`).\n- Group grayscale anaglyph, cross-view and depth-map exports under Output; remember grayscale and cross-view choices.\n- Verify the packaged offline CPU conversion, reversed-eye export, metadata and responsive German/English interface."
+}

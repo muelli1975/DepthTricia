@@ -10,6 +10,8 @@ def write_outputs(left, right, item, config, progress):
                                       config.float_bottom_permille)
     progress("save_sbs", 0.60)
     save_sbs_jpeg(left, right, item.sbs_path, config.jpeg_quality_sbs)
+    if item.cross_path is not None:
+        save_sbs_jpeg(right, left, item.cross_path, config.jpeg_quality_sbs)
     progress("anaglyph", 0.72)
     start = time.perf_counter()
     anaglyph = make_anaglyph(left, right, gray=config.gray_anaglyph)
