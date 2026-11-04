@@ -451,21 +451,21 @@ class DepthTriciaApp(ctk.CTk):
         ) = self._path_row(
             parent, 3, "label.image_folder", self.input_folder, self.choose_input_folder
         )
-        self._separator(parent, 5, pady=(12, 4))
+        self._separator(parent, 5, pady=(8, 4))
         self._section_title(parent, "section.output", 6)
         self.input_subfolder_check = ctk.CTkCheckBox(
             parent, text=self.tr("option.input_subfolder"),
             variable=self.use_input_subfolder, command=self._on_output_mode_changed,
         )
         self.input_subfolder_check.grid(
-            row=7, column=0, sticky="w", padx=20, pady=(0, 10)
+            row=7, column=0, sticky="w", padx=20, pady=(0, 8)
         )
         self.output_path_label = ctk.CTkLabel(
             parent, text=self.tr("label.output_folder"), anchor="w"
         )
         self.output_path_label.grid(row=8, column=0, sticky="ew", padx=20, pady=(0, 6))
         output_row = ctk.CTkFrame(parent, fg_color="transparent")
-        output_row.grid(row=9, column=0, sticky="ew", padx=20, pady=(0, 12))
+        output_row.grid(row=9, column=0, sticky="ew", padx=20, pady=(0, 8))
         output_row.grid_columnconfigure(0, weight=1)
         self.output_entry = ctk.CTkEntry(output_row, textvariable=self.output_folder)
         self.output_entry.grid(row=0, column=0, sticky="ew", padx=(0, 8))
@@ -477,24 +477,24 @@ class DepthTriciaApp(ctk.CTk):
         self.gray_anaglyph_check = ctk.CTkCheckBox(
             parent, text=self.tr("option.gray_anaglyph"), variable=self.gray_anaglyph, command=self._save_paths
         )
-        self.gray_anaglyph_check.grid(row=11, column=0, sticky="w", padx=20, pady=(4, 14))
+        self.gray_anaglyph_check.grid(row=11, column=0, sticky="w", padx=20, pady=(0, 8))
         self.save_cross_check = ctk.CTkCheckBox(
             parent, text=self.tr("option.save_cross"), variable=self.save_cross,
             command=self._save_paths,
         )
-        self.save_cross_check.grid(row=12, column=0, sticky="w", padx=20, pady=(0, 10))
+        self.save_cross_check.grid(row=12, column=0, sticky="w", padx=20, pady=(0, 8))
         self.save_depth_map_check = ctk.CTkCheckBox(
             parent, text=self.tr("option.save_depth_map"), variable=self.save_depth_map,
             command=self._save_paths,
         )
-        self.save_depth_map_check.grid(row=13, column=0, sticky="w", padx=20, pady=(0, 10))
+        self.save_depth_map_check.grid(row=13, column=0, sticky="w", padx=20, pady=(0, 8))
         self.original_size_check = ctk.CTkCheckBox(
             parent, text=self.tr("option.original_size"), variable=self.original_size,
             command=self._save_paths,
         )
-        self.original_size_check.grid(row=10, column=0, sticky="w", padx=20, pady=(0, 10))
-        self._separator(parent, 14, pady=(12, 4))
-        self._section_title(parent, "section.options", 15).grid_configure(pady=(14, 8))
+        self.original_size_check.grid(row=10, column=0, sticky="w", padx=20, pady=(0, 8))
+        self._separator(parent, 14, pady=(8, 4))
+        self._section_title(parent, "section.options", 15).grid_configure(pady=(8, 8))
         self.use_depth_cache_check = ctk.CTkCheckBox(
             parent, text=self.tr("option.reuse_depth"), variable=self.use_depth_cache
         )
