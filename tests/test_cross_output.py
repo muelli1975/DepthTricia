@@ -15,6 +15,6 @@ def test_cross_export_keeps_finished_eyes_and_color(tmp_path):
     write_outputs(left, right, item, config, lambda *_:None)
     l,r = apply_floating_window(left,right,10,0,0,0)
     expected = tmp_path/'expected.jpg'
-    save_sbs_jpeg(r,l,expected,config.jpeg_quality_sbs)
+    save_sbs_jpeg(r,l,expected,90)
     assert expected.read_bytes() == item.cross_path.read_bytes()
     assert Image.open(item.cross_path).size == (96,32)
