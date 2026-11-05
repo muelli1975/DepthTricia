@@ -1,0 +1,97 @@
+name: Publish verified cross-view quality update
+on:
+  push:
+    branches: [maintenance/cross-view-90-20261105]
+permissions:
+  actions: read
+  contents: write
+concurrency:
+  group: depthtricia-cross-view-publication
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    env:
+      GH_TOKEN: ${{ github.token }}
+      UPDATE_SOURCE_SHA: 063d5bf48a759fd8fa189465601b9a19340952b0
+      REPO: ${{ github.repository }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 063d5bf48a759fd8fa189465601b9a19340952b0
+      - name: Wait for the exact checked Windows build
+        run: |
+          python - <<'PY'
+          import json, os, subprocess, time
+          expected=os.environ['UPDATE_SOURCE_SHA']
+          for attempt in range(100):
+              data=json.loads(subprocess.check_output(['gh','api',f"repos/{os.environ['REPO']}/actions/runs/42019299243"],text=True))
+              assert data['head_sha']==expected and data['head_branch']=='main'
+              assert data['name']=='Windows development build'
+              if data['status']=='completed':
+                  assert data['conclusion']=='success',data['conclusion']
+                  break
+              time.sleep(20)
+          else: raise RuntimeError('The checked Windows build has not completed.')
+          data=json.loads(subprocess.check_output(['gh','api',f"repos/{os.environ['REPO']}/actions/runs?head_sha={expected}&per_page=100"],text=True))
+          assert any(r['name']=='Source checks' and r['conclusion']=='success' for r in data['workflow_runs'])
+          PY
+      - uses: actions/download-artifact@v4
+        with:
+          name: DepthTricia-development
+          run-id: 42019299243
+          github-token: ${{ github.token }}
+          path: payload
+      - name: Verify native smoke checks and exact package provenance
+        run: |
+          python - <<'PY'
+          import hashlib,json,os,pathlib,zipfile
+          root=pathlib.Path('payload')
+          report=json.loads((root/'smoke-test.json').read_text())
+          for key in ['ok','gui','presets','depthpro_weights','depthpro_native','preset_model_device','depth_png','original_size','model_filename','da2_inference','stereo_inpainting','metadata','cache','offline','window_backshift','cross_view']:
+              assert report[key] is True,key
+          with zipfile.ZipFile(root/'DepthTricia_1.0.zip') as package:
+              info=json.loads(package.read('DepthTricia/BUILD_INFO.json'))
+              manifest=json.loads(package.read('DepthTricia/runtime_manifest.json'))
+          assert info['source_commit']==os.environ['UPDATE_SOURCE_SHA']
+          expected={'DepthTricia_1.0.zip'}|{item['filename'] for item in manifest['archives']}
+          assert {p.name for p in root.glob('*.zip')}==expected
+          for item in manifest['archives']:
+              path=root/item['filename']
+              assert path.stat().st_size==item['size']
+              with path.open('rb') as data: assert hashlib.file_digest(data,'sha256').hexdigest()==item['sha256']
+          PY
+      - name: Write the authorized current release snapshot
+        run: |
+          cat > current-release.json <<'JSON'
+          {
+            "repository": "muelli1975/DepthTricia",
+            "release_id": 412460164,
+            "tag": "v1.0",
+            "branch": "main",
+            "previous_tag": "544552edc19f4a74a30231c3d345f726e89e456e",
+            "assets": {
+              "DepthTricia_1.0.zip": "sha256:7607fa68395c65c4ec76490bf67099aa892d48a4e58a625f6713eaf50b0ad932",
+              "DepthTricia_Models_DepthPro_1.0.zip": "sha256:abf6edaf5fa05e545c6e74d5936c8dfa63afc75589d60ebd1387b43c32125a20",
+              "DepthTricia_Runtime_1.0_01.zip": "sha256:cdcdef8e16c586e1116039607bc5cb23788f9083950889ea27d9e5d8a989dc1a",
+              "DepthTricia_Runtime_1.0_02.zip": "sha256:25d0afd7095d2180baf4ed004a85be7d9ce94f445471900beca5d13251578a70",
+              "DepthTricia_Runtime_1.0_03.zip": "sha256:1ce1af9f034a79d60ae2fb5b638fb87c10360de2ab3964700349d082e4555e9e",
+              "DepthTricia_Runtime_1.0_04.zip": "sha256:79883cce13304b4637678a26e5ad6f4ee59014c910091e1ae735209247d2647c",
+              "DepthTricia_Runtime_1.0_05.zip": "sha256:a7a6c85ef3be0422e42c03903c4d658b5b6df57f67498cdb13938411f956fcae",
+              "smoke-test.json": "sha256:fdff7b179078dc2bf36c0b17abe39dc3fe0a26bcc696429eac0b365a053980ee"
+            },
+            "replace": [
+              "DepthTricia_1.0.zip",
+              "DepthTricia_Models_DepthPro_1.0.zip",
+              "DepthTricia_Runtime_1.0_01.zip",
+              "DepthTricia_Runtime_1.0_02.zip",
+              "DepthTricia_Runtime_1.0_03.zip",
+              "DepthTricia_Runtime_1.0_04.zip",
+              "DepthTricia_Runtime_1.0_05.zip",
+              "smoke-test.json"
+            ]
+          }
+          JSON
+      - name: Stage and download-verify the updated release assets
+        run: python scripts/publish_update.py --root payload --config current-release.json
