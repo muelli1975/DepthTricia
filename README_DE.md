@@ -75,7 +75,7 @@ Der gewählte Ausgabeordner enthält:
 | `_temp` | Wiederverwendbare Tiefenkarten und Cache-Daten |
 | `depth_maps` | Optionale relative Tiefenkarten als 16-Bit-PNG |
 
-SBS verwendet JPEG-Qualität **95**, Anaglyphen **90**; beide verwenden **4:4:4** ohne Farbunterabtastung. Geeignete Metadaten der Quelldateien werden, soweit technisch möglich, in die JPEG-Ausgaben übernommen.
+SBS verwendet JPEG-Qualität **95**, Anaglyphen und Kreuzblick **90**; alle verwenden **4:4:4** ohne Farbunterabtastung. Geeignete Metadaten der Quelldateien werden, soweit technisch möglich, in die JPEG-Ausgaben übernommen.
 
 Jedes Halbbild wird standardmäßig auf 2160 Pixel Höhe begrenzt; kleinere Fotos werden nicht vergrößert. **Originalgröße ausgeben** erhält die vollständigen, korrekt ausgerichteten Bildabmessungen.
 

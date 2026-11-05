@@ -75,7 +75,7 @@ The selected output location contains:
 | `_temp` | Reusable depth maps and cache data |
 | `depth_maps` | Optional 16-bit relative depth PNGs |
 
-SBS uses JPEG quality **95**, anaglyphs **90**; both use **4:4:4** without chroma subsampling. Suitable source metadata is copied to the JPEG outputs where technically possible.
+SBS uses JPEG quality **95**, anaglyphs and cross-view **90**; all use **4:4:4** without chroma subsampling. Suitable source metadata is copied to the JPEG outputs where technically possible.
 
 Each view is limited to 2160 pixels high by default, without upscaling smaller photographs. **Output original size** retains the full, correctly oriented source dimensions.
 

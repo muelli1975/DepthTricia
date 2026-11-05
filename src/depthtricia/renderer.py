@@ -1,7 +1,7 @@
 import time
 from .anaglyph import make_anaglyph
 from .floating_window import apply_floating_window
-from .output_writer import save_anaglyph_jpeg, save_sbs_jpeg
+from .output_writer import save_anaglyph_jpeg, save_cross_jpeg, save_sbs_jpeg
 
 
 def write_outputs(left, right, item, config, progress):
@@ -11,7 +11,7 @@ def write_outputs(left, right, item, config, progress):
     progress("save_sbs", 0.60)
     save_sbs_jpeg(left, right, item.sbs_path, config.jpeg_quality_sbs)
     if item.cross_path is not None:
-        save_sbs_jpeg(right, left, item.cross_path, config.jpeg_quality_sbs)
+        save_cross_jpeg(left, right, item.cross_path)
     progress("anaglyph", 0.72)
     start = time.perf_counter()
     anaglyph = make_anaglyph(left, right, gray=config.gray_anaglyph)
