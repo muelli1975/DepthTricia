@@ -64,7 +64,17 @@ def run(app_dir: Path) -> dict:
                 target_height=0, save_depth_map=True, save_cross=True, append_settings_to_filename=True)
             stages = []
             controller = ProcessingController(config, lambda event: stages.append(event.stage))
-            items = controller.run(source, temporary / "output")
+            from . import renderer as output_renderer
+            writer = output_renderer.save_sbs_jpeg
+            finished = {}
+            def capture_sbs(left, right, path, quality):
+                finished['left'], finished['right'] = left.copy(), right.copy()
+                return writer(left, right, path, quality)
+            output_renderer.save_sbs_jpeg = capture_sbs
+            try:
+                items = controller.run(source, temporary / "output")
+            finally:
+                output_renderer.save_sbs_jpeg = writer
             if len(items) != 1 or items[0].status != "ok":
                 raise RuntimeError("Packaged CPU conversion failed")
             for path, dimensions in ((items[0].sbs_path, (384, 128)),
@@ -78,8 +88,14 @@ def run(app_dir: Path) -> dict:
                 sbs = np.asarray(output)
             with Image.open(items[0].cross_path) as output:
                 cross = np.asarray(output)
-            if not (np.array_equal(cross[:, :192], sbs[:, 192:]) and np.array_equal(cross[:, 192:], sbs[:, :192])):
-                raise RuntimeError('Cross-view did not preserve the finished stereo eyes')
+            reference = temporary/'expected-cross.jpg'
+            Image.fromarray(np.concatenate([finished['right'], finished['left']], axis=1)).save(
+                reference, quality=90, subsampling=0)
+            with Image.open(reference) as expected, Image.open(items[0].cross_path) as actual:
+                np.testing.assert_array_equal(np.asarray(actual), np.asarray(expected))
+                assert actual.quantization == expected.quantization
+                from PIL import JpegImagePlugin
+                assert JpegImagePlugin.get_sampling(actual) == 0
             from .cache import load_depth
             import json
             import numpy as np
