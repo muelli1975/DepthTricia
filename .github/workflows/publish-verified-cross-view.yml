@@ -17,6 +17,9 @@ jobs:
       UPDATE_SOURCE_SHA: 063d5bf48a759fd8fa189465601b9a19340952b0
       REPO: ${{ github.repository }}
     steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.10'
       - uses: actions/checkout@v4
         with:
           ref: 063d5bf48a759fd8fa189465601b9a19340952b0
