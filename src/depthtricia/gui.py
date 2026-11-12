@@ -15,6 +15,7 @@ except ModuleNotFoundError as exc:
     ) from exc
 
 from . import __version__
+from .titlebar import install_tk_titlebars
 from .cache import clear_temporary_files
 from .config import ProcessingConfig, InferencePreset, BUILTIN_PRESETS
 from .presets import restore_presets, preset_choices
@@ -59,6 +60,7 @@ class DepthTriciaApp(ctk.CTk):
         self.preset_dialog = None
 
         ctk.set_appearance_mode("dark")
+        install_tk_titlebars(self)
         self.title(f"{APP_NAME} – {__version__}")
         self.geometry("1280x880")
         self.minsize(1100, 700)
