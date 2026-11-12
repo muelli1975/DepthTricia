@@ -1,0 +1,67 @@
+name: Refresh DepthTricia 1.0 title bars
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/title-bar-release.yml'
+      - '.github/title-bar-update.json'
+      - 'src/depthtricia/titlebar.py'
+
+permissions:
+  contents: write
+concurrency:
+  group: depthtricia-release-draft
+  cancel-in-progress: false
+
+jobs:
+  release:
+    if: github.event.head_commit.message == 'Refresh DepthTricia 1.0 title bars'
+    runs-on: windows-2025
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.10'
+      - name: Reuse the published model and runtime archives
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python scripts/prepare_title_bar_release.py prepare
+      - name: Rebuild the frozen application
+        shell: pwsh
+        run: |
+          python -m pip install pyinstaller==6.16.0
+          if ($LASTEXITCODE -ne 0) { throw 'PyInstaller installation failed' }
+          python -m PyInstaller --noconfirm --clean --distpath frozen --workpath build/title-bar TitleBarRelease.spec
+          if ($LASTEXITCODE -ne 0) { throw 'Application build failed' }
+          Copy-Item -LiteralPath 'frozen/DepthTricia/DepthTricia.exe' -Destination 'portable/DepthTricia/DepthTricia.exe' -Force
+      - name: Test the packaged application and CPU inference
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Path title-bar-release -Force | Out-Null
+          $report = Join-Path $env:GITHUB_WORKSPACE 'title-bar-release/smoke-test.json'
+          $application = Join-Path $env:GITHUB_WORKSPACE 'portable/DepthTricia/DepthTricia.exe'
+          $test = Start-Process -FilePath $application -ArgumentList @('--smoke-test', $report) -WindowStyle Hidden -Wait -PassThru
+          if (Test-Path -LiteralPath $report) { Get-Content -LiteralPath $report }
+          if ($test.ExitCode -ne 0 -or !(Test-Path -LiteralPath $report)) { throw 'Application smoke test failed' }
+          $result = Get-Content -LiteralPath $report -Raw | ConvertFrom-Json
+          foreach ($key in @('ok','gui','presets','depthpro_weights','depthpro_native','preset_model_device','depth_png','original_size','model_filename','da2_inference','stereo_inpainting','metadata','cache','offline','window_backshift','cross_view')) {
+            if ($result.$key -ne $true) { throw "Smoke check failed: $key" }
+          }
+          if ($result.inference_device -ne 'cpu' -or $result.cuda_runtime -ne '12.8') { throw 'Unexpected packaged runtime' }
+      - name: Check the application archive
+        run: python scripts/prepare_title_bar_release.py package
+      - name: Replace only the checked application package and report
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python scripts/publish_title_bar_update.py --root title-bar-release --config .github/title-bar-update.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: DepthTricia-title-bar-smoke
+          path: |
+            title-bar-release/smoke-test.json
+            portable/DepthTricia/depthtricia_error.log
+          if-no-files-found: ignore

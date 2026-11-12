@@ -15,6 +15,7 @@ on:
         default: true
 jobs:
   build:
+    if: github.event_name != 'push' || github.event.head_commit.message != 'Refresh DepthTricia 1.0 title bars'
     runs-on: windows-latest
     env:
       TORCH_BACKEND: ${{ inputs.torch_backend || 'cu128' }}

@@ -1,0 +1,22 @@
+{
+  "repository": "muelli1975/DepthTricia",
+  "tag": "v1.0",
+  "branch": "main",
+  "previous_tag": "063d5bf48a759fd8fa189465601b9a19340952b0",
+  "release_id": 412460164,
+  "assets": {
+    "DepthTricia_1.0.zip": "sha256:366d3ea56c7cd503752521229ff747664eb56a6498d04990a0a3863d93773a4a",
+    "DepthTricia_Models_DepthPro_1.0.zip": "sha256:4b4f26cd630f6cef10ebefe1c15d4ca214f884e6d062166b94eb5c133b1e8bba",
+    "DepthTricia_Runtime_1.0_01.zip": "sha256:7c1bffc8dce4b3cf595235b6b6e03dc39a2a8a8e77128dd587610b41adbd3530",
+    "DepthTricia_Runtime_1.0_02.zip": "sha256:05b87757a163433f550a33a554522acd2f5b6b079e366ca06628213aa130c917",
+    "DepthTricia_Runtime_1.0_03.zip": "sha256:dbdf51dd42f928fa0fa48415344fd0471fcf438f31c8a4ccecdb731020edce76",
+    "DepthTricia_Runtime_1.0_04.zip": "sha256:ff1a3a8fa95f3083a3d6d99d68f1d6616837d0126c84cc746ea4878233dea268",
+    "DepthTricia_Runtime_1.0_05.zip": "sha256:24d9b7d8261d03a72c08d97bd4076fbaa73e65aae84463c60f491d76eec640e1",
+    "smoke-test.json": "sha256:954b4e489019dc7dce2f6b968cfa187897957857853493287e74aefb2457fc5e"
+  },
+  "replace": [
+    "DepthTricia_1.0.zip",
+    "smoke-test.json"
+  ],
+  "release_note": "### Title bar maintenance update\n\n- Use a fixed dark title bar on Windows 11."
+}
