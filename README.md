@@ -20,7 +20,7 @@ Processing runs locally, without an account, cloud or tracking. Missing runtime 
 
 Download and extract [DepthTricia_1.0.zip](https://github.com/muelli1975/DepthTricia/releases/download/v1.0/DepthTricia_1.0.zip), then start `DepthTricia.exe`. DA2 and DA3 are included in the main ZIP. On first processing, the program asks before installing or downloading missing packages.
 
-For offline installation, download **all ZIP files from the same release** into one folder. Extract only [DepthTricia_1.0.zip](https://github.com/muelli1975/DepthTricia/releases/download/v1.0/DepthTricia_1.0.zip); leave the other ZIPs beside the extracted `DepthTricia` folder. They contain the matching CUDA 12.8 runtime packages and the original Apple Depth Pro checkpoint. Local packages are used first. Archives and installed files are checksum-verified; each ZIP is below 2 GiB. When updating 1.0, replace the application and obtain all matching runtime packages from the updated release; retain your `settings.json`.
+For offline installation, download **all ZIP files from the same release** into one folder. Extract only [DepthTricia_1.0.zip](https://github.com/muelli1975/DepthTricia/releases/download/v1.0/DepthTricia_1.0.zip); leave the other ZIPs beside the extracted `DepthTricia` folder. They contain the matching CUDA 12.8 runtime packages and the original Apple Depth Pro checkpoint. Local packages are used first. Archives and installed files are checksum-verified; each ZIP is below 2 GiB. When updating 1.0, replace the application and obtain all matching runtime packages from the updated release; retain the existing `settings.json`.
 
 Models are stored visibly in `models`. Existing models are loaded without network checks, accounts, tokens or a Hugging Face cache dependency.
 
