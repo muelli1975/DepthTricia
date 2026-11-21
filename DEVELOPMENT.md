@@ -205,7 +205,7 @@ switching, custom names/resolutions, settings persistence and busy states.
 
 ## 1.0 maintenance correction, 2026-10-16
 
-The Windows build uses PyTorch 2.8.0 / torchvision 0.23.0 with CUDA 12.8.
+The Windows build uses PyTorch 2.11.0 / torchvision 0.26.0 with CUDA 12.8.
 Application and runtime ZIPs belong to the same build; existing 12.6 libraries
 must not be mixed into the corrected package. Runtime archive counts are derived
 from the manifest, not fixed in installation instructions.
