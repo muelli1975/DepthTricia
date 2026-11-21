@@ -18,5 +18,12 @@ checkpoint in its own model ZIP, installed with the confirmed package setup.
 Split large runtime libraries into verified standard ZIP assets below 2 GiB.
 Install missing assets only after confirmation, with local ZIPs preferred.
 Use one common application; do not mix CPU-build and CUDA-build libraries.
-Use the existing Python entry point and DepthTricia.spec for the Windows executable.
-Do not introduce a separate C#/.NET launcher.
+Treat Christoph's explicit decisions as requirements throughout implementation,
+test builds and releases. Preserve their intent when choosing a language,
+tool or implementation. Before editing, check the relevant decisions against
+the proposed change. Before building, check the actual diff and build command.
+If work genuinely requires changing an agreed decision, explain the concrete
+conflict and obtain Christoph's agreement before implementing that deviation.
+Build the Windows executable directly from the existing Python entry point
+with DepthTricia.spec. Any additional starter, wrapper or bootstrap process
+for launching the application requires that prior agreement, in any language.
