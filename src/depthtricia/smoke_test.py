@@ -161,11 +161,29 @@ def run(app_dir: Path) -> dict:
             finally:
                 test_session.close()
         verify_model(app_dir / "models", FILES["moge3"])
-        from moge.model.v3 import MoGeModel
-        moge = MoGeModel.from_pretrained(app_dir / "models" / FILES["moge3"].filename)
-        assert hasattr(moge, "refiner")
-        del moge
-        return dict(zipdepth_cpu=True, moge3_weights_and_refiner=True, torch=torch.__version__, cuda_runtime=torch.version.cuda,
+        # Upstream FlexGEMM queries the GPU as soon as it is imported.
+        # Inspect the actual state on CPU without faking a CUDA device.
+        checkpoint = torch.load(app_dir / "models" / FILES["moge3"].filename,
+                                map_location="cpu", weights_only=True, mmap=True)
+        if not checkpoint["model_config"]["refiner"] or "refiner.out_proj.weight" not in checkpoint["model"]:
+            raise RuntimeError("MoGe-3 refinement weights are missing")
+        del checkpoint
+        # The CUDA driver uses Triton to compile and load a CPython extension.
+        # Exercise the portable compiler and Python headers without a GPU.
+        from triton.runtime.build import compile_module_from_src
+        from triton.backends.nvidia.compiler import get_ptxas_version
+        import os
+        from unittest.mock import patch
+        with patch.dict(os.environ, TRITON_CACHE_DIR=str(app_dir.parent / "smoke-triton-cache")):
+            module = compile_module_from_src(
+                '#include <Python.h>\n'
+                'static struct PyModuleDef m = {PyModuleDef_HEAD_INIT, "dt_probe", NULL, -1, NULL};\n'
+                'PyMODINIT_FUNC PyInit_dt_probe(void) { return PyModule_Create(&m); }', "dt_probe")
+            if module.__name__ != "dt_probe":
+                raise RuntimeError("Triton failed to load a compiled Python extension")
+            ptxas = get_ptxas_version(86)
+        return dict(zipdepth_cpu=True, moge3_refiner_checkpoint=True, moge3_gpu_inference=False,
+            triton_c_extension=True, ptxas=ptxas, torch=torch.__version__, cuda_runtime=torch.version.cuda,
             inference_device="cpu", gui=True, presets=True, preset_model_device=True, gui_layout=gui_report, da3_configuration=True,
             da3_parameters=da3_parameters, depthpro_import=True, depthpro_weights=True, depthpro_native=True, da2_inference=True,
             stereo_inpainting=True, outputs=True, cross_view=True, depth_png=True, original_size=True,

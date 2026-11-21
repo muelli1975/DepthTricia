@@ -29,7 +29,9 @@ jobs:
         shell: pwsh
         run: |
           python -m pip install torch==2.11.0 torchvision==0.26.0 --index-url "https://download.pytorch.org/whl/$env:TORCH_BACKEND"
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
           python -m pip install -r requirements.txt pyinstaller==6.16.0 pytest==8.4.2 matplotlib==3.10.7 triton-windows==3.6.0.post26
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
           python -m pip install "git+https://github.com/EasternJournalist/utils3d-moge@62f09d58509485564e24d5d9f6aac9ee9ebc0c37" "git+https://github.com/JeffreyXiang/FlexGEMM@b2fadb29d41846c7981ade6801ffc689fae119cf"
       - name: Check preset editor and responsive layout
         run: python scripts/check_gui.py

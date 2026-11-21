@@ -1,5 +1,9 @@
 # DepthTricia 1.0
 
+## Windows-Testbuild mit ZipDepth und MoGe-3
+
+Entpacke das heruntergeladene Testarchiv in einen eigenen Ordner. Entpacke darin `DepthTricia_1.0.zip` und lasse die Laufzeit- und Modell-ZIPs neben dem entstandenen Ordner `DepthTricia` liegen. Starte `DepthTricia.exe` und bestätige beim ersten Einsatz die lokale Einrichtung. Das Preset **ZipDepth** verwendet je nach Gerät die mitgelieferten CPU- oder CUDA-Gewichte. **MoGe-3 ViT-L** benötigt NVIDIA/CUDA und verwendet drei Verfeinerungsschritte. Seine Gewichte liegen in `DepthTricia_Models_MoGe3_Test.zip`.
+
 [Downloads und SHA-256](https://github.com/muelli1975/DepthTricia/releases/tag/v1.0) · [English](README.md)
 
 DepthTricia ist ein lokales Windows-Programm, das einzelne 2D-Fotos oder Bildordner in Stereo-3D umwandelt. Aus jedem Foto entstehen ein paralleles Side-by-Side-Stereobild (SBS) und eine Farb- oder Graustufen-Anaglyphe.
