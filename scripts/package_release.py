@@ -26,7 +26,7 @@ def prepare(include_da3=True):
         raise RuntimeError('Windows executable is missing.')
     for folder in ['assets', 'licenses', 'third_party']:
         shutil.copytree(ROOT / folder, application / folder, dirs_exist_ok=True,
-                        ignore=shutil.ignore_patterns('.git', '__pycache__', '*.pyc'))
+                        ignore=shutil.ignore_patterns('.git', '__pycache__', '*.pyc', 'checkpoints'))
     for name in ['README.md', 'README_DE.md', 'LICENSE.txt', 'THIRD_PARTY.md', 'DEVELOPMENT.md']:
         shutil.copyfile(ROOT / name, application / name)
     if not (ROOT / 'tools/exiftool.exe').is_file():
@@ -47,7 +47,7 @@ def prepare(include_da3=True):
     collect(application / 'LICENSES.txt')
     models = application / 'models'
     models.mkdir(exist_ok=True)
-    for key in ['da2', 'depthpro', 'warp', 'inpaint'] + (['da3'] if include_da3 else []):
+    for key in ['da2', 'depthpro', 'warp', 'inpaint', 'zipdepth', 'zipdepth_cpu', 'moge3'] + (['da3'] if include_da3 else []):
         spec = FILES[key]
         verify_model(ROOT / 'models', spec)
         shutil.copyfile(ROOT / 'models' / spec.filename, models / spec.filename)
@@ -58,7 +58,7 @@ def prepare(include_da3=True):
                 source_commit=subprocess.check_output(['git', '-C', str(ROOT), 'rev-parse', 'HEAD'], text=True).strip())
     (application / 'BUILD_INFO.json').write_text(json.dumps(info, indent=2), encoding='utf-8')
     from runtime_chunks import split_runtime
-    split_runtime(application, include_depthpro=True)
+    split_runtime(application, tag=None, include_depthpro=True, include_moge3=True)
     return application
 
 
@@ -67,15 +67,14 @@ def archive(application):
     runtime = json.loads((application / 'runtime_manifest.json').read_text(encoding='utf-8'))
     excluded = {application / item['path'] for item in runtime['files']}
     excluded.add(application / 'runtime_verified.json')
-    excluded.add(application / 'models/depth_pro.pt.verified.json')
+    excluded.update((application / 'models').glob('*.verified.json'))
+    excluded.add(application / 'runtime_verified_moge3.json')
     excluded.update(application / name for name in ['settings.json', 'depthtricia_error.log'])
     zip_folder(application, target, exclude=excluded)
     print(f'Complete archive: {target.stat().st_size / 1e6:.1f} MB', flush=True)
     models = application / 'models'
     if target.stat().st_size >= 2**31 and (models / FILES['da3'].filename).is_file():
-        (models / FILES['da3'].filename).unlink()
-        zip_folder(application, target, exclude=excluded)
-        print('DA3 did not fit in the main ZIP; the confirmed model downloader remains available.')
+        raise RuntimeError('Test build must include DA3. Main ZIP exceeds the 2 GiB limit.')
     if target.stat().st_size >= 2**31:
         raise RuntimeError('Application ZIP exceeds GitHub\'s 2 GiB asset limit.')
     print(f'{target.name}: {target.stat().st_size / 1e6:.1f} MB', flush=True)

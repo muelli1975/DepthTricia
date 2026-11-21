@@ -22,8 +22,8 @@ def destination(root, name):
     if '\\' in name or relative.is_absolute() or '..' in relative.parts:
         raise ValueError('Unsafe runtime path')
     is_library = relative.parts[:3] == ('_internal', 'torch', 'lib') and len(relative.parts) == 4
-    is_depthpro = relative.parts == ('models', FILES['depthpro'].filename)
-    if not (is_library or is_depthpro):
+    is_model = any(relative.parts == ("models", FILES[k].filename) for k in ("depthpro", "moge3"))
+    if not (is_library or is_model):
         raise ValueError('Unexpected runtime file location')
     result = root.joinpath(*relative.parts)
     if not result.resolve().is_relative_to(root.resolve()):
@@ -31,7 +31,7 @@ def destination(root, name):
     return result
 
 
-def manifest(root):
+def manifest(root, model_id=None):
     path = root / 'runtime_manifest.json'
     if not path.is_file():
         return None
@@ -44,20 +44,28 @@ def manifest(root):
         if item['path'] in files or item['size'] <= 0 or len(item['sha256']) != 64:
             raise ValueError('Invalid runtime file record')
         if item['path'].startswith('models/'):
-            spec = FILES['depthpro']
+            spec = next(FILES[k] for k in ('depthpro', 'moge3') if item['path'] == 'models/' + FILES[k].filename)
             if item['size'] != spec.size or item['sha256'] != spec.sha256:
-                raise ValueError('Depth Pro package does not match the official checkpoint')
+                raise ValueError('Model package does not match the official checkpoint')
         files.add(item['path'])
     assigned = []
     for item in data['archives']:
         if Path(item['filename']).name != item['filename'] or not 0 < item['size'] < 2**31:
             raise ValueError('Invalid runtime archive')
-        if not item['url'].startswith('https://github.com/muelli1975/DepthTricia/releases/download/'):
+        if item['url'] is not None and not item['url'].startswith('https://github.com/muelli1975/DepthTricia/releases/download/'):
             raise ValueError('Unexpected runtime download source')
         assigned.extend(item['paths'])
     if len(assigned) != len(set(assigned)) or set(assigned) != files:
         raise ValueError('Runtime archives do not cover the expected files')
+    if model_id != 'moge3':
+        optional = 'models/' + FILES['moge3'].filename
+        data['files'] = [item for item in data['files'] if item['path'] != optional]
+        data['archives'] = [item for item in data['archives'] if item['paths'] != [optional]]
     return data
+
+
+def receipt(root, model_id):
+    return root / ('runtime_verified_moge3.json' if model_id == 'moge3' else 'runtime_verified.json')
 
 
 def signature(root, data):
@@ -70,22 +78,22 @@ def signature(root, data):
     return dict(manifest=digest(root / 'runtime_manifest.json'), files=result)
 
 
-def missing_runtime(root):
-    data = manifest(root)
+def missing_runtime(root, model_id=None):
+    data = manifest(root, model_id)
     if data is None:
         return None
     try:
-        if json.loads((root / 'runtime_verified.json').read_text()) == signature(root, data):
+        if json.loads(receipt(root, model_id).read_text()) == signature(root, data):
             return None
     except (OSError, ValueError, KeyError):
         pass
     return data
 
 
-def install_runtime(root, *, confirmed, progress=None, cancelled=None):
+def install_runtime(root, *, model_id=None, confirmed, progress=None, cancelled=None):
     if not confirmed:
         raise PermissionError('Installation der Laufzeit wurde nicht bestätigt.')
-    data = manifest(root)
+    data = manifest(root, model_id)
     if data is None:
         return
     def check_cancelled():
@@ -108,6 +116,8 @@ def install_runtime(root, *, confirmed, progress=None, cancelled=None):
                 archive = candidate
                 break
         if archive is None:
+            if asset['url'] is None:
+                raise FileNotFoundError("Das passende Testpaket fehlt oder ist beschädigt: " + asset['filename'])
             directory = root / 'runtime_packages'
             spec = ModelFile(asset['filename'], asset['url'], asset['size'], asset['sha256'], 'Bundled runtime licenses')
             download_models(directory, (spec,), confirmed=True, progress=progress, cancelled=cancelled)
@@ -143,4 +153,4 @@ def install_runtime(root, *, confirmed, progress=None, cancelled=None):
                     target.parent.mkdir(parents=True, exist_ok=True)
                     (Path(staging) / PurePosixPath(name).name).replace(target)
     check_cancelled()
-    (root / 'runtime_verified.json').write_text(json.dumps(signature(root, data)), encoding='utf-8')
+    receipt(root, model_id).write_text(json.dumps(signature(root, data)), encoding='utf-8')

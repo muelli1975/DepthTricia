@@ -999,7 +999,7 @@ class DepthTriciaApp(ctk.CTk):
             return
         from .runtime_install import missing_runtime
         try:
-            self.pending_runtime = missing_runtime(self.app_dir)
+            self.pending_runtime = missing_runtime(self.app_dir, config.model_id)
         except (OSError, ValueError, KeyError, TypeError) as exc:
             messagebox.showerror(self.tr("dialog.error_title"), str(exc))
             return
@@ -1059,7 +1059,7 @@ class DepthTriciaApp(ctk.CTk):
                     self.ui_queue.put(("event", ProgressEvent("download", "progress.runtime_install", filename,
                         details={"filename": filename, "percent": received / total * 100})))
                 try:
-                    install_runtime(self.app_dir, confirmed=True, progress=runtime_progress,
+                    install_runtime(self.app_dir, model_id=config.model_id, confirmed=True, progress=runtime_progress,
                                     cancelled=self.cancel_event.is_set)
                 except DownloadCancelled:
                     self.ui_queue.put(("cancelled", None))

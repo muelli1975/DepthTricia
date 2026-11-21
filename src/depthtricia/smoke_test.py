@@ -21,7 +21,7 @@ def run(app_dir: Path) -> dict:
         # Start the GUI before installing the large libraries. Build tests use
         # verified local ZIPs; no online request is permitted in this test.
         from .runtime_install import install_runtime
-        install_runtime(app_dir, confirmed=True)
+        install_runtime(app_dir, model_id="moge3", confirmed=True)
         from .downloads import verify_model
         from .model_catalog import FILES
         verify_model(app_dir / 'models', FILES['depthpro'])

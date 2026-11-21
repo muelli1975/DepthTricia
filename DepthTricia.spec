@@ -1,5 +1,6 @@
+import sys
 from pathlib import Path
-from PyInstaller.utils.hooks import collect_data_files, collect_submodules
+from PyInstaller.utils.hooks import collect_all, collect_data_files, collect_submodules, copy_metadata
 
 ROOT = Path(SPECPATH).resolve()
 data = collect_data_files('customtkinter')
@@ -14,12 +15,24 @@ hidden += collect_submodules('timm')
 # DA3 selects these inference modules through configuration/importlib.
 hidden += ['depth_anything_3.model.da3', 'depth_anything_3.model.dinov2.dinov2',
            'depth_anything_3.model.dpt']
+# Triton reads its kernel sources and builds CPython extensions on first GPU use.
+binaries = []
+for name in ('triton', 'flex_gemm', 'utils3d_moge'):
+    files, libraries, modules = collect_all(name, include_py_files=True)
+    data.extend(files)
+    binaries.extend(libraries)
+    hidden.extend(modules)
+data += copy_metadata('triton-windows')
+data += [(str(Path(sys.base_prefix) / 'include'), 'include'),
+         (str(Path(sys.base_prefix) / 'libs/python312.lib'), 'libs')]
+hidden += ['triton.backends.nvidia.compiler', 'triton.backends.nvidia.driver',
+           'huggingface_hub', 'scipy.optimize', 'matplotlib.backends.backend_agg']
 analysis = Analysis([str(ROOT / 'launcher.py')],
     pathex=[str(ROOT / 'src'), str(ROOT / 'third_party/nunif'),
             str(ROOT / 'third_party/da2'), str(ROOT / 'third_party/da3/src'),
             str(ROOT / 'third_party/depthpro/src')],
-    binaries=[], datas=data, hiddenimports=hidden, hookspath=[], hooksconfig={},
-    runtime_hooks=[], excludes=['av', 'matplotlib', 'tensorboard', 'ninja'], noarchive=False)
+    binaries=binaries, datas=data, hiddenimports=hidden, hookspath=[], hooksconfig={},
+    runtime_hooks=[], excludes=['av', 'tensorboard', 'ninja', 'moge', 'zipdepth'], noarchive=False)
 pyz = PYZ(analysis.pure)
 icon = ROOT / 'assets/depthtricia.ico'
 exe = EXE(pyz, analysis.scripts, [], exclude_binaries=True, name='DepthTricia',

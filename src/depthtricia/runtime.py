@@ -5,6 +5,12 @@ from pathlib import Path
 
 
 def prepare_imports(app_dir: Path):
+    if getattr(sys, "frozen", False):
+        triton = Path(sys._MEIPASS) / "triton"
+        os.environ["CC"] = str(triton / "runtime/tcc/tcc.exe")
+        os.environ["CUDA_PATH"] = str(triton / "backends/nvidia")
+        os.environ["TRITON_CACHE_DIR"] = str(app_dir / "_temp/triton")
+        os.environ["FLEX_GEMM_AUTOTUNE_CACHE_PATH"] = str(app_dir / "_temp/flex_gemm.json")
     vendor = app_dir / "third_party"
     required = ("nunif", "da2", "da3", "depthpro")
     for name in required:

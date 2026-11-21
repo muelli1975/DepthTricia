@@ -13,7 +13,7 @@ def digest(path):
     return value.hexdigest()
 
 
-def split_runtime(application: Path, tag='v1.0', group_bytes=1024**3, *, include_depthpro=False):
+def split_runtime(application: Path, tag='v1.0', group_bytes=1024**3, *, include_depthpro=False, include_moge3=False):
     directory = application / '_internal/torch/lib'
     paths = sorted(path for path in directory.iterdir() if path.is_file())
     if not paths:
@@ -34,6 +34,8 @@ def split_runtime(application: Path, tag='v1.0', group_bytes=1024**3, *, include
         if not checkpoint.is_file():
             raise RuntimeError('Depth Pro checkpoint is missing')
         packages.append(('DepthTricia_Models_DepthPro_1.0.zip', [checkpoint]))
+    if include_moge3:
+        packages.append(('DepthTricia_Models_MoGe3_Test.zip', [application / 'models/moge3-vitl.pt']))
     files, archives = [], []
     for filename, group in packages:
         target = application.parent / filename
@@ -52,7 +54,7 @@ def split_runtime(application: Path, tag='v1.0', group_bytes=1024**3, *, include
         if target.stat().st_size >= 2**31:
             raise RuntimeError(f'{target.name} exceeds 2 GiB; reduce group size or split the offending native file.')
         archives.append(dict(filename=target.name, size=target.stat().st_size, sha256=digest(target),
-            paths=members, url=f'https://github.com/muelli1975/DepthTricia/releases/download/{tag}/{target.name}'))
+            paths=members, url=f'https://github.com/muelli1975/DepthTricia/releases/download/{tag}/{target.name}' if tag else None))
         print(f'{target.name}: {target.stat().st_size / 1e6:.1f} MB', flush=True)
     data = dict(version=1, files=files, archives=archives)
     (application / 'runtime_manifest.json').write_text(json.dumps(data, indent=2), encoding='utf-8')
