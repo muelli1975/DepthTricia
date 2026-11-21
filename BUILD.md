@@ -7,7 +7,7 @@ Create a virtual environment and install the matching PyTorch build:
 
 ```powershell
 py -3.12 -m venv .venv
-.venv\Scripts\python -m pip install torch==2.8.0 torchvision==0.23.0 --index-url https://download.pytorch.org/whl/cu128
+.venv\Scripts\python -m pip install torch==2.11.0 torchvision==0.26.0 --index-url https://download.pytorch.org/whl/cu128
 .venv\Scripts\python -m pip install -r requirements.txt pyinstaller==6.16.0
 .venv\Scripts\python scripts/prepare_runtime.py
 .venv\Scripts\python scripts/prepare_tools.py

@@ -18,6 +18,8 @@ and use in another GUI:
 https://github.com/nagadomi/nunif/discussions/720
 
 Pinned upstream source revisions are recorded in `dependencies.json`.
+The iw3 Edge Fix module (`iw3/dilation.py`) is copied verbatim from the separate
+revision listed there, keeping the existing RGB warp and inpainting interfaces.
 `scripts/prepare_runtime.py` prepares inference-only package initializers and
 redirects iw3's local hub/configuration folder to DepthTricia's `models`.
 Stereo model mathematics and learned weights are not modified.

@@ -26,6 +26,15 @@ def prepare(local_sources: Path | None = None):
             if not destination.exists():
                 subprocess.run(["git", "clone", "--no-checkout", "https://github.com/" + spec["repo"] + ".git", str(destination)], check=True)
             subprocess.run(["git", "-C", str(destination), "checkout", "--force", "--detach", spec["commit"]], check=True)
+        for filename, revision in spec.get("file_overrides", {}).items():
+            checkout = local_sources / name if local_sources else destination
+            if not local_sources and subprocess.run(
+                ["git", "-C", str(checkout), "cat-file", "-e", revision],
+                stderr=subprocess.DEVNULL,
+            ).returncode:
+                subprocess.run(["git", "-C", str(checkout), "fetch", "origin", revision], check=True)
+            contents = subprocess.check_output(["git", "-C", str(checkout), "show", f"{revision}:{filename}"])
+            (destination / filename).write_bytes(contents)
     # Only inference is used. Suppress eager training/loss imports, not math.
     nunif = vendor / "nunif"
     (nunif / "nunif/__init__.py").write_text('# DepthTricia inference-only packaging; see THIRD_PARTY.md.\n')
