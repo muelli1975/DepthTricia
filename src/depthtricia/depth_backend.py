@@ -5,7 +5,7 @@ import time
 import numpy as np
 
 from .config import ProcessingConfig
-from .model_catalog import FILES, MODEL_STANDARD_RESOLUTIONS
+from .model_catalog import checkpoint_for, MODEL_STANDARD_RESOLUTIONS
 from .runtime import prepare_imports
 from .stereo_geometry import normalize_disparity
 
@@ -43,8 +43,26 @@ class DepthSession:
         start = time.perf_counter()
         self.config, self.device = config, device
         self.model = None
-        checkpoint = config.models_dir / FILES[config.model_id].filename
-        if config.model_id == "da2":
+        checkpoint = config.models_dir / checkpoint_for(config.model_id, device.type).filename
+        self.zip_predictor = None
+        if config.model_id == "zipdepth":
+            from zipdepth.inference.predictor import DepthInference
+            precision = torch.get_float32_matmul_precision()
+            try:
+                self.zip_predictor = DepthInference(
+                    str(checkpoint), device=device.type, use_half=device.type == "cuda",
+                    input_size=config.preset.resolution or MODEL_STANDARD_RESOLUTIONS["zipdepth"],
+                    warmup_iters=0, upsample_unfold=device.type == "cuda",
+                )
+            finally:
+                torch.set_float32_matmul_precision(precision)
+            self.model = self.zip_predictor.model
+        elif config.model_id == "moge3":
+            if device.type != "cuda":
+                raise RuntimeError("MoGe-3 ViT-L benötigt eine NVIDIA-GPU mit CUDA.")
+            from moge.model.v3 import MoGeModel
+            self.model = MoGeModel.from_pretrained(checkpoint)
+        elif config.model_id == "da2":
             from depth_anything.dpt import DPT_DINOv2
             self.model = DPT_DINOv2(encoder="v2_vits", localhub=True)
             self.model.load_state_dict(torch.load(checkpoint, map_location="cpu", weights_only=True), strict=True)
@@ -69,12 +87,28 @@ class DepthSession:
         from iw3.dilation import dilate_edge
         from iw3.depth_anything_model import batch_preprocess
         from nunif.device import autocast
-        x = torch.from_numpy(np.ascontiguousarray(rgb)).permute(2, 0, 1).float().div_(255).unsqueeze(0).to(self.device)
+
         edge = (self.config.preset.edge_x, self.config.preset.edge_y)
         with torch.inference_mode():
+            if self.zip_predictor is not None:
+                tensor, _, _ = self.zip_predictor.image2tensor(np.ascontiguousarray(rgb[:, :, ::-1]))
+                disparity = self.model(tensor)
+            elif self.config.model_id == "moge3":
+                import cv2
+                h, w = rgb.shape[:2]
+                side = self.config.preset.resolution or MODEL_STANDARD_RESOLUTIONS["moge3"]
+                shape = (max(1, int(side * w / max(h, w))), max(1, int(side * h / max(h, w))))
+                image = cv2.resize(rgb, shape, interpolation=cv2.INTER_AREA)
+                x = torch.from_numpy(image).to(self.device).permute(2, 0, 1).float().div_(255)
+                output = self.model.infer(x, resolution_level=9, refine_steps=3, use_fp16=True)
+                z = output["depth"].float()
+                valid = output["mask"] & torch.isfinite(z) & (z > 0)
+                disparity = torch.where(valid, z.reciprocal(), 0.)
+            else:
+                x = torch.from_numpy(np.ascontiguousarray(rgb)).permute(2, 0, 1).float().div_(255).unsqueeze(0).to(self.device)
             if self.config.model_id == "depthpro":
                 disparity = _infer_depthpro_native(self.model, x)
-            else:
+            elif self.config.model_id in {"da2", "da3"}:
                 default = MODEL_STANDARD_RESOLUTIONS[self.config.model_id]
                 resolution = self.config.preset.resolution or default
                 resolution = ((resolution + 13) // 14) * 14
@@ -99,6 +133,7 @@ class DepthSession:
             return normalize_disparity(disparity[0, 0].cpu().numpy())
 
     def close(self):
+        self.zip_predictor = None
         self.model = None
         import gc
         gc.collect()

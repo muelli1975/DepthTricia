@@ -12,21 +12,30 @@ class ModelFile:
     license: str
 
 
-DEPTH_MODELS = {"da2": "Depth Anything V2 Small", "da3": "Depth Anything 3 Mono Large", "depthpro": "Depth Pro"}
-MODEL_STANDARD_RESOLUTIONS = {"da2": 518, "da3": 504, "depthpro": 1536}
-MODEL_FILENAME_TAGS = {"da2": "DA2Small", "da3": "DA3MonoLarge", "depthpro": "DepthPro"}
+DEPTH_MODELS = {"da2": "Depth Anything V2 Small", "da3": "Depth Anything 3 Mono Large", "depthpro": "Depth Pro", "zipdepth": "ZipDepth", "moge3": "MoGe-3 ViT-L"}
+MODEL_STANDARD_RESOLUTIONS = {"da2": 518, "da3": 504, "depthpro": 1536, "zipdepth": 384, "moge3": 700}
+MODEL_FILENAME_TAGS = {"da2": "DA2Small", "da3": "DA3MonoLarge", "depthpro": "DepthPro", "zipdepth": "ZipDepth", "moge3": "MoGe3ViTL"}
 FILES = {
     "da2": ModelFile("depth_anything_v2_vits.pth", "https://huggingface.co/depth-anything/Depth-Anything-V2-Small/resolve/main/depth_anything_v2_vits.pth", 99218434, "715fade13be8f229f8a70cc02066f656f2423a59effd0579197bbf57860e1378", "Apache-2.0"),
     "da3": ModelFile("da3mono-large.safetensors", "https://huggingface.co/depth-anything/DA3MONO-LARGE/resolve/main/model.safetensors", 1336734448, "7a799a7f95eb8d4c404c2ca8be3dc3276b350a417ddc4420db72ba850cc0e960", "Apache-2.0"),
     "depthpro": ModelFile("depth_pro.pt", "https://ml-site.cdn-apple.com/models/depth-pro/depth_pro.pt", 1904446787, "3eb35ca68168ad3d14cb150f8947a4edf85589941661fdb2686259c80685c0ce", "Apple-ASCL"),
+    "zipdepth": ModelFile("zipdepth_base.pth", "https://raw.githubusercontent.com/fabiotosi92/ZipDepth/91f3fd21e131641f51e8d35736d1958350180e3a/checkpoints/zipdepth_base.pth", 27298978, "a55910bb0b99c8c5e641cb9206e810b269690ad94e8a2ef08c827c4679391a65", "MIT"),
+    "zipdepth_cpu": ModelFile("zipdepth_base_npu.pth", "https://raw.githubusercontent.com/fabiotosi92/ZipDepth/91f3fd21e131641f51e8d35736d1958350180e3a/checkpoints/zipdepth_base_npu.pth", 27295474, "627c04fda584133ead4310074884a4a037061b4c01ba86e73e492ea30fab570d", "MIT"),
+    "moge3": ModelFile("moge3-vitl.pt", "https://huggingface.co/Ruicheng/moge-3-vitl/resolve/184008f877d7ad1ad4c2cd2182a9bd1f63d0e5be/model.pt", 1481333394, "9b41b7b9f65ad80aab7ad686f5e9cc0d1fd33f1964022618dfbcd52fc1fb7925", "MIT"),
     "warp": ModelFile("iw3_mask_mlbw_l2_d1_20250903.pth", "https://github.com/nagadomi/nunif/releases/download/0.0.0/iw3_mask_mlbw_l2_d1_20250903.pth", 958587, "fe3ab406ba102662550e34798eac03c0e14b9486bcdc460b0b0e4b97dccfb1b7", "MIT"),
     "inpaint": ModelFile("iw3_light_inpaint_v1_20250919.pth", "https://github.com/nagadomi/nunif/releases/download/0.0.0/iw3_light_inpaint_v1_20250919.pth", 9070711, "8b1a85df321ede3ea45d0b37a7f2c509e941687c062e1d584aab8808c253db6d", "MIT"),
 }
 
 
+def checkpoint_for(model_id, device_type):
+    return FILES["zipdepth_cpu" if model_id == "zipdepth" and device_type == "cpu" else model_id]
+
+
 def required_files(model_id: str) -> tuple[ModelFile, ...]:
     if model_id not in DEPTH_MODELS:
         raise ValueError("Unbekanntes Tiefenmodell.")
+    if model_id == "zipdepth":
+        return FILES[model_id], FILES["zipdepth_cpu"], FILES["warp"], FILES["inpaint"]
     return FILES[model_id], FILES["warp"], FILES["inpaint"]
 
 

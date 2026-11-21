@@ -14,7 +14,7 @@ def prepare_imports(app_dir: Path):
     os.environ["HF_HUB_OFFLINE"] = "1"
     os.environ["TRANSFORMERS_OFFLINE"] = "1"
     os.environ["XFORMERS_DISABLED"] = "1"
-    for path in (vendor / "nunif", vendor / "da2", vendor / "da3/src", vendor / "depthpro/src"):
+    for path in (vendor / "nunif", vendor / "da2", vendor / "da3/src", vendor / "depthpro/src", vendor / "zipdepth", vendor / "moge3"):
         value = str(path)
         if value not in sys.path:
             sys.path.insert(0, value)

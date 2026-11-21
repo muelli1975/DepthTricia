@@ -7,7 +7,7 @@ from .config import ProcessingConfig
 from .downloads import verify_model
 from .image_input import collect_images, load_work_image, make_item_key
 from .metadata import copy_metadata_to_outputs
-from .model_catalog import FILES, missing_files, required_files
+from .model_catalog import checkpoint_for, missing_files, required_files
 from .models import ProcessingItem, ProgressEvent
 from .naming import build_output_suffix
 from .output_writer import save_depth_png
@@ -58,7 +58,7 @@ class ProcessingController:
             directory.mkdir(parents=True, exist_ok=True)
         suffix = build_output_suffix(self.config)
         items, records, pending = [], {}, []
-        checkpoint = self.config.models_dir / FILES[self.config.model_id].filename
+        checkpoint = self.config.models_dir / checkpoint_for(self.config.model_id, device.type).filename
         for index, source in enumerate(images, 1):
             self._check_cancelled()
             key = make_item_key(source, input_path)

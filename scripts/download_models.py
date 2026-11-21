@@ -5,12 +5,12 @@ import argparse
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
-from depthtricia.model_catalog import required_files, missing_files
+from depthtricia.model_catalog import DEPTH_MODELS, missing_files
 from depthtricia.downloads import download_models
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("models", nargs="+", choices=["da2", "da3", "depthpro"])
+    parser.add_argument("models", nargs="+", choices=list(DEPTH_MODELS))
     parser.add_argument("--confirm", action="store_true")
     args = parser.parse_args()
     specs = {spec.filename: spec for model in args.models for spec in missing_files(ROOT / "models", model)}

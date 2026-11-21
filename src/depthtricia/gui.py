@@ -330,7 +330,7 @@ class DepthTriciaApp(ctk.CTk):
         if self.model_id == "depthpro" or resolution == 0:
             resolution = MODEL_STANDARD_RESOLUTIONS[self.model_id]
         device = {"auto": self.tr("device.auto"), "cuda": "NVIDIA", "cpu": "CPU"}[self.device_id]
-        self.preset_info.configure(text=f"{names[self.model_id]} · {resolution} px · "
+        self.preset_info.configure(text=f"{names.get(self.model_id, DEPTH_MODELS[self.model_id])} · {resolution} px · "
             f"{device} · Edge Fix {self.depth_preset.edge_x}/{self.depth_preset.edge_y}")
 
     def apply_profile(self, profile, *, name="", builtin=None):

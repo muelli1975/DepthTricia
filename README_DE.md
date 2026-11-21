@@ -100,3 +100,21 @@ Ziel ist, DepthTricia für spätere Weiterentwicklung und die stereoskopische Ge
 Copyright Christoph Müller. Eigener DepthTricia-Quellcode und eigene Dokumentation stehen unter der **MIT-Lizenz**. Drittkomponenten und Modellgewichte behalten ihre jeweiligen Lizenzen, einschließlich der Apple-Bedingungen für Depth Pro.
 
 Siehe [LICENSE.txt](LICENSE.txt) und [THIRD_PARTY.md](THIRD_PARTY.md).
+
+### Windows-Testbuild mit ZipDepth und MoGe-3
+
+Das GitHub-Actions-Testpaket in einen kurzen, eigenen Pfad entpacken (zum
+Beispiel C:\DepthTest). Einmal **Testbuild_entpacken.cmd** starten. Die lokalen
+Pakete werden per SHA-256 geprüft und gemeinsam nach **DepthTricia-Test**
+entpackt. Anschließend **DepthTricia.exe** aus diesem Ordner starten. Alle fünf
+Tiefenmodelle, Warping, Inpainting und die passende Laufzeit sind dabei.
+Der Testbuild kann parallel zur veröffentlichten Version verwendet werden.
+
+Im Preset-Menü **ZipDepth** oder **MoGe-3 ViT-L (NVIDIA)** auswählen. ZipDepth
+verwendet 384 Pixel an der kurzen Seite und wählt den offiziellen Checkpoint
+passend zum Berechnungsgerät. MoGe-3 verwendet im Testpreset 700 Pixel an der
+langen Seite und drei Verfeinerungsschritte auf der NVIDIA-GPU. Beim ersten
+Bild kann die lokale Übersetzung der Triton-Kernel länger dauern. Höhere
+Auflösungen im Preseteditor erhöhen den Speicherbedarf. Für einen Vergleich
+mit DA3 „Dateiname um Einstellungen ergänzen“ und „Tiefenkarte als PNG
+speichern“ einschalten.

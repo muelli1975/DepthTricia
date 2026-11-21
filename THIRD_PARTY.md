@@ -39,3 +39,10 @@ ExifTool 13.59 x64 is bundled unchanged apart from renaming its launcher to
 texts remain under `tools/exiftool_files` (including Strawberry Perl notices).
 Source and installation documentation: https://exiftool.org/ .
 The build-time archive URL and SHA-256 are pinned in `scripts/prepare_tools.py`.
+
+The Windows model test bundles ZipDepth (MIT) and MoGe-3 ViT-L (MIT,
+DINOv2 components Apache-2.0). Source revisions are listed in dependencies.json
+and the checkpoint hashes in model_catalog.py. MoGe-3 uses the upstream
+FlexGEMM Triton backend with triton-windows. The portable test includes a
+CPython interpreter, its development headers and the matching import libraries
+for local compilation of the GPU kernels. See licenses and LICENSES.txt.

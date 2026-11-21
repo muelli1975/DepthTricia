@@ -146,7 +146,26 @@ def run(app_dir: Path) -> dict:
                         raise RuntimeError('Scene setback changed the deviation span')
         finally:
             stereo.close()
-        return dict(torch=torch.__version__, cuda_runtime=torch.version.cuda,
+        # Exercise the two experimental entries with the shipped interpreter.
+        from .depth_backend import DepthSession
+        import numpy as np
+        with tempfile.TemporaryDirectory() as test_dir:
+            rgb = np.zeros((128, 192, 3), dtype=np.uint8)
+            rgb[:, 64:128] = 190
+            zip_config = ProcessingConfig(app_dir, model_id="zipdepth", device="cpu",
+                                          preset=DepthPreset(resolution=0))
+            test_session = DepthSession(zip_config, torch.device("cpu"))
+            try:
+                result = test_session.infer(rgb)
+                assert np.isfinite(result).all() and result.max() > result.min()
+            finally:
+                test_session.close()
+        verify_model(app_dir / "models", FILES["moge3"])
+        from moge.model.v3 import MoGeModel
+        moge = MoGeModel.from_pretrained(app_dir / "models" / FILES["moge3"].filename)
+        assert hasattr(moge, "refiner")
+        del moge
+        return dict(zipdepth_cpu=True, moge3_weights_and_refiner=True, torch=torch.__version__, cuda_runtime=torch.version.cuda,
             inference_device="cpu", gui=True, presets=True, preset_model_device=True, gui_layout=gui_report, da3_configuration=True,
             da3_parameters=da3_parameters, depthpro_import=True, depthpro_weights=True, depthpro_native=True, da2_inference=True,
             stereo_inpainting=True, outputs=True, cross_view=True, depth_png=True, original_size=True,

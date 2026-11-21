@@ -43,6 +43,8 @@ BUILTIN_PRESETS = {
     "quick": InferencePreset(model_id="da2", resolution=0),
     "balanced": InferencePreset(resolution=0),
     "fine": InferencePreset(resolution=2048),
+    "zipdepth": InferencePreset(model_id="zipdepth", resolution=0),
+    "moge3": InferencePreset(model_id="moge3", device="cuda", resolution=0),
     "depthpro": InferencePreset(model_id="depthpro", resolution=0),
 }
 

@@ -1,5 +1,6 @@
 from pathlib import Path
 import argparse
+from .model_catalog import DEPTH_MODELS
 from .config import ProcessingConfig, DepthPreset
 from .controller import ProcessingController
 
@@ -9,7 +10,7 @@ def main():
     parser.add_argument("input", type=Path)
     parser.add_argument("output", type=Path)
     parser.add_argument("--app-dir", type=Path, default=Path(__file__).resolve().parents[2])
-    parser.add_argument("--model", choices=["da2", "da3", "depthpro"], default="da3")
+    parser.add_argument("--model", choices=list(DEPTH_MODELS), default="da3")
     parser.add_argument("--device", choices=["auto", "cpu", "cuda"], default="auto")
     parser.add_argument("--resolution", type=int, default=1218)
     parser.add_argument("--deviation", type=float, default=15)

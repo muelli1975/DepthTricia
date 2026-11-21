@@ -121,6 +121,8 @@
   "preset.fine": "Fine (experimental)",
   "preset.own_suffix": " (custom)",
   "preset.cpu": "CPU",
+  "preset.zipdepth": "ZipDepth",
+  "preset.moge3": "MoGe-3 ViT-L (NVIDIA)",
   "preset.depthpro": "Depth Pro",
   "preset.create": "Create custom preset …",
   "preset.edit": "Edit preset …",

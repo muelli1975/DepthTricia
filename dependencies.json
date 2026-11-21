@@ -2,6 +2,8 @@
   "nunif": {"repo": "nagadomi/nunif", "commit": "9fd1812477a2a7f372c87ac7ac14fdfab0a7c3ed",
     "file_overrides": {"iw3/dilation.py": "c43dced4e2f258eaf5e53df424d88eca3d4d357f"}
   },
+  "zipdepth": {"repo": "fabiotosi92/ZipDepth", "commit": "91f3fd21e131641f51e8d35736d1958350180e3a"},
+  "moge3": {"repo": "microsoft/MoGe", "commit": "74fbce054ebed49800de42d0ad0e83495065719a"},
   "da2": {"repo": "nagadomi/Depth-Anything_iw3", "commit": "92eaac92bcc2c275f48c1f866ec708861055e435"},
   "da3": {"repo": "nagadomi/Depth-Anything-3_iw3", "commit": "1087894cb489ed7b299a197610a6a9c781ef266c"},
   "depthpro": {"repo": "apple-aiml-research/ml-depth-pro", "commit": "9e65e4dbe9568d23c546fcec53302b10445e109e"}
