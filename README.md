@@ -100,12 +100,3 @@ The aim is to keep DepthTricia understandable and usable for future development 
 Copyright Christoph Müller. Original DepthTricia code and documentation use the **MIT License**. Third-party components and model weights retain their own licenses, including Apple's terms for Depth Pro.
 
 See [LICENSE.txt](LICENSE.txt) and [THIRD_PARTY.md](THIRD_PARTY.md).
-
-### Windows test build with ZipDepth and MoGe-3
-
-Extract the Actions artifact into a short, new path. Run **Testbuild_entpacken.cmd**
-once to verify and unpack the local archives, then start **DepthTricia.exe** in
-**DepthTricia-Test**. Both presets appear in the existing preset menu.
-ZipDepth defaults to 384 pixels on the short side. MoGe-3 ViT-L uses CUDA,
-three refinement steps and a 700-pixel long side. Its first image may take
-longer while GPU kernels are compiled. All five depth models are included.

@@ -1,51 +1,18 @@
-name: Windows ZipDepth and MoGe-3 test build
+name: Stop superseded model test
 on:
   push:
-    branches: ['test/zipdepth-moge3*']
-  workflow_dispatch:
-permissions:
-  contents: read
+    branches: [test/zipdepth-moge3]
 jobs:
-  portable:
-    runs-on: windows-latest
-    env:
-      PIP_NO_CACHE_DIR: '1'
-      PYTHONUTF8: '1'
+  stop:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - name: Create isolated build environment
-        shell: pwsh
+      - name: Stop the superseded Windows build
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          python -m venv buildenv
-          Add-Content $env:GITHUB_PATH (Join-Path (Get-Location) 'buildenv/Scripts')
-      - name: Install runtime
-        run: |
-          python -m pip install torch==2.11.0 torchvision==0.26.0 --index-url https://download.pytorch.org/whl/cu128
-          python -m pip install -r requirements.txt pytest==8.4.2 matplotlib==3.10.7 triton-windows==3.6.0.post26
-          python -m pip install "git+https://github.com/EasternJournalist/utils3d-moge@62f09d58509485564e24d5d9f6aac9ee9ebc0c37" "git+https://github.com/JeffreyXiang/FlexGEMM@b2fadb29d41846c7981ade6801ffc689fae119cf"
-      - name: Prepare models and run checks
-        run: |
-          python scripts/prepare_runtime.py
-          python scripts/prepare_tools.py
-          python scripts/download_models.py da2 da3 depthpro zipdepth moge3 --confirm
-          python -m pytest -q
-      - name: Assemble and verify portable app offline
-        shell: pwsh
-        run: |
-          python scripts/model_test/build.py assemble
-          if ($LASTEXITCODE) { exit $LASTEXITCODE }
-          $report = Join-Path (Get-Location) 'build/smoke-test.json'
-          $process = Start-Process build/DepthTricia-Test/DepthTricia.exe -ArgumentList @('--smoke-test', $report) -Wait -PassThru
-          if (Test-Path $report) { Get-Content $report }
-          if ($process.ExitCode -ne 0 -or !(Test-Path $report)) { throw 'Offline test failed' }
-          python scripts/model_test/build.py pack
-      - uses: actions/upload-artifact@v4
-        with:
-          name: DepthTricia-Windows-x64-ZipDepth-MoGe3
-          path: dist/DepthTricia-Windows-Test/*
-          if-no-files-found: error
-          compression-level: 0
-          retention-days: 14
+          run_state=$(gh api repos/muelli1975/DepthTricia/actions/runs/44876003386 --jq .status)
+          if [ "$run_state" != "completed" ]; then
+            gh api --method POST repos/muelli1975/DepthTricia/actions/runs/44876003386/cancel
+          fi

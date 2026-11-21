@@ -18,3 +18,5 @@ checkpoint in its own model ZIP, installed with the confirmed package setup.
 Split large runtime libraries into verified standard ZIP assets below 2 GiB.
 Install missing assets only after confirmation, with local ZIPs preferred.
 Use one common application; do not mix CPU-build and CUDA-build libraries.
+Use the existing Python entry point and DepthTricia.spec for the Windows executable.
+Do not introduce a separate C#/.NET launcher.
